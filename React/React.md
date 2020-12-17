@@ -13,6 +13,26 @@ React是facebook开源的一个js函数库，结合周边生态（redux，react-
 
 
 
+下载react
+
+在使用react开发网页时，会下载两个包，一个是react，一个是react-dom，其中react包是react的核心代码，react-dom则是React剥离出的涉及DOM操作的部分。
+
+react的核心思想是虚拟DOM，react包含了生成虚拟DOM的函数react.createElement，及Component类。当我们自己封装组件时，就需要继承Component类，才能使用生命周期函数等。而react-dom包的核心功能就是把这些虚拟DOM渲染到文档中变成实际DOM。
+
+```
+npm i react react-dom
+```
+
+
+
+下载babel
+
+```
+npm i babel-preset-react -D
+```
+
+
+
 
 
 # 脚手架
@@ -544,7 +564,7 @@ constructor函数的this.state属性是一个对象，用于保存组件的数�
 
 **JSX中调用的方法内this默认指向undefined**
 
-组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，如果需要指向组件，需要在JSX中使用`this.方法.bind(this)`来使用这个方法
+组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，如果需要指向组件，需要在JSX中使用`this.方法.bind(this)`来使用这个方法（或者编写方法时使用）
 
 建议所有方法都在state中提前保存bind，JSX使用时直接使用this.方法即可
 
@@ -918,7 +938,44 @@ React不算mvvm而是mv*，虽然可以实现双向绑定，在React中实现双
 
 
 
-## PropTypes/DefaultProps
+
+
+
+
+# 数据驱动
+
+一旦改变state或者props内的数据，组件的render函数就会重新执行并渲染页面。页面是由render函数渲染出来的，所以数据变化页面就会跟着变化。
+
+父组件的render函数执行时，内部的子组件也会被重新渲染，所以子组件的render函数也都会被重新执行一次
+
+
+
+# prop-types
+
+prop-types是用于检验react组件props的库
+
+```
+npm i prop-types
+```
+
+在组件中声明静态属性propTypes，但props属性与propTypes规定不符时就会报错
+
+```react
+import PropTypes from 'prop-types';
+import React from 'react';
+
+class Menu extends React.Component {
+  static propTypes = {
+    mockTemplate: PropTypes.any,
+    curMockItem: PropTypes.object,
+    getMockList: PropTypes.func,
+    setCurMockItem: PropTypes.func
+  }
+	...
+}
+```
+
+## PropTypes/defaultProps
 
 PropTypes是一个插件（需要安装并引入）。PropTypes用于父组件传递给子组件的数据属性类型的校验,DefaultProps是用来给父组件没传值的属性赋默认值。类似vue自带的类型检测的type和default。
 
@@ -928,7 +985,7 @@ PropTypes是一个插件（需要安装并引入）。PropTypes用于父组件�
 
 
 
-oneOfType类型多选一
+- oneOfType   类型多选一
 
 `类名.propTypes = {属性:PropTypes.oneOfType(PropTypes.string,PropTypes.number)}`
 
@@ -936,7 +993,7 @@ oneOfType类型多选一
 
 
 
-arrayType限制数组item的类型
+- arrayType    限制数组item的类型
 
 ```
 类名.propTypes = {属性:PropTypes.arrayType(PropTypes.string,PropTypes.number)}
@@ -971,7 +1028,7 @@ export default TodoItem
 
 ### .isRequired
 
-这个后缀跟在PropTypes.类型后，表示对这个属性有一定限制
+这个后缀跟在`PropTypes.类型.`后，表示对这个属性有一定限制
 
 `.isRequired`后缀表示这个属性父组件必须传递给子组件不能省略，如果父组件没传，也没有DefaultProps默认值，就会触发警告。
 
@@ -982,16 +1039,6 @@ TodoItem.propTypes = {
   index: PropTypes.number
 }
 ```
-
-
-
-
-
-# 数据驱动
-
-一旦改变state或者props内的数据，组件的render函数就会重新执行并渲染页面。页面是由render函数渲染出来的，所以数据变化页面就会跟着变化。
-
-父组件的render函数执行时，内部的子组件也会被重新渲染，所以子组件的render函数也都会被重新执行一次
 
 
 
@@ -1078,7 +1125,7 @@ export default TodoListUI
 
 # 无状态组件
 
-当一个组件（例如UI组件）只有render函数时，可以将它定义为一个无状态组件（函数），无状态组件写成一个函数的形式，函数接收一个props参数，这个函数返回JSX
+当一个组件（例如UI组件）只有render函数时，可以将它定义为一个无状态组件（函数），无状态组件写成一个函数的形式，**函数接收一个props参数（可以接受父组件在子组件上挂载的数据）**，这个函数返回JSX
 
 注意无状态组件中不可以使用this，跟普通UI差别在于JSX中的this.props可以直接替换为props，无状态组件的性能较高，因为他就是一个函数，而UI组件是一个类，自带一些无用的生命周期函数，也不会生成组件的实例浪费性能。
 
@@ -1115,6 +1162,17 @@ const TodoListUI = (props) => {
 ```
 
 
+
+# 插槽
+
+react中也可以实现类似vue中插槽的功能，子组件是会挂载到父组件的props.children属性上（多个组件会形成数组），并且在函数组件中，函数是可以传入一个对象参数的，这个对象就是props
+
+```
+<a title='aaa'>
+  <b></b>
+</a>
+此时就可以从组件a.props.title提取出aaa，从props.children上提取出b组件实例
+```
 
 
 

@@ -6009,17 +6009,25 @@ rules:[{
 }]
 ```
 
-```javascript
+
+
+## 装饰器类型
+
+- 类装饰器
+
+  类的装饰器函数的第一个参数，就是所有装饰的目标类，装饰器对类的行为的改变是代码编译时发生的，而不是在运行时。这意味着，装饰器能够在编译阶段运行代码。也就是说，装饰器本质就是编译时执行的函数。
+
+```js
 // 类装饰器
 // 在类声明阶段执行
 function log(target) {
-    const desc  = Object.getOwnPropertyDescriptors(target.prototype)
+    // 此处的target为类本身
+    const desc = Object.getOwnPropertyDescriptors(target.prototype)
     for (const key of Object.keys(desc)) {
         if(key === 'constructor') {
             continue;
         }
         const func = desc[key].value
-
         if('function' === typeof func) {
             // 如果实例调用类的方法则执行
             Object.defineProperty(target.prototype, key, {
@@ -6031,18 +6039,37 @@ function log(target) {
                 }
             })
         }
-
     }
 }
+```
 
+
+
+- 属性装饰器
+
+  第一个参数target为类生成的实例对象，第二个参数key为装饰器的类成员的名称，第二个参数descriptor为该类成员的属性特征
+
+```js
 // 属性装饰器
 function readonly(target, key, descriptor) {
 // 第一个参数target为类的实例对象
-// 第二个参数key为装饰器的类成员的名称（number）
+// 第二个参数key为装饰器的类成员的名称（即number）
 // 第二个参数descriptor为该类成员的属性特征
     descriptor.writable = false
 }
+```
 
+
+
+- 方法装饰器
+
+  与装饰类不同，对类方法的装饰本质是操作其描述符，可以把此时的装饰器理解成是 `Object.defineProperty(obj, prop, descriptor)` 的语法糖（**ps：装饰器的本意是要装饰类的实例，但编译阶段实例还未生成，所以此时方法装饰器只能装饰类的原型，而类装饰器中的target则指类本身**）
+
+  第一个参数target为类的原型对象，即方法Class.prototype
+  第二个参数key为要装饰的方法(属性名)
+  第三个参数descriptor为要修饰的方法(属性名)的描述符
+
+```javascript
 // 方法装饰器
 // 检查方法的每一个参数是不是都是数字，如果不是则抛出错误，如果是则正常执行
 function validate(target, key, descriptor) {
@@ -6057,7 +6084,11 @@ function validate(target, key, descriptor) {
     }
 }
 
+```
 
+
+
+```js
 @log
 class N {
     @readonly number=123

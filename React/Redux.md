@@ -6,13 +6,20 @@
 npm install redux
 ```
 
-React是单项数据流，React中Redux导出的store是唯一的，且只有store能改变自己的数据，reducer不能改变store，只能接收action并返回一个数据对象state，store拿到这个返回的state对象自己更新自己的数据
+React是单项数据流且是函数式编程思想
+
+React中Redux导出的store是唯一的，且只有store能改变自己的数据，reducer不能改变store，只能接收action并返回一个数据对象state，store拿到这个返回的state对象自己更新自己的数据
+
+安装React绑定库和开发者工具
+
+```
+npm install --save react-redux
+npm install --save-dev redux-devtools
+```
 
 
 
 src目录下建一个store文件夹，建立两个js文件reducer.js和index.js
-
-
 
 
 
@@ -108,19 +115,23 @@ export {store}
 
 但是store数据修改了，页面并不会直接更新，每次store数据修改就会自动触发`store.subscribe(func)`中的回调，通知组件数据已经修改了，我们在回调中使用setState进行组件的state数据修改
 
-```javascript
 组件修改数据流程
 1） 创建action对象
+
+```js
 const action  = {
   type: 'changeInputValue',
   value:  e.target.value
 }
+```
 
 2） dispatch给store进行处理
+
+```
 store.dispatch(action)
+```
 
 3）store调用reducer.js导出的函数以state和action为参数进行数据修改
-```
 
 ```react
 import React from 'react'

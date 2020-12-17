@@ -333,26 +333,30 @@ npm install -d 就是 npm install --save-dev 安装到开发环境 例如 gulp �
 
 
 
+- 下载指定版本
+
+```
+npm i 包名@版本号
+```
+
 
 
 
 
 ## 导入第三方模块或文件
 
-```
 下载第三方模块或文件后需要在用require导入
-例如：const fs= require('fs');   导入文件操作模块
+例如：`const fs= require('fs');  ` 导入文件操作模块
 
 1.require('第三方包名')优先加载该包的文件同级目录下的node_modules目录下去查找相关包
 
 2.找到该第三方包中的pageage.json文件，并找到该报里面的main属性对应的入口模块加载该包
 
 3.如果该包的pageage.json中没有main属性的话则会默认加载该包的index.js文件
-  
+
 4.如果在加载第三方模块的文件同级目录下没找到node_modules目录，则会向上一级文件夹中寻找
 
 5.如果到磁盘根路径下都没找到，则会报错：can not find module xxx
-```
 
 
 

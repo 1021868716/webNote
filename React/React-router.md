@@ -78,7 +78,9 @@ import { Link } from 'react-router-dom'
 
 当我们使用react-router时，当我们从A页面进入B页面的时候，由于共享了同一个history，导致浏览的位置也被记录下来的，这样A页面滑动到底部了，进入B页面也会停留在底部，显然不符合我们的浏览习惯。
 
-也可以使用js代码进行跳转
+
+
+也可以使用js代码进行路由跳转
 
 ```react
 import { useHistory } from 'react-router-dom'
