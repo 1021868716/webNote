@@ -2766,14 +2766,14 @@ const a = {
  * 定时器回调使用普通函数中的this是谁?----window
     	setTimeout完整写法是：window.setTimeout
 
-    	```
-    	setTimeout(function() {
-    	  console.log(this) // [object window]
-    	}, 0)
-    	```
-    	
-    	
-    	
+        	```
+        	setTimeout(function() {
+        	  console.log(this) // [object window]
+        	}, 0)
+        	```
+
+
+​    	
  * 定时器回调使用箭头函数的this是谁?----当前作用域的this
 
      
@@ -5685,7 +5685,7 @@ type="module"
 
 
 
-### 导出export
+### export
 
 ```javascript
 //aaa.js
@@ -5724,7 +5724,33 @@ export class Person{
 
 
 
-### 导入import
+### export default
+
+导出变量后可以由导入者命名变量，但export default只能有一个，不然导入文件无法分清导入哪个变量
+
+```javascript
+//导出文件
+//允许导出者可以重新给变量命名
+//export default只能有一个
+const address='北京';
+export default address;
+
+//第二个导出文件
+//一个文件只能有一个export default
+export default function(){
+    console.log('export default');
+}
+
+//导入文件
+//导入这个变量并重新命名为addr
+import addr from './aaa.js'
+console.log(addr);
+
+```
+
+
+
+### import
 
 导出的变量名不能变，导入时也得以这个变量名导入
 
@@ -5758,35 +5784,65 @@ console.log(aaa.flag,'......');
 
 
 
-### import as
+### import()
 
-`import * as obj from 'xxx'`  会将 `"xxx"` 中所有 `export` 导出的内容组合成一个对象obj返回(例如import * as obj from 'xx'  这种写法是把所有的输出包裹到obj对象里);
+`import`命令会被 JavaScript 引擎静态分析，先于模块内的其他模块执行（叫做”连接“更合适）。所以，下面的代码会报错。
 
-
-
-### export default
-
-导出变量后可以由导入者命名变量，但export default只能有一个，不然导入文件无法分清导入哪个变量
-
-```javascript
-//导出文件
-//允许导出者可以重新给变量命名
-//export default只能有一个
-const address='北京';
-export default address;
-
-//第二个导出文件
-//一个文件只能有一个export default
-export default function(){
-    console.log('export default');
+```js
+ // 报错
+if (x === 2) {
+  import MyModual from './myModual';
 }
+```
 
-//导入文件
-//导入这个变量并重新命名为addr
-import addr from './aaa.js'
-console.log(addr);
+ 上面代码中，引擎处理`import`语句是在编译时，这时不会去分析或执行`if`语句，所以`import`语句放在`if`代码块之中毫无意义，因此会报句法错误，而不是执行时错误。也就是说，`import`和`export`命令只能在模块的顶层，不能在代码块之中（比如，在`if`代码块之中，或在函数之中）。
+
+这样的设计，固然有利于编译器提高效率，但也导致无法在运行时加载模块。在语法上，条件加载就不可能实现。如果`import`命令要取代 Node 的`require`方法，这就形成了一个障碍。因为`require`是运行时加载模块，`import`命令无法取代`require`的动态加载功能。
+
+`import()`函数，完成动态加载，`import()`返回一个 Promise 对象，加载的模块会作为一个对象，当作`then`方法的参数。。`import()`类似于 Node 的`require`方法，区别主要是前者是异步加载，后者是同步加载。
+
+- 按需加载
+
+`import()`可以在需要的时候，再加载某个模块。
+
+```js
+// 当触发点击事件才去加载'./moduleA.js'
+button.addEventListener('click', event => {
+  import('./moduleA.js')
+  .then(dialogBox => {
+    dialogBox.open();
+  })
+});
+```
+
+- 条件加载
+
+   `import()`可以放在`if`代码块，根据不同的情况，加载不同的模块。
+
+```js
+// 根据条件加载不同模块
+if (condition) {
+  import('./moduleA.js').then(...);
+} else {
+  import('./moduleB.js').then(...);
+}
+```
+
+- 动态的模块路径
+
+ `import()`允许模块路径动态生成，在参数中传入函数，根据函数`f`的返回结果生成不同的加载路径，加载不同的模块。
 
 ```
+ import(f()).then(...);
+```
+
+ 
+
+
+
+### import as
+
+`import * as obj from 'xxx'`  会将 xx中所有 export 导出的内容组合成一个对象obj返回(例如import * as obj from 'xx'  这种写法是把所有的输出包裹到obj对象里);
 
 
 
@@ -5802,18 +5858,13 @@ CommonJS：module.exports，exports，require
 
 ### module.exports/exports
 
+`module.exports`才是最终导出模块对象，exports只是`module.exports`导出模块对象的一个别名指针
+导出单个属性的时候两者作用完全相同。但exports不能用于导出对象，否则就是修改了原本指针指向，系统就找不到导出模块。
+导出文件文件最终导出的对象永远是`module.exports`，但`module.exports={}`只能导出一个对象，如果需要导出多个对象不能再来一次`module.exports={}`(上一个导出对象会被覆盖)。
+
+`module.exports.对象名={}`这样可以用于导出多个对象而不怕被覆盖
+
 ```javascript
-module.exports才是最终导出模块对象
-exports只是module.exports导出模块对象的一个别名指针
-导出单个属性的时候两者作用完全相同
-但exports不能用于导出对象，否则就是修改了原本指针指向，系统就找不到导出模块
-导出文件文件最终导出的对象永远是module.exports
-但module.exports={}只能导出一个对象
-如果需要导出多个对象不能再来一次module.exports={}(上一个导出对象会被覆盖)
-
-module.exports.对象名={}，这样可以用于导出多个对象而不怕被覆盖
-
-
 var flag = true;
 function sum(num1,num2){
     return num1+num2;
@@ -5838,8 +5889,9 @@ module.exports={
 
 ### require
 
-第一次执行导入时会先运行一次导出文件用于初始化
-后续再发生导入该文件操作时不会再次运行导出文件
+CommonJs是动态语法可以写在判断里（即最终可能并不加载运行），属于运行时加载，都只有在代码运行时才能确定这些东西。
+
+第一次执行导入时会先运行一次导出文件用于初始化，后续再发生导入该文件操作时不会再次运行导出文件
 
 ```javascript
 var a = require('导出文件路径');
@@ -6089,7 +6141,7 @@ function readonly(target, key, descriptor) {
 
   与装饰类不同，对类方法的装饰本质是操作其描述符，可以把此时的装饰器理解成是 `Object.defineProperty(obj, prop, descriptor)` 的语法糖（**ps：装饰器的本意是要装饰类的实例，但编译阶段实例还未生成，所以此时方法装饰器只能装饰类的原型，而类装饰器中的target则指类本身**）
 
-  第一个参数target为类的原型对象，即方法Class.prototype
+  第一个参数target为类的原型对象，即方法`Class.prototype`
   第二个参数key为要装饰的方法(属性名)
   第三个参数descriptor为要修饰的方法(属性名)的描述符
 
