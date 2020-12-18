@@ -16,6 +16,8 @@ mobx的核心理念是：状态变化引起的副作用应该被自动触发
 npm i mobx -s
 ```
 
+- mobx-react
+
 安装React 绑定库: 
 
 ```
@@ -23,6 +25,10 @@ npm install mobx-react --save
 ```
 
 
+
+- mobx-react-lite
+
+mobx-react-lite，它是基于 `React 16.8` 和 `Hooks` 的 `MobX` 的轻量级React绑定。
 
 
 
@@ -205,6 +211,8 @@ when(() => store.bool, () => {
 })
 ```
 
+
+
 ## reaction
 
 when函数接收两个函数参数，在初始化阶段第一个参数函数会先执行一次，来获悉该函数内有哪些可观察数据被引用了。
@@ -213,11 +221,11 @@ when函数接收两个函数参数，在初始化阶段第一个参数函数会�
 
 
 
-
-
 # action
 
-直接对可观察数据进行修改会带来一定的副作用，例如频繁触发autorun和reaction，对性能不好，因此可以使用action对可观察数据进行修改，action的本质是将多次修改合并为一次，来减少副作用的触发。
+action类似redux中的action，是store中用来改变state的方法，原本mobx允许直接对可观察数据进行修改，但直接对可观察数据进行修改会带来一定的副作用，例如频繁触发autorun和reaction，对性能不好，因此可以使用action对可观察数据进行修改，action的本质是将多次修改合并为一次，来减少副作用的触发。
+
+redux强制规定所有state改变通过action来执行，Mobx并不强制所有state的改变必须通过action来改变。
 
 action也可以通过函数和装饰器两种方式创建。
 
@@ -226,6 +234,25 @@ action也可以通过函数和装饰器两种方式创建。
 - runInAction
 
 
+
+## action.bound
+
+`action` 装饰器/函数遵循 javascript 中标准的绑定规则。 但是，`action.bound` 可以用来自动地将动作绑定到目标对象。 注意，与 `action` 不同的是，`(@)action.bound` 不需要一个name参数，名称将始终基于动作绑定的属性。
+
+action.bound不要和箭头函数一起使用；箭头函数已经是绑定过的并且不能重新绑定。
+
+```jsx
+class Ticker {
+    @observable tick = 0
+    @action.bound
+    increment() {
+        this.tick++ // this永远都是正确的不会指偏
+    }
+}
+
+const ticker = new Ticker()
+setInterval(ticker.increment, 1000)
+```
 
 
 
@@ -236,7 +263,7 @@ mobx-react是React工具库，可以将react的组件的render方法转化为aut
 
 mobx-react提供一个PropTypes包进行props校验，例如可观察数组不是普通的array而是observableObject
 
-```js
+```jsx
 import PropTypes form 'props-types'
 import { PropTypes as mobxPropTypes} form 'mobx-react' // 避免重名所以取别名mobxPropTypes
 
@@ -249,52 +276,192 @@ class Bar extends Component {
 
 
 
-## observer
+## Provider
 
-`observer` 函数/装饰器可以用来将 React 组件转变成响应式组件。 它用 `mobx.autorun` 包装了组件的 render 函数以确保任何组件渲染中使用的数据变化时都可以强制刷新组件。 `observer` 是由单独的 `mobx-react` 包提供的。
+mobx-react中Provider组件（用于包裹根组件）和inject组件（用于注入需要使用store的组件）通过context将store注入并使得任何层级的子组件可以访问到store。
+
+每个store都将以props的形式挂载到Procider组件上，在子组件中通过inject来接收
+
+```jsx
+import React from 'react'
+import {render} from 'react-dom'
+import { Provider } from 'mobx-react';
+impore store1 from '../store/store1.js'
+impore store2 from '../store/store2.js'
+
+const App = (props) => {
+  return (
+    <Provider store1 = {store1} store2 = {store2}>
+      <div className="App">
+        <CounterClass></CounterClass>
+        <CounterFunction></CounterFunction>
+      </div>
+    </Provider>
+  );
+}
+```
+
+
+
+## observer/inject
+
+observer函数/装饰器可以用来将 React 组件转变成响应式组件。 它用 `mobx.autorun` 包装了组件的 render 函数以确保任何组件渲染中使用的数据变化时都可以强制刷新组件。 `observer` 是由单独的 `mobx-react` 包提供的。
 
 可观察数据（可以是包含可观察数据的类）需要通过props属性的方式绑定挂载在react组件上，并且可以在propTypes中进行规定类型，然后使用observer装饰器（也可以使用observer函数）装饰react组件类，这样当绑定的可观察数据变化时，就会引起react组件重渲染。
 
-```js
-import {observer} from "mobx-react";
+inject装饰器用于将指定的store注入组件，组件通过props.store的方式拿到可观察数据。
 
-var timerData = observable({
-    nums: 0
-});
+类组件中使用装饰器语法
 
-setInterval(() => {
-    timerData.nums++;
-}, 1000);
-
-@observer class Timer extends React.Component {
-    render() {
-        return (<span>nums: { this.props.timerData.nums } </span> )
-    }
-};
-
-ReactDOM.render(<Timer timerData={timerData} />, document.body);
+```jsx
+import {inject, observer} from 'mobx-react';
+@inject('store1', 'store2')
+@observer
+class Timer extends React.Component {...};
+export default Timer
 ```
 
 
 
 上面的 `Timer` 组件还可以通过使用 `observer` 传递的无状态函数组件来编写:
 
-```javascript
-import {observer} from "mobx-react";
+```jsx
+import {inject, observer} from 'mobx-react';
 
-const Timer = observer(({ timerData }) =>
-    <span>Seconds passed: { timerData.secondsPassed } </span>
-);
-Copy
+const Timer = observer(({ timerData }) =>{...});
+export default inject('store1', 'store2')(observer(Timer));          
 ```
 
 
 
 
 
+## 使用流程
+
+1. 创建store
+
+```jsx
+// store.js
+import {observable, action} from 'mobx';
+
+class Store1 {
+  @observable
+  count = 0;
+
+  @action
+  handleCount() {
+    this.count += 1;
+  }
+}
+
+class Store2 {
+  @observable
+  num = 0;
+
+  @action
+  handleNum() {
+    this.num += 1;
+  }
+}
+
+export default {
+    new Store1(),
+    new Store2()
+}
+```
+
+
+
+2. 根组件通过`Provider`注入store
+
+```jsx
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Provider } from 'mobx-react';
+impore stores from '../store/store.js'
+
+const App = (props) => {
+  return (
+    <div className="App">
+      ...
+    </div>
+  );
+}
+
+ReactDOM.render(
+  <Provider {...stores}>
+    <App/>
+  </Provider>,
+  document.body
+);
+```
+
+
+
+3. 类组件（class）访问  `store1`和`store2`
+
+```jsx
+import React, { Component } from 'react';
+import {inject, observer} from 'mobx-react';
+import {toJS} from 'mobx'; // 查看store中原始JavaScript数据结构
+
+@inject('store1', 'store2')
+@observer
+class CounterClass extends Component {
+  handleClick1 = () => {
+    this.props.store1.handleCount();
+  };
+  handleClick2 = () => {
+    this.props.store2.handleNum();
+  };
+  render() {
+    console.log(toJS(this.props.store1));
+    console.log(toJS(this.props.store2));
+    return (
+      <div>
+        count: {this.props.store1.count}
+        <button onClick={this.handleClick1}>add one</button>
+        num: {this.props.store2.num}
+        <button onClick={this.handleClick2}>add one</button>
+      </div>
+    )
+  }
+}
+
+export default CounterClass;
+```
+
+
+
+4. 函数组件使用 `store1`和`store2`
+
+```jsx
+import React from 'react'
+import {inject, observer} from 'mobx-react';
+
+const CounterFunction = ({store1, store2}) => {
+  return (
+    <div>
+      <p>count: {store1.count} </p>
+      <button onClick={() => store1.handleCount()}>Add</button>
+      <p>num: {store2.num} </p>
+      <button onClick={() => store2.handlenum()}>Add</button>
+    </div>
+  );
+}
+
+export default inject('store1', 'store2')(observer(CounterFunction));
+```
+
+
+
+
+
+
+
+
+
 # 工具函数
-
-
 
 ## 检测类型
 

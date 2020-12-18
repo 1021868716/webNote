@@ -2755,14 +2755,38 @@ const a = {
 
 **全局环境下的this指向window，对象内的方法的this指向对象实例，但是对象方法内的普通函数的this依然指向window，严格模式下this没有设定或者没用new调用构造函数，this则会指向undefined**
 
-     * 普通函数中的this是谁?-----window
-     * (对象.)方法中的this是谁?----当前的实例对象
-     * 定时器回调使用普通方法中的this是谁?----window
-        	setTimeout完整写法是：window.setTimeout
-                                              定时器回调使用箭头函数的this是谁?----当前作用域的this
-     * 构造函数中的this是谁?-----实例对象
-     * 原型对象方法中的this是谁?---实例对象
-     * 箭头函数的this指向上下文
+ * 普通函数中的this是谁?-----window
+
+     
+
+ * 对象.方法中的this是谁?----当前的实例对象
+
+     
+
+ * 定时器回调使用普通函数中的this是谁?----window
+    	setTimeout完整写法是：window.setTimeout
+
+    	```
+    	setTimeout(function() {
+    	  console.log(this) // [object window]
+    	}, 0)
+    	```
+    	
+    	
+    	
+ * 定时器回调使用箭头函数的this是谁?----当前作用域的this
+
+     
+
+ * 构造函数中的this是谁?-----实例对象
+
+     
+
+ * 原型对象方法中的this是谁?---实例对象
+
+     
+
+ * 箭头函数的this指向上下文
 
 
 

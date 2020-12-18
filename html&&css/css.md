@@ -630,19 +630,17 @@ BFC形成一个完全封闭不会影响外部的空间，触发方式为脱标
 
 将CSS样式应用于特定的html需要用选择器先找到该元素。
 样式显示效果与html元素中类名先后顺序没有关系，受css样式书写上下顺序影响。
-- 标签选择器
+- TagName
 
-把某一类标签全部选出来
+标签选择器，把某一类标签全部选出来
 ```
-标签{
+标签名{
     属性:值;
 }
 ```
-- 类选择器 .
+- .class
 
-```
-css中.name{属性:值;...}调用，在html元素中class="name"命名
-```
+类名选择器，css中.name{属性:值;...}调用，在html元素中class="name"命名
 
 
 
@@ -652,9 +650,9 @@ css中.name{属性:值;...}调用，在html元素中class="name"命名
 
 
 
-- id选择器  #
+- #class
 
-大多数html元素都有id属性，可以用该id属性定位该元素，但id具有唯一性，但类选择器的类名不存在唯一性。
+id选择器，大多数html元素都有id属性，可以用该id属性定位该元素，但id具有唯一性，但类选择器的类名不存在唯一性。
 ```
 #id{
     属性:值;
@@ -663,7 +661,7 @@ css中.name{属性:值;...}调用，在html元素中class="name"命名
 
 
 
-- 通配符选择器 *
+- *class
 
 通配符选择器*号表示，表示所有html元素全部选中。
 ```
@@ -674,22 +672,21 @@ css中.name{属性:值;...}调用，在html元素中class="name"命名
 
 
 
-- 子代后代选择器
+- .class1 .class2 
 
-```
+  .class1>.class2
+
+  子代后代选择器
+
 后代选择器每个选择器用空格隔开  会选取所有的后代选择元素
 子代选择器每个选择器用>号隔开  >只选取子代选择元素
-```
 
 
 
 - 交集并集选择器
 
-```
 交集选择器：选择器之间用点隔开，a选择器.class选择器{ }，就能选中a和class选择器之交集的元素
 并集选择器：多个选择器用逗号隔开并集选择器可以集体声明为统一样式
-
-```
 
 
 
@@ -700,13 +697,26 @@ css中.name{属性:值;...}调用，在html元素中class="name"命名
 ```html
 元素[条件]{
 }
+```
+
 如 div[class]可以选出所有带有class属性的div，div[class=demo]选择calss为demo的div，元素可以省略，则不限定元素得进行选择
 选择公式：
 =  选择为该条件的属性，如div[class=demo]选择calss为demo的div
-^= 选择以该条件开头的属性，[class^=demo]class以demo开头的div
-$= 选择以该条件结尾的属性，[class$=demo]class以demo结尾的div
-*= 选择具有该条件的属性，[class*=demo]class名中含有demo的div（demo可以在名字开头中间结尾都可以）
-```
+^= 选择以该条件开头的属性，div[class^=demo]class以demo开头的div
+$= 选择以该条件结尾的属性，div[class$=demo]class以demo结尾的div
+`*=` 选择具有该条件的属性，`div[class*=demo]`class名中含有demo的div（demo可以在名字开头中间结尾都可以）
+
+
+
+- .class1 .class2
+
+  父子选择器，代表选中class1下的class2
+
+
+
+- .class1.class2
+
+  .class1.class2的意思是且，代表两个类名必须都具备
 
 
 
@@ -715,15 +725,12 @@ $= 选择以该条件结尾的属性，[class$=demo]class以demo结尾的div
 - 伪类选择器
 
 伪类选择器用于改变元素本身的状态
-```
-    元素:link {}    未访问过的链接状态
-    元素:visited {}  已访问过的链接
-    元素:hover {}鼠标经过的状态
-    元素:active {}  鼠标按下时的状态
-    lvha顺序不能调换，但可以省略
-```
 
-
+`元素:link {}`    未访问过的链接状态
+`元素:visited {}`  已访问过的链接
+`元素:hover {}` 鼠标经过的状态
+`元素:active {}`  鼠标按下时的状态
+lvha顺序不能调换，但可以省略
 
 
 
