@@ -70,11 +70,19 @@ ts-node demo.ts
 
 属性或参数中使用 ？表示该属性或参数为可选项
 
+
+
 - !
 
 属性或参数中使用 ！表示强制解析（告诉typescript编译器，这里一定有值），常用于vue-decorator中的@Prop
 
 变量后使用 ！：表示类型推断排除null、undefined
+
+
+
+- ?.
+
+可选链
 
 
 
@@ -581,8 +589,6 @@ type proxyKType = Record<K,T>
 
 将K中的每个属性([P in K]),都转为T类型，并将返回的新类型（描述一个对象）返回给proxyKType，K可以是联合类型、对象、枚举、基本类型等
 
-
-
 ```typescript
 type petsGroup = 'dog' | 'cat' | 'fish';
 interface IPetInfo {
@@ -608,9 +614,37 @@ const animalsInfo:IPets = {
 }
 ```
 
-可以看到 IPets 类型是由 Record<petsGroup, IPetInfo>返回的。将petsGroup中的每个属性(dog，cat，fish)都转为 IPetInfo 类型。从原来的字符串变成了IPetInfo对象。
+可以看到 IPets 类型是由 `Record<petsGroup, IPetInfo>`返回的。将petsGroup中的每个属性(dog，cat，fish)都转为 IPetInfo 类型。从原来的字符串变成了IPetInfo对象。
 
 IPets类型描述的即为一个对象内含有三个属性对象dog，cat，fish，每个属性对象又都是一个符合IPetInfo描述的对象。
+
+
+
+同时Record还有一种用法，用以避免TypeScript不知道对象中哪些键实际存在，所以不允许访问任何键
+
+该object类型旨在抽象出对象的任何键，而`Record<K, T>`存在以专门定义类型的键。这意味着尝试访问对象属性时存在差异。
+TypeScript将允许访问类型对象的任何属性，`Record<any, any>`即使特定键未知，因为第一个通用参数是any。
+
+```typescript
+let a: Record<any, any>;
+a.foo; // 正常运行
+
+//object然而，在类型的对象上，不假设键any。与此一样Record<any, …>，TypeScript不知道哪些键实际存在，但它不允许访问任何键：
+
+let b: object;
+b.foo; 
+// 报错: Property "foo" does not exist on type "object"
+// ts不知道b中有没有foo属性，为了安全，ts报错
+
+//实例：
+//为防止提示res 没有data属性，所以拒绝res访问，使用Record来解决
+let res: Record<string, any>;
+res.data && JSON.parse(res.data)
+```
+
+
+
+
 
 
 
@@ -2001,4 +2035,34 @@ declare module 'jquery' {
   export = $
 }
 ```
+
+
+
+# ?.可选链
+
+js中很长一段点调用中，如果有任何一个属性是null或者undefined就会报错，而ts的可选链上，如果遇到 `null` 或 `undefined` 就可以立即停止某些表达式的运行。
+
+```javascript
+// js
+// 如果abcdef中出现任意一个null或者undefined就会报错
+console.log(a.b.c.d.e.f)
+```
+
+```typescript
+// ts
+// 如果遇到null或 undefined就立即停止表达式的运行
+console.log(a?.b?.c?.d?.e?.f)
+```
+
+
+
+可选链的polyfill
+
+```typescript
+const val = a?.b;
+等同于
+var val = a === null || a === void 0 ? void 0 : a.b;
+```
+
+
 

@@ -5017,7 +5017,7 @@ new Promise((resolve, reject) => reject(1))
 
 ### all()
 
-需求为只有所有请求都成功时才执行then函数，可以用Promise.all方法
+all()为只有所有请求都成功时才执行then函数,如果其中有一个失败，会立即返回结果。
 **Promise.all()参数为一个数组，数组每个元素为一个promise对象并链式调用then方法**，**数组内存储new Promise，只有等到所有Promise都成功resolve时then才会执行，只要有一个promise触发拒绝，会立刻执行拒绝回调**
 并且所有resolve传入的值都在then中集成了一个数组results，下标与在all数组中Promise所处下标一致
 
@@ -5047,11 +5047,7 @@ Promise.all([
 
 ### allSettled()
 
-Promise.allSettled()也必须传入一个数组，数组内是promise对象
-
-allSettled()比all()宽泛，等所有promise执行完后就会执行成功回调，不需要每个promise都被解决
-
-最后then传入的参数result也是一个数组，但是是一个对象数组，每个对象存放了对应promise的传入的数据和他最后是解决状态还是拒绝状态
+allSettled()也必须传入一个数组，数组内是promise对象，需要等所有promise执行完后就会执行成功回调（并不需要每个promise都被解决）,数组内所有promise都执行完后，allSettled()也返回一个promise对象，then传入的参数result也是一个数组，但是是一个对象数组，每个对象存放了参数promise数组的传入的数据和他最后是解决状态还是拒绝状态。
 
 ```javascript
 Promise.allSettled([
@@ -5073,7 +5069,7 @@ Promise.allSettled([
 /*
 [
   { status: 'fulfilled', value: 'result1' },
- 	{ status: 'rejected', reason: 'result2' }
+  { status: 'rejected', reason: 'result2' }
 ]
 */
 ```
@@ -5884,6 +5880,17 @@ module.exports={
        sum:sum
 }
 ```
+
+
+
+exports.default可以匿名导出
+
+```js
+const config = {};
+exports.default = config;
+```
+
+
 
 
 
