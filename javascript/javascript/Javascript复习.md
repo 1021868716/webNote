@@ -2963,7 +2963,9 @@ JS的全局环境的中定义的数据（变量，函数等）会被一直保留
 
 ## 闭包案例
 
-第一个案例：a变量接收到f2函数，运行后发现n不能找到，要去原函数找n的原始值完成功能，所以形成闭包
+- 第1个案例
+
+  a变量接收到f2函数，运行后发现n不能找到，要去原函数找n的原始值完成功能，所以形成闭包
 
 ```javascript
 function f1(){
@@ -3002,7 +3004,9 @@ a() // 5
 
 
 
-案例2，下面这个例子函数f1返回sum函数，a运行时发现m直接就能找到，自己就能独立实现功能，所以m不形成闭包，但n需要向上查找，所以n形成闭包
+- 案例2
+
+  下面这个例子函数f1返回sum函数，a运行时发现m直接就能找到，自己就能独立实现功能，所以m不形成闭包，但n需要向上查找，所以n形成闭包
 
 ```javascript
 function f1(){
@@ -3041,7 +3045,9 @@ let a = function (){
 
 
 
-案例3，利用闭包隐藏数据并提供getter/setter接口
+- 案例3
+
+  利用闭包隐藏数据并提供getter/setter接口
 
 ```javascript
 function createCache() {
@@ -3064,9 +3070,11 @@ console.log(c.get('a'))
 
 
 
-案例4，函数作为参数传入，且参数函数中使用了自由变量从而形成闭包
+- 案例4
 
-无论是不是闭包，所有自由变量的查找是在函数定义的地方，向上级作用域查找，而不是在使用的地方向上查找。
+  函数作为参数传入，且参数函数中使用了自由变量从而形成闭包
+
+  无论是不是闭包，所有自由变量的查找是在函数定义的地方，向上级作用域查找，而不是在使用的地方向上查找。
 
 ```javascript
 let a = 100 
@@ -3090,9 +3098,9 @@ print(fn)
 
 
 
-案例5
+- 案例5
 
-当onfocus执行时，item.content才确定，此时循环已经结束，三个闭包共享的item已经指向数组最后一项。
+  当onfocus执行时，item.content才确定，此时循环已经结束，三个闭包共享的item已经指向数组最后一项。
 
 ```js
 function setContent(){
@@ -3115,10 +3123,9 @@ function setContent(){
 
 使用闭包解决
 
-```js
-    /**
-     * 解决方法1     通过函数工厂，则函数为每一个回调都创建一个新的词法环境
-     */
+解决方法1     通过函数工厂，则函数为每一个回调都创建一个新的词法环境
+
+```javascript
     function showContent(content){
         document.getElementById('info').innerHTML = content;
     };
@@ -3141,11 +3148,14 @@ function setContent(){
         }
     }
     setContent()
+```
 
-    /**
-     * 解决方法2        绑定事件放在立即执行函数中
-     */
-    function showContent(content){
+
+
+解决方法2        绑定事件放在立即执行函数中
+
+```javascript
+function showContent(content){
         document.getElementById('info').innerHTML = content;
     };
 
@@ -3165,10 +3175,13 @@ function setContent(){
         }
     }
     setContent()
+```
 
-    /**
-     * 解决方案3        用ES6声明，避免声明提前，作用域只在当前块内
-     */
+
+
+解决方案3        用ES6声明，避免声明提前，作用域只在当前块内
+
+```js
     function showContent(content){
         document.getElementById('info').innerHTML = content;
     };
@@ -3191,32 +3204,174 @@ function setContent(){
 
 
 
+- 案例6
+
+  在react中class组件中在定时器中会有以上问题
+
+```jsx
+class Example extends Component {
+  state = {
+    count: 0
+  };
+  componentDidMount() {
+    setTimeout(() => {
+      console.log(`You clicked ${this.state.count} times`);
+    }, 3000);
+  }
+  componentDidUpdate() {
+    setTimeout(() => {
+      console.log(`You clicked ${this.state.count} times`);
+    }, 3000);
+  }
+  render() {
+    return (
+      <div>
+        <p>You clicked {this.state.count} times</p>
+        <button onClick={() => this.setState({
+          count: this.state.count + 1
+        })}>
+          Click me
+        </button>
+      </div>
+    )
+  }
+}
+
+/*
+连点五次
+You clicked 0 times 
+You clicked 5 times
+You clicked 5 times
+You clicked 5 times
+You clicked 5 times
+You clicked 5 times 
+*/
+```
+
+
+
+解决方案1：class组件中使用闭包
+
+```jsx
+class Example extends Component {
+  state = {
+    count: 0
+  };
+  componentDidMount() {
+    const count = this.state.count;
+    setTimeout(() => {
+      console.log(`You clicked ${count} times`);
+    }, 3000);
+  }
+  componentDidUpdate() {
+    const count = this.state.count;
+    setTimeout(() => {
+      console.log(`You clicked ${count} times`);
+    }, 3000);
+  }
+  render() {
+    return (
+      <div>
+        <p>You clicked {this.state.count} times</p>
+        <button onClick={() => this.setState({
+          count: this.state.count + 1
+        })}>
+          Click me
+        </button>
+      </div>
+    )
+  }
+}
+/*
+连点五次
+You clicked 0 times 
+You clicked 1 times
+You clicked 2 times
+You clicked 3 times
+You clicked 4 times
+You clicked 5 times 
+*/
+```
+
+
+
+解决方案2：使用hooks，hooks依赖闭包，所以会自动形成闭包保存每次的props和state
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    setTimeout(() => {
+      console.log(`You clicked ${count} times`);
+    }, 3000);
+  });
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+/*
+连点五次
+You clicked 0 times 
+You clicked 5 times
+You clicked 5 times
+You clicked 5 times
+You clicked 5 times
+You clicked 5 times 
+*/
+```
+
+
+
 
 
 ## this在闭包中的问题
 
-this指针很特殊，因为普通函数中this会指向winsow，导致无法访问原函数中的数据，所以为了防止this指偏，闭包不要使用箭头函数
+this指针很特殊，因为普通函数中this会指向winsow，导致无法访问原函数中的数据，所以为了防止this指偏，闭包不要轻易使用箭头函数
 
 ```javascript
 let hd = {
-	user:"wtw",
-	get: function(){
-		return function(){
-      console.log(this.user)  //undefined
-			return this.user
-		}
+  user:"abc",
+  get: function(){
+    console.log(this)  //hd
+	return function(){
+      console.log(this)  //window
+	  return this.user
 	}
-    //箭头函数可以解决这个问题
+  },
   get2:()=>{
-		return function(){
-			return this.user
-		}
+    console.log(this)  //window
+	return function(){
+      console.log(this)  //window
+	  return this.user
 	}
-    
+  },
+  get3:function(){
+    console.log(this)  //hd
+	return ()=>{
+      console.log(this)  //hd
+	  return this.user
+	}
+  },
+  get4:()=>{
+    console.log(this)  //window
+	return () =>{
+      console.log(this)  //window
+	  return this.user
+	}
+  }
 }
 
 console.log(hd.get()()) //undefined
-console.log(hd.get2()()) //wtw
+console.log(hd.get2()()) //undefined
+console.log(hd.get3()()) //abc
+console.log(hd.get4()()) //undefined
 ```
 
 
@@ -6195,3 +6350,58 @@ console.log(new N().number = 100)
 // 报错，因为number属性被修饰器将属性特征修改为不可修改
 ```
 
+
+
+
+
+# HTML原生生命周期
+
+使用window.生命周期 = 匿名执行函数，就能定义原生的生命周期
+
+- DOMContentLoaded 
+
+  浏览器已经加载了 Html, DOM 树已经构建完毕，但是 img 和外部样式表等资源可能还没有下载完毕。
+
+  带有`async`的脚本也许会在页面没有完全下载完之前就加载，这种情况会在脚本很小或本缓存，并且页面很大的情况下发生。
+
+  带有`defer`的脚本会在页面加载和解析完毕后执行，刚好在 `DOMContentLoaded`**之前**执行。
+
+  
+
+- load - 浏览器已经完全加载了所有资源。
+
+
+
+- beforeunload - 用户即将离开页面，beforeunload 会给用户弹出个确认框，unload 则不会。
+
+```javascript
+window.onbeforeunload = function() {
+  return "确定离开?";
+};
+```
+
+
+
+- unload - 用户完全离开页面。
+
+
+
+- readyState - readyState不是个生命周期，而是document上的一个只读属性
+
+　　document.readyState 这个只读属性可以告诉程序当前文档加载到哪一个步骤，它有三个值：
+
+　　　　1. loading - 加载，document 仍在加载中；
+
+　　　　2. interactive - 互动，文档已经完成加载，文档已被解析，但是诸如图像，样式表和框架之类的子资源仍在加载。
+
+　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
+
+　　而这个属性的每次改变同样有一个事件可以监听：
+
+```javascript
+document.addEventListener('readystatechange', () => console.log(document.readyState));
+```
+
+ 　不过这个 change 事件很少会被用到，可能出现的地方在某些第三方类库中判断一些依赖关系等地方。
+
+　　

@@ -97,19 +97,34 @@ setState(state=>state+1) // 新值跟state有关需要使用回调函数的形�
 
 # useEffect
 
+务必详细阅读：https://overreacted.io/zh-hans/a-complete-guide-to-useeffect/
+
+
+
 在class编写组件时，我们可以直接在生命周期函数内之间操作dom，在函数组件主体内（指在 React 渲染阶段）**改变 DOM**、添加订阅、设置定时器、记录日志以及执行其他包含副作用的操作都是不被允许的，因为这可能会产生莫名其妙的 bug 并破坏 UI 的一致性，所以提供了useEffect这个hook在函数组件中执行这些操作。
 
+```JavaScript
+useEffect(func[,arr]);
 ```
-useEffect(didUpdate[,arr]);
+
+useEffect这个hook类似于容器组件的生命周期函数，并且可以添加一些副作用：如操作dom，数据请求，组件更新，绑定事件等常见的无需清除的操作，副作用常见的调用时机是在Mount之后（首次渲染useEffect会执行），Update之后（数据更新导致组件重渲染useEffect会执行），Unmount之前（如果参数函数返回一个回调函数会在state数据更新导致组件重渲染或组件卸载时运行）。
+
+可以把 `useEffect` Hook 看做 `componentDidMount`，`componentDidUpdate` 和 `componentWillUnmount` 这三个函数的组合。不同逻辑我们可以写入多个useEffect，他们之间不会互相干扰。
+
+
+
+`useEffect`会在页面挂载后执行一次参数函数，数据更新后执行一次参数函数。如果参数函数返回一个函数，回调函数会在组件销毁之前执行一次（组件销毁的原因有：state数据更新导致重渲染和组件卸载）
+
+```jsx
+// 因为监控的是空数组，所以参数函数只会在首次渲染时执行一次，等组件销毁时会去执行返回的函数
+useEffect(()=> {
+    ...
+    return () => {
+    };
+ }, [])
 ```
 
 
-
-useEffect这个hook类似于容器组件的生命周期函数，并且可以添加一些副作用：如操作dom，数据请求，组件更新，绑定事件等常见的无需清除的操作，副作用常见的调用时机是在Mount之后，Update之后，Unmount之前
-
-可以把 `useEffect` Hook 看做 `componentDidMount`，`componentDidUpdate` 和 `componentWillUnmount` 这三个函数的组合。
-
-`useEffect`**会在页面挂载后执行一次参数函数，数据更新后执行一次参数函数，如果参数函数返回一个回调函数，回调函数会在组件销毁之前触发，组件销毁的原因有：state数据更新导致重渲染和组件卸载。**不同逻辑我们可以写入多个useEffect，他们之间不会互相干扰。
 
 但是与 `componentDidMount`、`componentDidUpdate` 这两个组件生命周期不同的是，**在浏览器完成布局与绘制之后，传给 `useEffect` 的函数会延迟调用。**这使得它适用于许多常见的副作用场景，比如设置订阅和事件处理等可以异步的情况，但是不应在useEffect函数中执行阻塞浏览器更新屏幕的操作。必须同步（不能被延迟）的任务不应该在这个hook中执行。
 
@@ -121,7 +136,7 @@ function App (){
   
   useEffect(()=> {
     // 在一个useEffect中为dom元素绑定事件不能监控空数组，需要每次更新都执行绑定事件
-    // 因为数据更新导致组件卸载后，组件元素上的事件就跟着被销毁了，所以不能监控空数组，需要每次重新渲染需要绑定一次事件
+    // 因为数据更新导致组件重渲染后，组件元素上的事件就跟着被销毁了，所以不能监控空数组，需要每次重新渲染需要绑定一次事件
     document.querySelector('#btn').addEventListener('click',() => {setCount(count+1)})
     return () => {
  		// 返回的回调函数会在组件销毁之前触发
@@ -150,7 +165,35 @@ export default App
 
 ## 性能优化
 
-默认每次state中的数据更新了导致组件更新重新挂载了，effect就会执行，也可以给useEffect添加第二个参数，数组参数，只监视数组中的数据改变了才执行。可以节约一些性能。
+有两个场景
+
+1. 如果useEffect中修改了组件的state，则会导致组件重新挂载，组件重新挂载时又会执行useEffect，这样会造成无限循环
+
+```jsx
+// 死循环
+// mount和unmount循环输出
+function Example() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    setCount(count + 1)
+    console.log('mount')
+    return () => {
+      console.log('unmount')
+    }
+  });
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+    </div>
+  );
+}
+```
+
+
+
+ 2.默认每次state中的数据更新了导致组件更新重新挂载了，但是effect中的参数函数并不用每次组件重渲染都执行
+
+这个时候可以给useEffect添加第二个参数，第二个参数是一个数组，可以向这个数组传入数据，useEffect在每次组件重渲染时会监控数组中每一项数据，如果数据变化了才会执行参数函数，这次重渲染数组中的数据都没有变化则不执行参数函数
 
 ```javascript
 useEffect(()=>{
@@ -159,7 +202,7 @@ useEffect(()=>{
 
 useEffect(()=>{
   console.log('2')
-},[count]) // 只有count数据更新了才执行useEffect函数
+},[count]) // 页面重渲染时只有count数据更新了才执行useEffect函数
 
 useEffect(()=>{
   console.log('3')
@@ -172,7 +215,7 @@ useEffect(()=>{
 
 如果useEffect的参数函数再返回一个回调函数，回调函数会在组件销毁之前触发，组件销毁的原因有：state数据更新导致重渲染和组件卸载。
 
-如果我们想回调函数只在组件卸载时触发可以在第二个参数重监控一个空数组，这样参数函数只会在页面挂载时执行一次，参数函数返回的回调函数只会在组件卸载时执行一次，中途数据更新导致页面重渲染不会出发useEffect
+如果我们想回调函数只在组件卸载时触发可以在第二个参数重监控一个空数组，这样参数函数只会在页面挂载时执行一次，参数函数返回的回调函数只会在组件卸载时执行一次，中途数据更新导致页面重渲染不会触发useEffect
 
 ```jsx
 import React , {useState , useEffect } from 'react'
@@ -209,6 +252,43 @@ function App (){
   )
 }
 ```
+
+
+
+但是useEffect参数数组中数据的对比是进行浅比较，如果数组中对象只要指向不发生变化，那么就不会执行effect里面的函数
+
+```jsx
+function Example() {
+  const [count, setCount] = useState({a: 12});
+  useEffect(() => {
+    console.log('effect');
+      return () => {
+        console.log('clean')
+      }
+  }, [count])
+
+  function handleClick() {
+    count.a++;
+    setCount(count)
+  }
+// 点击按钮时发现屏幕显示的值不发生变化，而且effect里面的函数也没有执行，所以进行的是浅比较，这点类似于pureComponent
+
+  return (
+    <div>
+      <p>You clicked {count.a} times</p>
+      <button onClick={handleClick}>
+      Click me
+      </button>
+    </div>
+  );
+}
+```
+
+
+
+
+
+
 
 
 
@@ -263,7 +343,7 @@ export default App
 
 memo用来优化无状态组件渲染性能，当组件的props没变时就不去重新渲染无状态组件
 
-useMemo是定义一个函数（不是组件，而是一个有返回值的函数）是否重新执行，使用useMemo方法 避免无用方法的调用。
+**useMemo是定义一个函数（不是组件，而是一个有返回值的函数）是否重新执行，使用useMemo方法 避免无用方法的调用。**
 
 useMemo在函数初始化挂载时执行一次，之后数据更新导致的组件卸载重渲染不会重新执行useMemo，单第二个参数数组内数据变化就会立刻去执行参数函数然后重渲染组件
 
@@ -310,6 +390,8 @@ function child(props) {
 
 export default App
 ```
+
+
 
 使用useMemo进行性能优化
 
