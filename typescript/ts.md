@@ -288,7 +288,7 @@ let obj: Person = {
 
 
 
-描述对象的强弱校验
+### 强弱校验
 
 ```ts
 interface Human {

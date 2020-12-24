@@ -48,33 +48,9 @@ html用于描述文档的结构，有区块和大纲
 
 
 
-# h5格式
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<script>
-</script>
-</body>
-</html>
-```
 
 
 
-
-
-# doctype
-
-doctype的意义是
-
-- 使ie浏览器以默认的标准w3c盒子模型进行渲染
-- 让浏览器知道元素的合法性
 
 
 
@@ -99,6 +75,25 @@ HTML5不属于SGML或XML，属于独立的规范，新增了语义化，表单�
 行内元素设置width，height属性无效，块级元素设置width，height属性有效
 
 行内元素边距起作用的只有：margin-left/right，padding-left/ringht。
+
+
+
+# h5格式
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  </head>
+  <body>
+	<script>
+	</script>
+  </body>
+</html>
+```
 
 
 
@@ -166,13 +161,7 @@ ie9及以上浏览器能够识别html5标签
 
 
 
-# em和i区别
 
-都是斜体标签
-
-em是语义化标签，表示强调
-
-i是纯样式的标签，已被废弃
 
 
 
@@ -181,6 +170,19 @@ i是纯样式的标签，已被废弃
 html是静态的，dom是html解析来的，是动态的。
 
 JS可以维护dom
+
+
+
+# doctype
+
+文档最开头的doctype的意义是
+
+- 使ie浏览器以默认的标准w3c盒子模型进行渲染
+- 让浏览器知道元素的合法性
+
+```html
+<!DOCTYPE html>
+```
 
 
 
@@ -248,6 +250,8 @@ user-scalable：用户是否可以手动缩放。
 # 空格标记&nbsp
 
 html中，无论有多少个空格间隔，渲染出来都只会占一个空白位置，如果要使用多个空白，需要用`&nbsp`空白符进行占位
+
+
 
 
 
@@ -329,6 +333,16 @@ html中，无论有多少个空格间隔，渲染出来都只会占一个空白�
 <u></u> <ins></ins>        将文字加下划线显示
 第二列四个语义较强，建议XHTML使用
 ```
+
+
+
+# em和i区别
+
+都是斜体标签
+
+em是语义化标签，表示强调
+
+i是纯样式的标签，已被废弃
 
 
 

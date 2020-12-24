@@ -3932,9 +3932,9 @@ console.log(a.__proto__.__proto__ == Object.prototype)//true
 
 ## 显式原型prototype
 
-每一个函数都内置一个原型属性：`prototype`对象，里面放置的是共有、公有的属性或者方法。(一般情况属性是私有的)。`prototype`对象是个对象所以他只有`__proto__`和`constructor`
+每一个函数都内置一个原型属性：`prototype`对象，里面放置的是共有、公有的属性或者方法。(一般情况属性是私有的)。`prototype`对象是个对象所以他只有`__proto__`和`constructor`。
 
-**只有函数才有prototyoe属性**，同时因为函数也是一种对象，所以同时函数也具有`__proto__`属性和`constructor`属性.
+**只有函数才有prototyoe属性**（同时因为函数也是一种对象，所以同时函数也具有`__proto__`属性和`constructor`属性）
 
 prototype是从**一个函数指向一个对象**。它的含义是**函数的原型对象**，也就是这个函数（所有函数都可以作为构造函数）所创建的实例的原型对象
 
@@ -3942,13 +3942,7 @@ prototype是从**一个函数指向一个对象**。它的含义是**函数的�
 
 
 
-`实例对象.__proto__`对象指向其`构造函数.prototype`对象
-
-而`构造函数.prototype.__proto__`对象又指向`Object.prototype`对象
-
-最终`Object.prototype.__proto__`指向null
-
-
+`实例对象.__proto__`对象指向其`构造函数.prototype`对象，而`构造函数.prototype.__proto__`对象又指向`Object.prototype`对象，最终`Object.prototype.__proto__`指向null，形成一条原型链
 
 ```javascript
 let people = function(name){
@@ -3966,13 +3960,16 @@ prototype对象的**作用**就是包含可以由特定类型的所有实例共�
 
 
 
-**任何函数在创建的时候，其实会默认同时创建该函数的原型对象prototype。所以`函数.prototype.constructor`就等于这段函数的代码**
-
-
-
 prototype既然是一个对象，也具有`__proto__`和constructor属性
 
+**任何函数在创建的时候，其实会默认同时创建该函数的原型对象prototype。所以`函数.prototype.constructor`就等于这段函数的代码**
+
 `函数.prototype.constructor`就等于这段函数的代码，说明函数prototype就是由自己本身创建的
+
+```
+function Foo() {}
+console.log(Foo.prototype.constructor) === Foo // true
+```
 
 `函数.prototype.__proto__`则指向了`Object.prototype`，说明函数对象的构造函数就Objcet
 
@@ -4523,57 +4520,86 @@ class User{
         //需要new时赋值的私有属性放这里
 		this.name = name
 	}
-    //实例的私有无需new时赋值的变量也可以放在外面
-    age = 21 //age是实例私有的，但不能new时赋值
+    //无需new时赋值的实例私有变量可以放在构造函数外
+    age = 21 //age是实例私有的，但不用new时赋值
 
-    //外面的方法相当于构造函数User原型中的实例对象的公有方法
-    show(){
+    //普通定义的方法相当于构造函数User原型中的实例对象的公有方法
+    showName(){
+        console.log(this.name)
+    }
+	
+	//箭头函数定义的方法相当于挂载在实例对象上的私有方法
+	showAge = () => {
         console.log(this.name)
     }
 }
 
-let a = new User('wtw') //new时赋值的属性放进constructor
+let a = new User('wtw')
+console.log(a) //{ age: 21, showAge: [Function: showAge], name: 'wtw' }
 ```
 
 
 
-## 类和原型链构造对象的区别
+## super()
 
-通过`构造函数.prototype.方法`添加的公共方法能被遍历到，因为对象特征默认`enumerable`可被遍历
+在原型那一章介绍过super，在构造函数中第一行调用super()指继承父类的全部私有属性
 
-class内的添加的方法对象特征`enumerable`是默认不可被遍历的
+```javascript
+// 父类构造函数
+constructor(name) {
+	this.name = name
+}
+
+// 子类构造函数
+constructor(name) {
+	super(name) // 调用父类的构造函数
+}
+```
 
 
 
-## 类自动严格模式
 
-声明类时，类内部自动启动严格模式
+
+## 方法
+
+类中定义普通函数是放在类的原型上，使用箭头函数定义类中的函数，则该函数放在对象实例上
 
 ```javascript
 class User{
-    show(){
-        function test(){
-        	console.log(this)//undefined
-            //如果不为严格模式默认应该指向window
-        }
-        test()
+    f1(){
+        console.log('f1在User原型上')
+    }
+    f2 = () => {
+        console.log('f2在对象实例上')
     }
 }
+
 let a = new User()
-a.show()
+console.log(a) // { f2: [Function: f2] }
+
+User.prototype.f1() // f1在User原型上
+a.f1() // f1在User原型上
+// 类原型上的属性实例对象也能访问
+
+a.f2() // f2在对象实例上
+a.f2 = function() {
+    console.log('123')
+}
+a.f2() // 123
+a.f1() = () => { console.log('456') } // 报错，对象不能直接修改原型上的方法
 ```
 
 
 
-## ES6 class继承
+
+
+## extends继承
 
 class定义的只能是构造函数，且外部构造函数的原型不能重定向
 
-**ES6使用class定义的类的继承要使用关键字：子类 extends 父类**
+ES6使用class定义的类的继承要使用关键字：class 子类 extends 父类
 
-**并且子类私有属性constructor中第一行必须使用super()获取父类的constructor私有属性并变为实例的私有属性（类似call的作用）**
-
-如果子类没写constructor，系统会默认把constructor和supe填上
+**并且子类私有属性constructor中第一行必须使用super()获取父类的constructor私有属性并变为实例的私有属性（类似call的作用），**如果子类没写constructor，系统会默认把constructor和supe填上
 
 `extend+super` 内部实现原理还是寄生组合继承（类似封装好的原型工厂），父类原型接上子类原型链，子类可以向上获取公有属性，并且父类本身私有属性通过`super()`变为子类私有属性
 
@@ -4585,6 +4611,9 @@ class Person{
 	showName(){
 		console.log(this.name)
 	}
+    showSex = () => {
+        console.log(this.sex)
+    }
 }
 class People extends Person{
 	constructor(name,age,sex){
@@ -4599,12 +4628,10 @@ class People extends Person{
 }
 
 let a = new People("wtw",21,"man")
-console.log(a)
+console.log(a) //People { showSex: [Function], sex: 'man', age: 21, name: 'wtw' }
 a.showName()//wtw
-//People { sex: 'man', age: 21, name: 'wtw' }
+
 ```
-
-
 
 
 
@@ -4614,28 +4641,31 @@ a.showName()//wtw
 
 **静态属性**
 
-直接在class类里写变量，则是实例的私有变量，如果使用static关键字定义变量，就变为了所有对象的公用变量，相当于往对象的原型链上加了个公用变量
+直接在class类里写变量，则是实例的私有变量（注意不要用let/var/const定义，直接定义，因为编译器不支持这种语法），如果使用static关键字定义变量，相当于往类上挂载了只有类本身能访问的变量（放在类本身上），这个变量实例访问不到，只有类能访问到
 
 ```javascript
 class User{
-	constructor(name){
-		this.name = name
-	}
     //直接在类内定义变量则为无需new赋值的实例私有变量
-    let age = 21
-
-    //添加在原型上的公共静态属性使用static定义
-	static sex = "man"
-
+    age = 21
+	static age = 30
     show(){
-        console.log(this.name)
+        console.log(this.age)
     }
 }
+
+let a = new User()
+console.log(a.age) // 21
+console.log(a.show()) // 21
+console.log(User.age) // 30
+console.log(User.show())
+// 报错，类不能直接使用类中的普通方法或变量，所以找不到show()，会报错show is not a function
 ```
+
+
 
 **静态方法**
 
-在class内直接写方法，方法会存在构造函数的原型上，变成实例对象调用的方法，而在方法前加static，这个方法就会存入构造函数的`__proto__`对象，变为函数调用的方法（例如apply，call等）
+和静态变量一样，加入static的方法就不能使用实例来调用了，只有构造函数自己能调用
 
 ```javascript
 class User{
@@ -4649,12 +4679,15 @@ class User{
 }
 let  a = new User()
 a.show()//实例对象调用
-User.show()
 
+User.show()
+// ture
 //构造函数自己调用
 ```
 
 
+
+静态属性和静态方法都可以extends给子类，子类可以调用父类挂载的静态属性和静态方法。
 
 
 
@@ -4761,11 +4794,11 @@ abc
 
 外部完全不能直接访问的属性，保护属性如果外界找到了最终的属性名还是能够通过点访问，并且也会子类实例也能通过继承使用和访问
 
-私有属性或者私有方法外界找到了变量名也不能通过点访问，只能通过内部来访问，子类也不能通过原型链使用
+而私有属性或者私有方法外界找到了变量名也不能通过点访问，只能通过内部来访问，子类也不能通过原型链使用
 
-**私有属性直接写在class体内，属性名前加#**
+私有属性直接写在class体内，属性名前加#
 
-**私有方法则需要用**`#私有方法变量名 = 函数`**的方式定义**，但注意不要用let/var/const定义，直接定义，因为编译器不支持这种语法
+私有方法则需要用`#私有方法变量名 = 函数`的方式定义，但注意不要用let/var/const定义，直接定义，因为编译器不支持这种语法
 
 ```javascript
 class User{
@@ -4809,23 +4842,39 @@ console.log(a.#name)  //报错，私有属性外界不能直接访问，会报�
 
 
 
-## super()
+## 类和原型链构造对象的区别
 
-在原型那一章介绍过super，在构造函数中第一行调用super()指继承父类的全部私有属性
+通过`构造函数.prototype.方法`添加的公共方法能被遍历到，因为对象特征默认`enumerable`可被遍历
+
+class内的添加的方法对象特征`enumerable`是默认不可被遍历的
+
+
+
+## 类自动严格模式
+
+声明类时，类内部自动启动严格模式
 
 ```javascript
-// 父类构造函数
-constructor(name) {
-	this.name = name
+class User{
+    show(){
+     function test(){
+       console.log(this)
+     }
+     test()
+    }
+    showThis = () => {
+      const test = () => {
+       	console.log(this)
+      }
+      test()
+    }
 }
-
-// 子类构造函数
-constructor(name) {
-	super(name) // 调用父类的构造函数
-}
+let a = new User()
+a.show()
+//undefined，如果不为严格模式普通定义函数test内this默认应该指向window
+a.showThis()
+// a对象，因为定义test时使用箭头函数
 ```
-
-
 
 
 
@@ -5372,7 +5421,11 @@ console.log(g.next())
 //{value : undefined, done: true}
 ```
 
-调用next方法会返回一个对象，这个对象包含两个属性，value和done，value即是当前yield语句的值。done表示Generator函数体是否被执行完。next方法同时接受一个参数，这个参数会作为**上一个**yield语句的返回值，可以被后面的程序所使用。当程序执行完或者遇到return语句，value即为函数体的返回值，done就变成了true。至此，如果再执行next方法，value就为undefined， done依然是true。
+调用next方法会返回一个对象，这个对象包含两个属性，value和done，value即是当前yield语句的值。done表示Generator函数体是否被执行完。
+
+next方法同时接受一个参数，这个参数会作为**上一个**yield语句的返回值，可以被后面的程序所使用。当程序执行完或者遇到return语句，value即为函数体的返回值，done就变成了true。
+
+至此，如果再执行next方法，value就为undefined， done依然是true。
 
 
 
