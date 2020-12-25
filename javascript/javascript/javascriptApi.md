@@ -231,22 +231,6 @@ console.log(user.hasOwnProperty("name"))//true
 
 
 
-
-
-### Object.getOwnPropertyNames(obj)
-
-这个api可以只遍历出在对象和数组本身的属性（类似于in关键字），忽略原型上的属性，并集合成一个数组
-
-```
-const obj= {a:1 ,b:2}
-console.log(Object.getOwnPropertyNames(obj))
-// ['a', 'b']
-```
-
-
-
-
-
 ### in关键字
 
 in和hasOwnProperty()不同
@@ -267,6 +251,32 @@ console.log('concat' in arr)//true
 
 
 
+
+
+### Object.getOwnPropertyNames(obj)
+
+这个api可以只遍历出在对象和数组本身的属性（类似于in关键字，但是不包括原型上的属性）并集合成一个数组
+
+```
+const obj= {a:1 ,b:2}
+console.log(Object.getOwnPropertyNames(obj))
+// ['a', 'b']
+```
+
+
+
+
+
+
+
+### Object.keys()
+
+打印出参数对象自身的所有键（不包含原型上的），并存入一个数组返回，传入数组则返回index组成的数组（例如['0', 1', '2', '3']）
+
+**也能使用for-in循环来遍历对象的键但是会包含原型上的属性**
+
+
+
 ### Object.assign()
 
 合并两个参数对象返回的新对象，如果属性重名，后一个参数优先级高
@@ -284,12 +294,6 @@ console.log(hd)//{b:2}
 ```
 
 
-
-### Object.keys()
-
-打印出参数对象的所有键，并存入一个数组返回，传入数组则返回index组成的数组（例如['0', 1', '2', '3']）
-
-**也能使用for-in循环来遍历对象的键**
 
 
 

@@ -5665,13 +5665,9 @@ window.onload = () => {
 ```javascript
 for(var i =0;i<=3;i++){
 	console.log(i)
+    //0 1 2 3
 }
-console.log(i)
-//0
-//1
-//2
-//3
-//4
+console.log(i) //4
 
 for(let t =0;t<=3;t++){
 	console.log(t) //0 1 2 3

@@ -258,7 +258,7 @@ interface创建用于描述**一个对象或者函数**的接口对象，**接�
 
 弱校验时，使用接口作为注解的对象除了拥有接口描述的属性，还能额外拥有自己的属性和方法，不会导致报错（属性可以多但不能少）
 
-
+描述html元素可以使用ts自带的HTMLElement，描述css可以使用ts自带的CSSDeclaration
 
 ## **描述对象**
 
@@ -880,7 +880,7 @@ console.log(user.getName())
 
 
 
-## 类访问类型
+## private/public/protected
 
 ts的类中的属性有三种访问类型private，protected，public
 
