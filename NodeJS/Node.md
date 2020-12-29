@@ -1010,11 +1010,15 @@ r1.on('close',function(){
 let path = require('path');
 ```
 
+
+
 ## 内置变量
 
 _dirname：获得执行文件所在目录的完整目录名
 _filename：获得执行文件的绝对路径名
 process.cwd()：获得当前执行node命令的文件夹目录名
+
+
 
 ## 获取文件拓展名：path.extname()
 
@@ -1026,6 +1030,8 @@ let info = path.extname(strPath)
 
 console.log(info)//.txt
 ```
+
+
 
 ## 路径拼接：path.resolve()
 

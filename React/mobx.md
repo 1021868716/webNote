@@ -430,6 +430,8 @@ ReactDOM.render(
 
 
 
+**组件通过props.store来访问挂载的store**
+
 3. 类组件（class）访问  `store1`和`store2`
 
 ```jsx
@@ -471,13 +473,13 @@ export default CounterClass;
 import React from 'react'
 import {inject, observer} from 'mobx-react';
 
-const CounterFunction = ({store1, store2}) => {
+const CounterFunction = (props) => {
   return (
     <div>
-      <p>count: {store1.count} </p>
-      <button onClick={() => store1.handleCount()}>Add</button>
-      <p>num: {store2.num} </p>
-      <button onClick={() => store2.handlenum()}>Add</button>
+      <p>count: {props.store1.count} </p>
+      <button onClick={() => props.store1.handleCount()}>Add</button>
+      <p>num: {props.store2.num} </p>
+      <button onClick={() => props.store2.handlenum()}>Add</button>
     </div>
   );
 }

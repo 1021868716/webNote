@@ -1,5 +1,75 @@
 # express脚手架
 
+- 直接安装express
+
+安装 Express 并将其保存到依赖列表中：
+
+```
+$ cnpm install express --save
+```
+
+以上命令会将 Express 框架安装在当前目录的 **node_modules** 目录中， **node_modules** 目录下会自动创建 express 目录。以下几个重要的模块是需要与 express 框架一起安装的：
+
+body-parser - node.js 中间件，用于处理 JSON, Raw, Text 和 URL 编码的数据。
+
+cookie-parser - 这就是一个解析Cookie的工具。通过req.cookies可以取到传过来的cookie，并把它们转成对象。
+
+multer- node.js 中间件，用于处理 enctype="multipart/form-data"（设置表单提交文件）的表单数据。
+
+```
+$ cnpm install body-parser --save
+$ cnpm install cookie-parser --save
+$ cnpm install multer --save
+```
+
+安装完后，我们可以查看下 express 使用的版本号：
+
+```
+$ cnpm list express
+/data/www/node
+└── express@4.15.2  -> /Users/tianqixin/www/node/node_modules/.4.15.2@express
+```
+
+
+
+```javascript
+// 创建index.js作为express的入口文件
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser'); 
+// 创建服务
+const app = express();
+
+// 使用 body-parser中间件处理post请求的body
+// bodyParser.urlencoded则用来解析form表单提交的数据
+// 也就是请求头中包含这样的信息：Content-Type: application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+// bodyParser.json是用来解析json数据格式的。
+app.use(bodyParser.json());
+
+// 注册cookie模块，在路由中可以使用req.cookie访问cookie
+app.use(cookieParser());
+
+// 创建路由
+app.post("/login", function (req, res) {
+    console.log(req.body);
+    res.send(req.body);
+});
+
+// 监听服务
+app.listen(3000, function () {
+    console.log("server start 3000");
+});
+```
+
+
+
+
+
+
+
+- 使用express-generator脚手架
+
 express-generator是express常用的脚手架工具，
 
 ```
@@ -12,17 +82,25 @@ cnpm install express-generator -g
 express projectName
 ```
 
-express目录
+express-generator目录
 
-- bin/www.js  开启http服务的配置文件，例如启动http服务，绑定端口号等，开启服务执行此文件
-- routes         路由文件夹
-- app.js          express入口文件，负责分发路由
-- public          静态文件目录文件夹，前后端不分离时使用，例如images，css，js等
-- views           html模板文件夹，前后端不分离时需要在后端集成html
+1. bin/www.js  
+
+   开启http服务的配置文件，例如启动http服务，绑定端口号等，开启服务执行此文件，`npm start`启动应用，其实就是调用`node ./bin/www`。
+
+2. routes         路由文件夹
+
+3. app.js          express入口文件，负责分发路由
+
+4. public          静态文件目录文件夹，前后端不分离时使用，例如images，css，js等
+
+5. views           html模板文件夹，前后端不分离时需要在后端集成html
 
 
 
 # app.js
+
+使用脚手架安装的express项目的路由配置app.js如下
 
 ```javascript
 var createError = require('http-errors'); // http错误模块
@@ -42,7 +120,7 @@ var app = express(); //初始化app，生成本次http请求的实例
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-//use进行模块注册
+//use进行模块和中间件注册
 app.use(logger('dev'));  //注册日志模块
 app.use(express.json()); // 解析post请求请求体，路由中通过req.body获取post中键值对格式的数据
 app.use(express.urlencoded({ extended: false })); // 解析post中其他数据（请求头）
@@ -160,7 +238,13 @@ app.use('/api/blog', blogRouter)
 
 app.use()是监听路由并执行中间件。通过这种方式处理路由和脚手架中通过引入文件在app.use()的方式结果是一样的。
 
-**app.use()中的中间件通过next进行串联**，回调函数的第三个参数next函数，就是去执行下一个命中的app.use()，如果没有执行next，这个请求就到此为止了，不访问下一个命中的app.use()开始返回数据了。
+**app.use()中的中间件通过next进行串联**，回调函数的第三个参数next函数，就是去执行下一个命中的app.use()，如果没有执行next，这个请求就到此为止了，不访问下一个命中的app.use()开始返回数据了。如果next接收一个参数，则代表抛出一个错误，参数为错误文本，抛出错误以后，后面的中间件将不再执行，直到发现一个错误处理函数为止。
+
+```javascript
+function uselessMiddleware(req, res, next) {
+  next('出错了！'); // 抛出错误，后面的next不再执行
+}
+```
 
 
 
