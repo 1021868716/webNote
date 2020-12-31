@@ -1257,17 +1257,19 @@ render(){
 
 组件初始化流程：1--->2--->3
 
-0.    **constructor()**
+0.     **constructor()**
 
 构造函数阶段
 
 
 
-1.	​	**componentWillMount()**
+1.	​	componentWillMount()   **v16.3后被废除**
 
 **componentWillMount()  组件即将（还没有）被挂载到页面上的时候执行一次**
 
 注：组件初始化前调用，以后组件更新不调用，**整个生命周期只调用一次**，此时可以修改state。
+
+
 
 2. 	​	**render()**
 
@@ -1275,9 +1277,7 @@ render()函数返回jsx并挂载到dom上
 
 state 或者 prop 改变，或者父组件的render函数触发时都会触发子组件的render函数重新渲染子组件
 
-**创建虚拟dom，进行diff算法，挂载真实dom**
-
-注：react最重要的步骤，创建虚拟dom，进行diff算法，更新dom树都在此进行。此时就不能更改state了。
+注：react最重要的步骤，**创建虚拟dom，进行diff算法，更新dom树都在此进行**。此时就不能更改state了。
 
 
 
@@ -1301,13 +1301,13 @@ state 或者 prop 改变，或者父组件的render函数触发时都会触发�
 
 
 
-1.	​	**componentWillReceiveProps(nextProps)**
+1.	​	componentWillReceiveProps(nextProps)    **v16.3后被废除**
 
 组件接受新的props时调用，父组件的render函数重新执行了，子组件的这个生命周期函数就会执行
 
 **如果是第一次被父组件渲染不会执行，之后父组件再传入props就会执行**
 
-注：componentWillReceiveProps组件初始化时不调用，组件接受新的props时调用。
+注：componentWillReceiveProps组件初始化时不调用，在组件接受新的props时调用。
 
 
 
@@ -1336,7 +1336,7 @@ shouldComponentUpdate(nextProps, nextState){
 
 
 
-3.	​	**componentWillUpdate(nextProps, nextState)**
+3.	​	componentWillUpdate(nextProps, nextState)   **v16.3后被废除**
 
 在组件被更新之前，shouldComponentUpdate()返回true之后执行
 
@@ -1364,7 +1364,9 @@ state (调用setState)或者 prop 改变，或者父组件的render函数触发�
 
 ## 卸载
 
-1. **componentWillUnmount()**
+卸载只涉及一个生命周期
+
+**componentWillUnmount()**
 
 把组件从页面上去除时执行
 
@@ -1372,9 +1374,9 @@ state (调用setState)或者 prop 改变，或者父组件的render函数触发�
 
 
 
-## 新增生命周期
+## v16.3生命周期
 
-**react v16.3删掉以下三个生命周期**
+**react v16.3以后删除以下三个生命周期**
 
 componentWillMount
 componentWillReceiveProps
@@ -1383,9 +1385,6 @@ componentWillUpdate
 
 
 新增两个生命周期
-
-static getDerivedStateFromProps
-getSnapshotBeforeUpdate
 
 **static getDerivedStateFromProps**
 
@@ -1400,6 +1399,8 @@ getSnapshotBeforeUpdate
 触发时间: update发生的时候，在render之后，在组件dom渲染之前。
 返回一个值，作为componentDidUpdate的第三个参数。
 配合componentDidUpdate, 可以覆盖componentWillUpdate的所有用法。
+
+
 
 
 
