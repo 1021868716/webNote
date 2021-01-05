@@ -1,4 +1,4 @@
-# Hooks钩子函数
+# Hooks
 
 Hook钩子函数是React 16.8以后的新特性，可以在不编写class继承Component的情况下（在不适用类的情况下）使用state和其他React特性（生命周期等）。
 

@@ -87,7 +87,7 @@ sw可以把应用里的所有静态动态资源根据不同策略缓存起来，
 
 sw生命周期如下
 
-![sw生命周期](.\assets\sw生命周期.jpg)
+![sw生命周期](https://upload-images.jianshu.io/upload_images/6201114-187180a283f20add.png?imageMogr2/auto-orient/strip|imageView2/2/w/702/format/webp)
 
 - No ServiceWorker（初始化状态）
 

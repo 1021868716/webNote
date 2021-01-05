@@ -1,3 +1,5 @@
+# Vue
+
 # vue渲染流程
 
 ```
@@ -6,15 +8,11 @@ template-->AST语法树-->render-->virtual dom-->真实dom(UI)
 
 
 
-
-
 # 引入Vue
 
     1.CDN引入
     2.下载引入
     3.NPM引入
-
-
 
 
 

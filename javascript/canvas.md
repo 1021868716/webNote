@@ -1,4 +1,4 @@
-# canvas
+# Canvas
 
 Echarts是基于canvas的，canvas是一个H5标签，在JS中通过操作这个dom当做画布，然后再创建一个对象进行画图。
 

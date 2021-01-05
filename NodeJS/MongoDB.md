@@ -1,4 +1,4 @@
-# mongoDB
+# MongoDB
 
 关系型数据库通过表格的形式存储数据，可以通过列来对不同的表格建立联系。
 
@@ -218,7 +218,7 @@ db.people.insert(
 
 # 新增文档
 
-以下三种插入方式（insertOne，insertMany，insert）的区别有：
+以下三种插入方式（insertOne，insertMany，insert/save）的区别有：
 
 1. 报错信息不同
 2. insertOne/Many不支持`db.<collection>.explain()`命令
@@ -317,7 +317,7 @@ WriteError({
 
 - 插入一篇或者多篇文档：`db.<collection>.insert()`  / `db.<collection>.save()`
 
-  可以传入单篇文档或者文档数组，options和insertMany一致。当写入操作成功后，mongo shell返回的成功对象的nInserted字段表示成功插入的文档篇数。save内部就是调用insert，两者等同。
+  可以传入单篇文档或者文档数组，options和insertMany一致。当写入操作成功后，mongo shell返回的成功对象的nInserted字段表示成功插入的文档篇数。save方法为如果 _id 主键存在则更新数据，如果不存在就插入数据。该方法新版本中已废弃。
 
 
 
@@ -337,7 +337,7 @@ WriteError({
 
 
 
-query可以添加筛选条件
+- query：添加筛选条件
 
 并（and），可以直接在上一个条件后面进行添加
 
@@ -362,6 +362,8 @@ db.people.find({ name: "abc", $or: [{age: 20}, {age: 40}] })
 
 
 
+- projection：投射，查询结果只展示规定的字段
+
 
 
 ## 操作符
@@ -373,10 +375,11 @@ db.people.find({ name: "abc", $or: [{age: 20}, {age: 40}] })
 | 操作     | 格式                     | 范例                               | SQL               |
 | :------- | :----------------------- | :--------------------------------- | :---------------- |
 | 等于     | `{<key>:<value>`}        | `db.col.find({"by":"菜鸟教程"})`   | where by = '菜鸟' |
+| 等于     | `{<key>:{$eq:<value>}}`  | `db.col.find({"likes":{$eq:50}}))` | where by = '菜鸟' |
 | 小于     | `{<key>:{$lt:<value>}}`  | `db.col.find({"likes":{$lt:50}}))` | where likes < 50  |
 | 小于等于 | `{<key>:{$lte:<value>}}` | `db.col.find({"likes":{$lte:50}})` | where likes <= 50 |
 | 大于     | `{<key>:{$gt:<value>}}`  | `db.col.find({"likes":{$gt:50}})`  | where likes > 50  |
 | 大于等于 | `{<key>:{$gte:<value>}}` | `db.col.find({"likes":{$gte:50}})` | where likes >= 50 |
 | 不等于   | `{<key>:{$ne:<value>}}`  | `db.col.find({"likes":{$ne:50}})`  | where likes != 50 |
 
-对字符串进行比较，则会根据首字母排序得出结果
+如果对字符串进行比较，则会根据首字母排序得出结果

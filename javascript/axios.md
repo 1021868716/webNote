@@ -625,14 +625,10 @@ export function request(config) {
 
 
 1.请求拦截interceptors.request.use
-axios.interceptors是全局请求拦截器
-也可以单独拦截创建的axios.creat实例
+axios.interceptors是全局请求拦截器，也可以单独拦截创建的axios.creat实例
 实例名.interceptors就是请求实例拦截器
-拦截器参数为两个函数
-一个是拦截函数，执行拦截后的操作
-一个是发送失败函数（很少被用到，是指还没拦截发送就失败了）
-拦截函数拿到的参数是发送给服务器的config网络配置
-拦截函数会将config拦截了，我们还需要发送给服务器
+拦截器参数为两个函数：一个是拦截函数，执行拦截后的操作，一个是发送失败函数（很少被用到，是指还没拦截发送就失败了）。
+拦截函数拿到的参数是发送给服务器的config网络配置，拦截函数会将config拦截了，我们还需要发送给服务器
 所以最后必须将config发送服务器return config
 
 ```js

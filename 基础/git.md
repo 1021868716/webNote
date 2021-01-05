@@ -1,6 +1,6 @@
 # git
 
-![bg2015120901](./git.assets\bg2015120901.png)
+![git](https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2731384769,1190549896&fm=26&gp=0.jpg)
 
 git是一个版本控制工具，svn是集中式版本控制工具，git是分布式版本控制工具。
 

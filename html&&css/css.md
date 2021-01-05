@@ -1,3 +1,7 @@
+# css
+
+
+
 # 浏览器与内核
 
 Wekbit是一个开源的Web浏览器引擎，也就是浏览器的内核。Apple的Safari, Google的Chrome, Nokia S60平台的默认浏览器，Apple手机的默认浏览器，Android手机的默认浏览器均采用的Webkit作为器浏览器内核。Webkit的采用程度由 此可见一斑，理所当然的成为了当今主流的三大浏览器内核之一。另外两个分别是Gecko和Trident，大名鼎鼎的Firefox便是使用的Gecko 内核，而微软的IE系列则使用的是Trident内核。
@@ -23,6 +27,15 @@ Wekbit是一个开源的Web浏览器引擎，也就是浏览器的内核。Apple
 | -o-        | Opera                                  |
 | -ms-       | Internet Explorer, Edge                |
 | -khtml-    | Konqueror                              |
+
+```css
+.div{
+  position:relative;
+  -moz-background-size:50%;
+  -ms-content-zoom-limit-max:50%;
+  -o-box-shadow:5px10px20px#f0f;
+}
+```
 
 
 
@@ -75,11 +88,11 @@ rel：定义当前文档与被链接文档之间的关系，在这里需要指�
 
 # 引入CSS
 
-```
+```html
 <link href="img/divcss5.css" rel="stylesheet"/>
 ```
 
-```
+```css
 @import url("img/divcss5.css")
 ```
 
@@ -87,43 +100,33 @@ rel：定义当前文档与被链接文档之间的关系，在这里需要指�
 
 
 
+# 层叠性
 
-
-# CSS三大特性
-
-## 层叠性
-
-```
 层叠性是浏览器处理样式冲突的能力
 1.权重相同时样式冲突采取就近原则，权重高则应用权重高的样式
 2.样式不冲突采取叠加原则
-```
 
-## 继承性
 
-```
+
+# 继承性
+
 子标签会继承父标签的能复用的样式，想设置一个可继承的属性，将其指定给父标签即可
 一般来说跟文本相关的样式是可复用样式，宽，高等样式不可复用
 行高，文字颜色，字体等都会继承
-```
 
-## 优先级
 
-```
-通配符选择器或者继承的权重为0
-每个元素的权重是  0, 0, 0, 1
-类和伪类的权重是  0, 0, 1, 0
-id的权重是        0, 1, 0, 0
-行内样式表的权重  1, 0, 0, 0
 
-每个!important的权重无限大
-例如color：red!imortant
+# 权重
 
-```
+通配符选择器或者继承的权重为：0，0，0，0
+每个元素的权重是： 0，0，0，1
+类和伪类的权重是：  0，0，1，0
+id的权重是：0，1，0，0
+行内样式表的权重：  1，0，0，0
 
-```
+!important的权重无限大，例如`color：red!imortant`
+
 权重是可以叠加的，选择器的组成会叠加权重，每位权重单独相加，而且权重不会进位
-```
 
 
 
@@ -141,13 +144,11 @@ id的权重是        0, 1, 0, 0
 
 在css中单位长度用的最多的是px、em、rem，这三个的区别是：
 
-　　px是固定的像素，一旦设置了就无法因为适应页面大小而改变。
+1. px是固定的像素，一旦设置了就无法因为适应页面大小而改变。
 
-　　em和rem相对于px更具有灵活性，他们是相对长度单位，意思是长度不是定死了的，更适用于响应式布局。
+2. em和rem相对于px更具有灵活性，他们是相对长度单位，意思是长度不是定死了的，更适用于响应式布局。
 
 对于em和rem的区别一句话概括：**em相对于父元素的font-size，rem相对于根元素（html）的font-size。**
-
-
 
 
 
@@ -179,6 +180,8 @@ id的权重是        0, 1, 0, 0
   }
   cs
   ```
+
+
 
 ## rem
 
@@ -349,8 +352,6 @@ width=device-width表示根据屏幕尺寸进行自定宽度
 
 }
 ```
-
-
 
 缺点：
 
@@ -544,14 +545,14 @@ margin: auto只能水平居中还需要配合定位实现水平垂直
 
 # 水平居中
 
-1）margin: 0 auto;
+1）`margin: 0 auto;`
 
 
 
-2）绝对定位导致margin: 0 auto;失效
+2）绝对定位导致`margin: 0 auto;`失效
 
-绝对定位下margin:auto会失效，这时设置left:50%，然后设置margin-left的值为层的宽度的一半
-如果是要垂直居中，也是一样的方法，即设置top:50%,然后设置margin-top的值为层的高度的一半
+绝对定位下margin:auto会失效，这时设置`left:50%`，然后设置margin-left的值为层的宽度的一半
+如果是要垂直居中，也是一样的方法，即设置`top:50%`，然后设置margin-top的值为层的高度的一半
 
 ```css
 {
@@ -596,7 +597,7 @@ BFC形成一个完全封闭不会影响外部的空间，触发方式为脱标
 
 - position不为relative（绝对定位）和static
 
-- overflow为auto  scroll  和hidden
+- overflow为auto  、scroll  和hidden
 
 - display为`table-cell`，`inline-block`，`flex`等
 
@@ -661,7 +662,7 @@ id选择器，大多数html元素都有id属性，可以用该id属性定位该�
 
 
 
-- *class
+- *
 
 通配符选择器*号表示，表示所有html元素全部选中。
 ```
@@ -683,6 +684,12 @@ id选择器，大多数html元素都有id属性，可以用该id属性定位该�
 
 
 
+- .class1.class2
+
+  .class1.class2的意思是且，代表两个类名必须都具备
+
+
+
 - 交集并集选择器
 
 交集选择器：选择器之间用点隔开，a选择器.class选择器{ }，就能选中a和class选择器之交集的元素
@@ -701,22 +708,12 @@ id选择器，大多数html元素都有id属性，可以用该id属性定位该�
 
 如 div[class]可以选出所有带有class属性的div，div[class=demo]选择calss为demo的div，元素可以省略，则不限定元素得进行选择
 选择公式：
-=  选择为该条件的属性，如div[class=demo]选择calss为demo的div
-^= 选择以该条件开头的属性，div[class^=demo]class以demo开头的div
-$= 选择以该条件结尾的属性，div[class$=demo]class以demo结尾的div
+`=`  选择为该条件的属性，`div[class=demo]`选择calss为demo的div
+`^=` 选择以该条件开头的属性，`div[class^=demo]`选择class以demo开头的div
+`$=` 选择以该条件结尾的属性，`div[class$=demo]`选择class以demo结尾的div
 `*=` 选择具有该条件的属性，`div[class*=demo]`class名中含有demo的div（demo可以在名字开头中间结尾都可以）
 
 
-
-- .class1 .class2
-
-  父子选择器，代表选中class1下的class2
-
-
-
-- .class1.class2
-
-  .class1.class2的意思是且，代表两个类名必须都具备
 
 
 
@@ -753,20 +750,21 @@ lvha顺序不能调换，但可以省略
 
 
 
-`::before和::after`
+`::before`/`::after`
 
-```
- ::before和::after是在元素盒子里面插入一个盒子,可以用来减少代码中的元素盒子，优化代码结构。
+ `::before`和`::after`是在元素盒子里面插入一个盒子,可以用来减少代码中的元素盒子，优化代码结构。
+
+```css
  元素::before{
- content:" "<!--必须拥有content属性，可以为空可以添加文字，该文字会添加在元素内容之前-->
+   content:" "<!--必须拥有content属性，可以为空可以添加文字，该文字会添加在元素内容之前-->
  }
- 在元素内部插入一个行内盒子在元素内容之前，before创造的盒子不算一个元素但拥有元素特性，所以叫伪元素，注意该盒子初始拥有的是行内元素特性。
+ /*在元素内部插入一个行内盒子在元素内容之前，before创造的盒子不算一个元素但拥有元素特性，所以叫伪元素，注意该盒子初始拥有的是行内元素特性。*/
 
 
 元素::after{
   content:" "<!--必须拥有content属性，可以为空也可以添加文字，该文字会添加在元素内容之前-->
 }   
-在元素内部插入一个行内盒子在元素内容之后
+/*在元素内部插入一个行内盒子在元素内容之后*/
 ```
 
 
@@ -799,21 +797,6 @@ lvha顺序不能调换，但可以省略
 
 
 
-# 权重
-
-权重可以相加，但不能进位，权重相同后写的生效
-
-通配符选择器或者继承的权重为0
-每个元素的权重是  0, 0, 0, 1
-类和伪类的权重是  0, 0, 1, 0
-id的权重是        0, 1, 0, 0
-行内样式表的权重  1, 0, 0, 0
-
-每个!important的权重无限大
-例如color：red!imortant
-
-
-
 
 
 # width/height
@@ -840,11 +823,11 @@ id的权重是        0, 1, 0, 0
 
 是否可以用户手动调整元素大小，规定可以由用户调整 div 元素的大小
 
-    属性值
-    none	用户无法调整元素的尺寸。
-    both	用户可调整元素的高度和宽度。
-    horizontal	用户可调整元素的宽度。
-    vertical	用户可调整元素的高度。
+属性值
+none	用户无法调整元素的尺寸。
+both	用户可调整元素的高度和宽度。
+horizontal	用户可调整元素的宽度。
+vertical	用户可调整元素的高度。
 
 
 
@@ -939,9 +922,11 @@ background-size: length|percentage|cover|contain;
 ## 背景透明
 
 ```
-rgba(r,g,b,a)  alpha在0~1之间，rgba归属在color属性下
-一般r=g=b=0，然后再取a的值，意思是黑盒子取透明度
+rgba(r, g, b, alpha)
 ```
+
+alpha在0~1之间，rgba归属在color属性下
+一般r=g=b=0，然后再取a的值，意思是黑盒子取透明度
 
 
 
