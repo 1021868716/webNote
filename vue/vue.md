@@ -130,21 +130,21 @@ const app = new Vue(options)
 
 创建Vue实例时传入了一个对象options，options具有以下常用属性
 
-el：类型是string | HTMLElement，作用是挂载元素，决定管理那个DOM
+​	el：类型是string | HTMLElement，作用是挂载元素，决定管理那个DOM
 
-data：类型是Object | Function，作用是Vue实例对应的数据对象
+​	data：类型是Object | Function，作用是Vue实例对应的数据对象
 
-methods：Function，作用是为Vue添加方法
+​	methods：Function，作用是为Vue添加方法
 
-computed：Function，添加计算属性方法，使用时当成属性使用，无需加()
+​	computed：Function，添加计算属性方法，使用时当成属性使用，无需加()
 
-filters：Function，过滤器，让数据以正确的方式显示
+​	filters：Function，过滤器，让数据以正确的方式显示
 
-components: 注册局部组件
+​	components: 注册局部组件
 
-watch: 绑定监听的数据变化后的回调
+​	watch: 绑定监听的数据变化后的回调
 
-生命周期函数属性:作用是运行到该生命周期后再执行该函数
+​	生命周期函数: 作用是运行到该生命周期后再执行该函数
 
 
 
@@ -335,7 +335,7 @@ app.letters[0]='tai';
 
 # Vue.set()/delete()
 
-如果在实例创建之后添加新的属性到实例上，它不会触发视图更新。改变vue实例中引用类型的属性值，这样的修改会被vue监控到。
+如果在实例创建之后添加新的属性到已经监控的data对象上，它不会触发视图更新。改变vue实例中引用类型的属性值，这样的修改会被vue监控到。
 
 `Vue.set(obj,"属性名",属性值)`
 
@@ -2559,13 +2559,10 @@ components: {
 ```javascript
 // 在头部无需引入，在components中通过一个函数引入
 components: {
-	componentA: ()=> import(/*webpackChunkName: "chunkName"*/ './a')
+	componentA: () => import(/*webpackChunkName: "chunkName"*/ './a')
+    // 可以使用webpack魔法注释为chunk命名
 }
 ```
-
-可以使用webpack魔法注释为chunk命名
-
-
 
 
 
@@ -2605,7 +2602,9 @@ components: {
         components:{
             cpn:{
                 template:'#tem'
-            }}})
+            }
+        }
+    })
 </script>
 ```
 
@@ -2642,7 +2641,9 @@ components: {
         components:{
             cpn:{
                 template:'#tem'
-            }}})
+            }
+        }
+    })
 </script>
 ```
 
@@ -2689,7 +2690,11 @@ components: {
         data() {
           return {
             isShow: false
-          }}}}})
+          }
+        }
+      }
+    }
+  })
 </script>
 ```
 
@@ -2927,9 +2932,9 @@ vue中如果需要使用动画的时候，需要使用一个内置组件transiti
 <body>
     <div id="app">
         <transition 
-        name="fade"
-        enter-active-class="animated swing"
-        leave-active-class="animated tada">
+          name="fade"
+          enter-active-class="animated swing"
+          leave-active-class="animated tada">
           <div v-if="show">
               hello,world
           </div>
@@ -2990,7 +2995,7 @@ export const itemMixin={
 
 
 
-4.混入完成，如果需要添加特定代码直接写入这个created属性最后代码会合并起来
+4. 混入完成，如果需要添加特定代码直接写入这个created属性最后代码会合并起来
 
 
 
@@ -3051,7 +3056,7 @@ Vue.mixin(options)
 Vue程序的运行过程，模板template会先保存在vm.options.template中，vm.options.template然后parse（解析）成ast（抽象语法树），然后ast会compile(编译)成render函数(vm.option.render)，render函数会创建虚拟dom并形成虚拟dom树，虚拟dom树最后会渲染到页面（UI）上
 
 ```javascript
-template-->AST语法树-->render-->virtual dom-->真实dom(UI)
+template --> AST语法树 --> render --> virtual dom --> 真实dom(UI)
 ```
 
 vue的runtime-compiler和runtime-only模式的区别在于，runtime-compiler的main.js中Vue实例中直接使用模板，runtimee-only的main.js中Vue实例中没有模板，直接从render->vdom->UI
@@ -3062,15 +3067,9 @@ runtime-only的性能更高，源码的代码量更少（小6kb左右），真�
 
 ## render函数
 
-vue实例中的render函数的参数是createElement函数，简写是h
-
-
-
-createElement函数传入标签名，则用这个h2标签直接替换掉app中的内容
+vue实例中的render函数的参数是createElement函数，简写是h，createElement函数传入标签名`createElement(tag)`，则用这个h2标签直接替换掉app中的内容
 
 ```javascript
-createElement('标签')
-
 render: function(createElement){
     return createElement('h2')
 }
@@ -3097,9 +3096,11 @@ render: function(createElement){
 
 ```javascript
 render: function(createElement){
-    return createElement('h2',
-                {class:'box'},
-                ['hello world',createElement('button',['btn'])])
+    return createElement(
+        'h2',
+        {class:'box'},
+        [ 'hello world', createElement('button',['btn']) ]
+    )
 }
 
 <h2 class='box'>hello world<button>btn</button></h2>
@@ -3127,11 +3128,7 @@ new Vue({
   // components: { App },
   // template: '<App/>'
   
-  render: function(createElement){
-      return createElement(cpn)
-        //传入组件对象
-    }
-    //箭头函数：createElement => createElement(cpn)
+  render: createElement => createElement(cpn) //传入组件对象
 })
 ```
 
@@ -3162,6 +3159,245 @@ new Vue({
 vue-loader用于webpack加载.vue文件，vue-template-compiler用于将template编译成render函数
 
 选择runtime模式创建工程会默认开发式依赖下载安装vue-template-compiler，其他文件的template模板都会被vue-template-compiler自动编译为render函数
+
+
+
+# webpack配置Vue
+
+1. npm引入Vuejs，vue会被加载进node环境
+
+```
+npm install vue --save
+```
+
+2. 在main.js文件里引入vue
+
+```
+import Vue from 'vue'
+```
+
+3. webpack中配置vue
+
+   直接使用代码运行vue会报错runtime-only，import的vue默认使用runtime-only版本，所以需要在webpack配置文件中module.exports对象下配置版本。
+
+   runtime-only版本：代码中不可以有任何template
+
+   runtime-compiler版本：代码中可以有template
+
+```javascript
+resolve:{
+  alias:{
+    'vue$':'vue/dist/vue.esm.js'
+    //import的vue.runtime.js会被替换为vue.esm.js
+   }
+}
+```
+
+4. 使用Vue
+
+```javascript
+import Vue from 'vue'
+const app = new Vue({
+    el:'#app',
+    template:`
+        <div>
+            <h2>{{message}}</h2>
+            <button @click="btnClick">btn</button>
+            <h2>{{name}}</h2>
+        </div>
+    `,
+    methods:{
+      btnClick(){
+      }
+    },
+    data:{
+        message:'vue',
+        name:'wtw'
+    }
+})
+
+```
+
+
+
+# vue项目
+
+html主页模板确定后，后期不方便频繁修改，当使用vue时，Vue实例内同时有el和template，template会将el替换掉，主页html只需要一个el挂载的div就可以了，这样修改html就不用修改主页文件了。
+
+但vue实例里加太多template，数据和方法会很臃肿，需要抽取出来，所以实际开发中都是使用后缀`.vue`的文件实现分离。
+
+
+
+## 使用template
+
+```javascript
+import Vue from 'vue'
+const APP = {
+    template:`
+        <div>
+            <h2>{{message}}</h2>
+            <button @click="btnClick">btn</button>
+            <h2>{{name}}</h2>
+        </div>
+    `,
+    data(){
+        return{
+        message:'vue',
+        name:'wtw'
+        }
+    },
+    methods:{
+        btnClick(){}
+    }
+};
+
+new Vue({
+    el:'#app',
+    template:`<APP></APP>`,
+    components:{APP}
+});
+```
+
+
+
+然后再将app组件封装进一个js文件，在将模块导入入口js文件，可以使入口文件更简洁
+
+```javascript
+//入口文件main.js
+import Vue from 'vue'
+import APP from './VUE/app'
+
+new Vue({
+    el:'#app',
+    template:`<APP></APP>`,
+    components:{APP}
+});
+
+//app.js
+export default {
+    template:`
+        <div>
+            <h2>{{message}}</h2>
+            <button @click="btnClick">btn</button>
+            <h2>{{name}}</h2>
+        </div>
+    `,
+    data(){
+        return{
+            message:'vue',
+            name:'wtw'
+        }
+    },
+    methods:{
+        btnClick(){}
+    }
+}
+```
+
+
+
+## 使用.vue
+
+1.安装依赖
+
+安装vue-loader解析`.vue`结尾的文件
+安装vue-template-compiler用于将template编译成render函数
+
+```
+npm install --save-dev vue-loader vue-template-compiler
+```
+
+
+
+2.配置rules
+
+在webpack配置文件中的module对象下rules配置，将以`.vue`为后缀的文件通过vue-loader解析
+
+```javascript
+{
+  test: /\.vue$/,
+  use: { loader:'vue-loader' }
+}
+```
+
+
+
+3.创建.vue文件
+
+```javascript
+//main.js
+import Vue from 'vue'
+//引入App组件
+import APP from './VUE/App.vue'
+new Vue({
+  el:'#app',
+  template:`<APP></APP>`,
+  components:{APP}
+});
+```
+
+```vue
+//App.vue
+<template>
+    <div>
+        <h2>{{message}}</h2>
+        <button @click="btnClick">btn</button>
+        <h2>{{name}}</h2>
+        <Cpn></Cpn>
+    </div>
+</template>
+
+<script>
+  import Cpn from './Cpn.vue';
+  //从另一个文件里导入Cpn组件
+  export default {
+    name: "App",
+    components:{
+      Cpn
+    },
+    data(){
+      return{
+        message:'vue',
+        name:'wtw'
+      }},
+    methods:{
+      btnClick(){}
+    }}
+</script>
+
+<style scoped>
+.title{
+    color: green;
+}
+</style>
+```
+
+```vue
+//Cpn.vue
+//组件APP的子组件Cpn
+<template>
+    <div>
+        <h2>我是Cpn标题</h2>
+        <p>内容</p>
+        <h2>{{name}}</h2>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "Cpn.vue",
+        data(){
+            return{
+                name:'cpn组件的name'
+            }
+        }
+    }
+</script>
+<style scoped>
+</style>
+```
+
+
 
 
 
@@ -3233,6 +3469,8 @@ CLI3创建工程命令：`vue create projectname`，CLI3创建工程后会自动
 node文件夹包括各种node包，public相当于CLI2的static文件夹，放静态文件，src是源代码文件夹
 
 因为CLI3通过vue-cli-service管理了配置文件实现0配置，将CLI中的dev修改为serve，`"serve": "vue-cli-service serve"`，所以启动本地服务器的命令变为：`npm run serve`
+
+
 
 ## CLI3配置修改方式
 

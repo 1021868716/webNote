@@ -158,9 +158,7 @@ plugin可以扩展webpack的功能，使得webpack更加灵活。可以在构建
 
 # 配置文件
 
-webpack的默认配置文件是`webpack.config.js`，该文件导出一个对象，对象内设置了webpack的各种配置
-
-如果想使用其他文件作为webpack的配置文件则运行命令，将webpack的配置文件进行指定
+webpack的默认配置文件是`webpack.config.js`，该文件导出一个对象，对象内设置了webpack的各种配置，如果想使用其他文件作为webpack的配置文件则运行命令，将webpack的配置文件进行指定
 
 ```
 npx webpack --config 文件名
@@ -197,6 +195,111 @@ module.exports = {
         template: 'src/index.html'  //模板文件地址
     })  
     ]
+}
+```
+
+
+
+# 配置文件分离
+
+有些配置是开发时需要用到的（例如本地服务器devserver），有些配置是上线时需要用到的配置（例如压缩js插件ugluglifyjs），所以可以将配置文件进行抽离，根据不同环境使用不同配置
+
+1. **在项目根目录下创建一个build文件夹专门放置配置文件**
+
+在build下创建三个配置js文件 base.config.js，prod.config.js， dev.config.js，分别对应开发上线都需要的配置，生产环境的配置和开发环境的配置
+
+- base.config.js：开发上线都要使用的公共配置放这里
+
+
+
+- prod.config.js：生产时使用的配置放这里（例如 uglifyJsPlugin），上线时将prod和base合并
+
+```javascript
+const uglifyJsPlugin = require('uglifyjs-webpack-plugin');
+module.exports={
+  plugins:[
+    new uglifyJsPlugin()
+  ]
+}
+```
+
+
+
+- dev.config.js：开发使用的配置放这里（例如devServer），开发调试时将dev和base合并
+
+```javascript
+module.exports={
+devServer:{
+  contentBase: './dist',//选择服务的文件夹
+  inline: true
+}
+}
+```
+
+
+
+2. **下载分离合并插件webpack-merge**
+
+```
+npm install webpack-merge
+```
+
+
+
+3. **配置**
+
+在prod.config.js中导入merge插件和base配置文件
+
+```JavaScript
+const uglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const webpackMerge = require('webpack-merge');
+const baseConfig = require('./base.config');
+module.exports = webpackMerge(baseConfig,{
+   plugins:[
+     new uglifyJsPlugin()
+]})
+```
+
+
+
+在dev.config.js中导入merge插件和base配置文件
+
+```JavaScript
+const webpackMerge = require('webpack-merge')
+const baseConfig = require('./base.config')
+module.exports=webpackMerge(baseConfig,{
+  devServer:{
+     contentBase: './dist',
+     //选择服务的文件夹
+     inline: true
+   }
+})
+```
+
+
+
+删除根目录下原webpack.config.js配置文件，在package.json中脚本里修改配置文件地址，对"scripts"下"build"和"dev"字段进行修改
+
+```json
+//"build":"webpack"
+"build":"webpack --config ./build/prod.config.js"
+//"dev":"webpack-dev-server"
+"dev":"webpack-dev-server --open --config ./build/dev.config.js"
+```
+
+运行build命令会使用prod配置和base配置，运行dev使用dev配置和base配置
+
+
+
+4. **修改base配置文件中出口打包地址**
+
+base.config.js中将output的path属性修改为` path:path.resolve(__dirname,'dist')`
+原来的打包地址为配置文件同目录下创建dise文件夹，现在配置文件放入build文件夹了，所以需要修改出口地址
+
+```javascript
+//enter属性不用修改，enter以package.json为准
+output: {
+  path:path.resolve(__dirname,'../dist') 
 }
 ```
 
@@ -889,7 +992,7 @@ module.exports = {
 
 模仿devServer实现启动一个服务器
 
- **在package.json中进行配置，自定义一个命令用于启动服务器**
+1.  **在package.json中进行配置，自定义一个命令用于启动服务器**
 
 ```json
 "script":{
@@ -899,7 +1002,9 @@ module.exports = {
 }
 ```
 
-**安装express和webapck-dev-middleware**
+
+
+2. **安装express和webapck-dev-middleware**
 
 webapck-dev-middleware是一个用于webpack开发的中间件
 
@@ -907,7 +1012,9 @@ webapck-dev-middleware是一个用于webpack开发的中间件
 npm install express webapck-dev-middleware
 ```
 
-**在根目录创建一个server.js用于创建服务器**
+
+
+3. **在根目录创建一个server.js用于创建服务器**
 
 webpack可以在node中使用，也可以在命令行中使用，在node中使用需要引入webpack库并传入配置对象
 
@@ -928,9 +1035,7 @@ app.listen(3000, () => {
 })
 ```
 
-之后使用npm run server即可启动自己创建的服务器，每当src改变，就会重新打包
-
-进入`localhost:3000`即可查看到服务器
+之后使用npm run server即可启动自己创建的服务器，每当src改变，就会重新打包，进入`localhost:3000`即可查看到页面
 
 
 

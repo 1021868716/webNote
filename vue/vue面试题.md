@@ -941,7 +941,9 @@ while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
 
 
 
-## js的with语法
+## with沙箱
+
+JavaScript有with语法，用于制造沙箱环境（常见的沙箱还要Proxy）
 
 ```javascript
 const obj = { a: 100, b: 200 }
