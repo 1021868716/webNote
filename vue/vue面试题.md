@@ -180,7 +180,7 @@ keyCode按键编码,keyAlias按键名称,用于监听某个的键盘按键点击
 
 # scoped样式模块化
 
-在*vue*组件中,在*style*标签上添加scoped属性,以表示它的样式作用于当下的*模块*,很好的实现了样式私有化的目的
+在*vue*组件中,在style标签上添加scoped属性,以表示它的样式作用于当下的*模块*,很好的实现了样式私有化的目的
 
 
 
@@ -937,9 +937,7 @@ while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
 
 模板时vue开发中最常用的部分，模板类似html但不是html，它有指令，插值，表达式。html只是标记语言，只有js这样的图灵完备语言才能执行判断和循环等操作。
 
-因此模板肯定是将类html代码转化为了某种js代码来完成这些操作。这样的过程叫模板编译。
-
-模板编译为render函数，执行render函数返回vnode，基于vnode在执行patch和diff。
+因此模板肯定是将类html代码转化为了某种js代码来完成这些操作。这样的过程叫模板编译。模板编译为render函数，执行render函数返回vnode，基于vnode在执行patch和diff。
 
 
 
@@ -965,7 +963,7 @@ with的作用是将`with(obj){}`作用域内的自由变量（例如变量a，�
 
 ## vue-template-compiler
 
-vue-template-compiler模块可用于将 Vue 2.0 模板预编译为渲染函数（template => ast => render）**，以避免运行时编译开销和 CSP 限制。**大都数场景下，与 vue-loader一起使用，只有在编写具有非常特定需求的构建工具时，才需要单独使用它
+vue-template-compiler模块可用于将 Vue 2.0 模板预编译为渲染函数（template => ast => render）**，以避免运行时编译开销和 CSP 限制。**大都数场景下，与 vue-loader一起使用，只有在编写具有非常特定需求的构建工具时，才需要单独使用它。
 
 `vue-template-compiler` 的代码是**从 vue 源码中抽离的**！对比一下 `vue-template-compiler` 和 vue 关于编译的 API。发现对于 compile 等函数是一致，只是 `vue-template-compiler` 开放的参数和方法更多。因此，**vue 和 vue-template-compiler 的版本必须一致（同一份源码）！**
 

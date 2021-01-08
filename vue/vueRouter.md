@@ -719,19 +719,9 @@ meta属性，元数据，描述数据的数据
 
 ------
 
-然后在index.js中添加router.beforeEach()导航守卫函数
+然后在index.js中添加router.beforeEach()导航守卫函数，导航守卫函数是一个前置回调钩子，当从一个路由跳转到另外一个路由前就会执行该函数。
 
-导航守卫函数是一个前置回调钩子
-
-当从一个路由跳转到另外一个路由前就会执行该函数
-
-router是我们创建的VueRouter实例对象
-
-router有一个beforeEach是导航守卫,需要传入一个函数
-
-这个函数有三个参数to，from，next（无需修改直接使用）
-
-必须传入并执行next()用于路由跳转，不然路由会失效
+router是我们创建的VueRouter实例对象，router有一个beforeEach是导航守卫,需要传入一个函数，这个函数有三个参数to，from，next（无需修改直接使用），必须传入并执行next()用于路由跳转，不然路由会失效
 
 参数的意思是路由从from跳转到to最后执行next是路由保持运行
 
@@ -746,8 +736,7 @@ router.beforeEach((to,from,next)=>{
 
 
 
-后置回调钩子
-当从一个路由跳转到另外一个路由后就会执行该函数
+后置回调钩子：当从一个路由跳转到另外一个路由后就会执行该函数
 
 ```javascript
 router.afterEach((to,from)=>{
@@ -817,8 +806,7 @@ exclude - 字符串或正则表达式，任何匹配的组件都不会被缓存
 
 include/exclude='componentName' 匹配的是组件的name属性,用逗号间隔
 
-router-view 也是一个组件，如果直接被包在 keep-alive 里面，
-所有路径匹配到的视图组件都会被缓存
+router-view 也是一个组件，如果直接被包在 keep-alive 里面，所有路径匹配到的视图组件都会被缓存
 
 
 

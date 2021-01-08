@@ -1,54 +1,81 @@
 # Vue
 
-# vue渲染流程
+vue渲染流程：
 
-```
-template-->AST语法树-->render-->virtual dom-->真实dom(UI)
-```
+template --> AST语法树 --> render --> virtual dom --> 真实dom(UI)
 
-
-
-# 引入Vue
-
-    1.CDN引入
-    2.下载引入
-    3.NPM引入
+![vue运行机制](https://img2018.cnblogs.com/blog/1449188/201906/1449188-20190630234249553-1929355900.png)
 
 
 
-# MVVM设计模式
+## 引入Vue
 
-- **ViewModel通过Data Binding让obj中的数据实时的在DOM中显示**
-- **ViewModel通过DOM Listener来监听DOM事件，并通过methods中的操作来改变obj中的数据**
-```
-    View: DOM
-    Model: 抽离出来的Obj
-    ViewModel: 创建的Vue对象实例
-```
+1. CDN引入
+2. 下载引入
+3. NPM引入
+
+
+
+
+
+# MVVM
 
 **MVVM的思想是我们不用直接去操纵dom，使用先绑定dom与数据，然后以修改数据的方式更改dom的内容**
 
 
 
-## MVP设计模式
+View: DOM
 
-例如jQuery就属于MVP设计模式，，都是直接在dom上进行修改数据，然后dom树更新展示页面。
+Model: 抽离出来的Obj
 
-Model层，模型层，请求和控制数据的一层，比如AJAX
+ViewModel: 创建的Vue对象实例
 
-View层，视图层，dom就是这一层
+- ViewModel通过Data Binding让obj中的数据实时的在DOM中显示
+- ViewModel通过DOM Listener来监听DOM事件，并通过methods中的操作来改变obj中的数据
 
-P层，控制器，逻辑层，我们写的代码就是这一层，MVP设计模式中我们先在P层操作M层请求数据，然后用大量代码操纵M层更新dom，更新视图
+![vue-mvvm](http://f2ex.cn/wp-content/uploads/2017/07/what-is-vue-content1.png)
 
 
 
 ## MVVM与MVP的不同
 
-MVVM用ViewModel层代替了P层，我们不需要关注ViewModel层是怎么操纵dom的，这是vue内置的。我们关注的重点变为了Model层和View层
+MVVM用ViewModel层代替了P层，我们不需要关注ViewModel层是怎么操纵dom的，这是vue内置的。我们关注的重点变为了Model层和View层。
 
-MVP设计模式是面向dom进行开发，重点是怎么去修改dom
+MVP设计模式是面向dom进行开发，重点是怎么去修改dom，MVVM是面向数据进行开发，极大减少了dom操作的代码。
 
-MVVM是面向数据进行开发，极大减少了dom操作的代码
+
+
+## MVC/MVP
+
+![](https://img-blog.csdn.net/20180322204213875)
+
+- MVC
+
+MVC 模式代表 Model-View-Controller（模型-视图-控制器） 模式。这种模式用于应用程序的分层开发。View层是界面，Model层是业务逻辑，Controller层用来调度View层和Model层。
+
+MVC和MVP区别在于代码逻辑有没有写在View中的，有就是MVC，没有就是MVP，MVC的核心是在View层，在View层可能会进行任何操作（例如JSP等，View层和逻辑代码是耦合的）。
+
+
+
+- MVP
+
+MVP是MVC的改进，View层有了分离，逻辑放在P层，View只关注页面展示，不会写逻辑代码。
+
+例如jQuery就属于MVP设计模式，，都是直接在dom上进行修改数据，然后dom树更新展示页面。
+
+Model层，模型层，请求和控制数据的一层，比如AJAX
+
+Presenter层，控制器，逻辑层，我们写的代码就是这一层，MVP设计模式中我们先在P层操作M层请求数据，然后用大量代码操作View层更新dom，更新视图。
+
+View层，视图层，dom就是这一层
+
+
+
+
+
+
+
+
 
 
 
@@ -56,40 +83,35 @@ MVVM是面向数据进行开发，极大减少了dom操作的代码
 
 # 虚拟dom
 
-**vue在浏览器渲染真实dom之前创建虚拟dom然后再进行渲染**
+vue在浏览器渲染真实dom之前创建虚拟dom然后再进行渲染：
 
-**vue代码**--创建-->**虚拟dom**--patch-->**浏览器dom**
+**vue创建**  -->  **虚拟dompatch**-->  浏览器dom
 
-**如果有相同元素会直接把虚拟dom之前创建的同名元素复用替换过去，复用时，元素属性互斥部分会修改，不互斥部分会直接复制**
-
-**可以给元素加入key属性，如果key属性值相同会进行复用，key不同会重新创建元素，不复用**
+如果有相同元素会直接把虚拟dom之前创建的同名元素复用替换过去，复用时，元素属性互斥部分会修改，不互斥部分会直接复制，可以给元素加入key属性，如果key属性值相同会进行复用，key不同会重新创建元素，不复用。
 
 ```html
-    <div id="add">
-        <span v-if="isUser">用户账户:
-        <input type="text" id="username" key="username">
-        </span>
-        <span v-else>用户邮箱:
-        <input type="text" id="email" key="email">
-        </span>
-        <button @click="isUser=!isUser;">切换</button>
-    </div> 
+<div id="add">
+  <span v-if="isUser">用户账户:
+    <input type="text" id="username" key="username">
+  </span>
+  <span v-else>用户邮箱:
+    <input type="text" id="email" key="email">
+  </span>
+  <button @click="isUser=!isUser;">切换</button>
+</div> 
     
-    <!--
-    不加key属性，在username内输入值再点切换，值会被复制在email内
-    -->
+<!--不加key属性，在username内输入值再点切换，值会被复制在email内-->
     
-    <script src="../vue.js"></script>
-    <script>
-        const add = new Vue({
-            el:'#add',
-            data:{
-               isUser: true
-            },
-            methods:{
-            }
-        })
-    </script>
+<script src="../vue.js"></script>
+<script>
+  const add = new Vue({
+    el:'#add',
+    data:{
+      isUser: true
+    },
+    methods:{}
+  })
+</script>
 ```
 
 
@@ -98,36 +120,32 @@ MVVM是面向数据进行开发，极大减少了dom操作的代码
 
 # Vue实例对象
 
-Vue实例会接管dom操作，vue实例会对接管的dom元素进行分析和更改
+Vue实例会接管dom操作，vue实例会对接管的dom元素进行分析和更改。
 
-    Vue是声明式编程，必须创建Vue对象并挂载在相应元素
-    Vue数据是响应式的，会监听数据变化实时更新虚拟dom并来实时更新dom树
-    创建Vue实例时传入了一个对象options，该对象具有许多属性
-    const app = new Vue({
-        
-    })
-    
-    el：类型是string | HTMLElement，作用是挂载元素，决定管理那个DOM
-    
-    data：类型是Object | Function，作用是Vue实例对应的数据对象
-    
-    methods：{[key:string]:Function}，作用是为Vue添加方法
-    
-    computed：{[key:string]:Function}，添加计算属性方法
-    
-    filters：{Function}，过滤器，让数据以正确的方式显示
-    
-    components:注册局部组件
-    
-    watch:绑定监听的数据变化后的回调
-    
-    生命周期函数属性:作用是运行到该生命周期后再执行该函数
-        beforeCreate:function(){}
-        created:function(){}  注意created()阶段拿不到dom中的元素
-        mounted:function(){}
-        ...
-        
-    .
+Vue是声明式编程，必须创建Vue对象并挂载在相应元素，Vue数据是响应式的，会监听数据变化实时更新虚拟dom并来实时更新dom树
+
+```javascript
+const app = new Vue(options)
+```
+
+创建Vue实例时传入了一个对象options，options具有以下常用属性
+
+el：类型是string | HTMLElement，作用是挂载元素，决定管理那个DOM
+
+data：类型是Object | Function，作用是Vue实例对应的数据对象
+
+methods：Function，作用是为Vue添加方法
+
+computed：Function，添加计算属性方法，使用时当成属性使用，无需加()
+
+filters：Function，过滤器，让数据以正确的方式显示
+
+components: 注册局部组件
+
+watch: 绑定监听的数据变化后的回调
+
+生命周期函数属性:作用是运行到该生命周期后再执行该函数
+
 
 
 
@@ -136,44 +154,44 @@ Vue实例会接管dom操作，vue实例会对接管的dom元素进行分析和�
 # Vue的生命周期
 
 ```javascript
-new Vue()
-	|
-    |
+  new Vue()
+	  |
+      |
 阶段一：初始化
-beforeCreate()
-    |
-    | ---> 实现数据代理，进行双向绑定等
-    |
-created() ---> 可以访问data数据
-    |       注意created()阶段拿不到dom中的元素
-    |       在挂载el之后的mounted()阶段才能拿到dom元素
-    |
-    | ---> 在内存中编译模板
-    |
-beforeMount()
-    |
-    | ---> 挂载el
-    |
-mounted() --->在此可以访问模板中的标签对象（dom元素），
-    |     --->或者执行初始异步任务,ajax请求和异步任务，但需要注意的是服务端渲染时不支持mounted，需要放到created中。
-    |
-    | ---> 数据发生更新 this.xxx=value
-    |
+  beforeCreate()
+      |
+      | ---> 实现数据代理，进行双向绑定等
+      |
+  created() ---> 可以访问data数据
+      |       注意created()阶段拿不到dom中的元素
+      |       在挂载el之后的mounted()阶段才能拿到dom元素
+      |
+      | ---> 在内存中编译模板
+      |
+  beforeMount()
+      |
+      | ---> 挂载el
+      |
+  mounted() --->在此可以访问模板中的标签对象（dom元素），或者执行初始异步任务,ajax请求和异步任务。
+      |    	  SSR时不支持mounted，这部分代码需要放到created中。
+      |
+      | ---> 数据发生更新 this.xxx = xxx，进入更新阶段
+      |
 阶段二：更新
-beforeUpdate()
-    |
-    | ---> 更新界面
-    |
-Updated()
-    |
-    | --->  执行vueObj.$destroy销毁vue实例
-    |
+  beforeUpdate()
+      |
+      | ---> 更新界面
+      |
+  Updated()
+      |
+      | --->  执行vueObj.$destroy销毁vue组件，进入死亡阶段
+      |
 阶段三：死亡
-beforeDestroy() ---> 收尾工作清除定时器，解绑总线事件等
-    |
-    |
-    |
-destroyed()
+  beforeDestroy() ---> 收尾工作清除定时器，解绑总线事件等
+      |
+      |
+      |
+  destroyed()
 ```
 
 
@@ -182,82 +200,57 @@ destroyed()
 
 # Vue基本语法
 
-## 代码规范
-前端开发的缩进一般缩进2个空格
+## 插值操作Mustache
+
+Mustache(胡须，胡子)，语法双大括号内可以为data的key也可以为表达式，Mustache语法使用在Vue标签内容里。Mustache 语法不能作用在 HTML attribute（自定义属性） 上，自定义属性应该使用 `v-bind` 指令添加。
+
 ```html
-    <div id="add">
-        <h2>hello,{{message}}</h2>
-    </div>
-    <script src="../vue.js"></script>
-    <script>
-        const add = new Vue({
-            //el属性：将Vue对象挂载在元素#app上
-            el:'#add',
-            //data属性：设置挂载元素的属性
-            data:{
-                message:"Vue",
-            }
-        })
-    </script>
+<div id="add">
+  <h2>hello,{{message}}</h2>
+  <!-- hello,Vue -->
+  <h2>{{firstName+' '+lastName}}</h2>
+  <!-- w tw -->
+  <h2>{{count*2}}</h2>
+  <!-- 200 -->
+</div>
+<script src="../vue.js"></script>
+<script>
+  const add = new Vue({
+    //el属性：将Vue对象挂载在元素#app上
+    el:'#add',
+    //data属性：设置挂载元素的属性
+    data:{
+      message:"Vue",
+      firstName:"w",
+      lastName:"tw",
+      count:100
+    }
+  })
+</script>
 ```
 
 
 
-## 插值操作---Mustache语法
+## 外部访问vue实例
 
-Mustache 语法不能作用在 HTML attribute（自定义属性） 上，自定义属性应该使用 `v-bind` 指令添加
-
-```html
-    Mustache 胡子，胡须
-    Mustache语法：{{}}，语法双大括号内可以为data的key也可以为表达式
-    Mustache语法使用在标签内容里
-    
-    <div id="add">
-        <h2>hello,{{message}}</h2>
-        <!-- hello,Vue -->
-        <h2>{{firstName+' '+lastName}}</h2>
-        <!-- w tw -->
-        <h2>{{count*2}}</h2>
-        <!-- 200 -->
-    </div>
-    <script src="../vue.js"></script>
-    <script>
-        const add = new Vue({
-            //el属性：将Vue对象挂载在元素#app上
-            el:'#add',
-            //data属性：设置挂载元素的属性
-            data:{
-                message:"Vue",
-                firstName:"w",
-                lastName:"tw",
-                count:100
-            }
-        })
-    </script>
-```
-
-
-
-## 外部访问vue实例的数据
-
-`vueObj.$data`外部通过这个vue的实例属性来访问vue实例的data数据
+`vueObj.$data`，外部通过这个vue的实例属性来访问vue实例的data数据
 
 ```html
 <div id="app">{{content}}</div>
-    <script src="vue.js"></script>
-    <script>
-        var app = new Vue({
-            el:"#app",
-            data:{
-                content:"hello,world"
-            }
-        })
+<script src="vue.js"></script>
+<script>
+  var app = new Vue({
+    el:"#app",
+    data:{
+      content:"hello,world"
+    }
+  })
         
-        setTimeout(function(){
-            app.$data.content = "wtw"
-        },2000)
-        //因为data数据双向绑定，所以两秒后页面会发生更改
-    </script>
+  setTimeout(function(){
+    app.$data.content = "wtw"
+  },2000)
+  //因为data数据双向绑定，所以两秒后页面会发生更改
+</script>
 ```
 
 
@@ -274,74 +267,65 @@ vueobj.$destroy()
 
 
 
-# Vue中数组的双向绑定
+# 双向绑定
 
-Vue数据是响应式的，会监听数据变化更新虚拟dom来实时更新dom
+Vue数据是响应式的，会监听数据变化更新虚拟dom来实时更新dom，但通过点操作增加对象属性，delete删除对象属性或者下标直接操作数组都不会被vue监控。
 
-但引用类型通过点操作或者下标操作的变化不会被vue监控到引起双向绑定
+vue对数组方法的进行了重写，实现了数组方法的响应式操作，以下数组的方法来修改数据会被vue监控到
 
-**响应式操作**：
+- 直接改变数组引用，指向新数组
 
-数组的方法来修改数据会被vue监控到
+- .push()  添加元素到数组最后
 
-数据变化界面立刻变化
+- .pop()   删除数组最后一个元素
 
-​	.push()  添加元素到数组最后
+- .shift() 删除数组第一个元素
 
-​	.pop()   删除数组最后一个元素
+- .unshift() 在数组最前面添加元素
 
-​	.shift() 删除数组第一个元素
+- .splice() 
 
-​	.unshift() 在数组最前面添加元素
+- .sort() 数组排序
 
-​	.splice() 
+- .reverse() 数组反转
 
-​	.sort() 数组排序
+- Vue.set()/VueObj.$set()，Vue内部实现的用于修改数组/对象的方法，用于解决增删对象属性和下标操作数组vue监控不到的问题：`Vue.set(数组/对象, 数组索引/对象属性名, 修改的值)`
 
-​	.reverse() 数组反转
-
-​	Vue.set()/VueObj.$set()改变数据
-
-​			Vue.set(修改数据,数组索引,修改的值)
-​    		Vue内部实现的用于修改数组/对象的方法，用于解决点操作vue监控不到的问题
-​    		Vue.set(this.letters,2,'vue.set');
-
-​	直接改变数组引用，指向新数组
+   `Vue.set(this.letters, 2, 'g');`
 
 
 
 **非响应式操作**：**通过下标操作数组是不会双向绑定的**，数据变化但界面不变化，因为vue不监听这种数据变化
 通过下标修改数组 
-    如 在浏览器调试栏中输入  app.letters[0]='wtw'
-    数组会发生变化但是界面不会出现变化
+如在浏览器调试栏中输入  `app.letters[0]='wtw'`，数组数据会发生变化但是界面不会出现变化
 
 ```html
 <div id="app">
 <li v-for="(letter,index) in letters" :key="item">
-    {{index+1}}.{{letter}}
+  {{index+1}}.{{letter}}
 </li>
 <button @click="btnclick">button</button>
 </div>
 <script src="../vue.js"></script>
 <script>
 const app = new Vue({
-    el:'#app',
-    data:{
-        letters:["A","B","C","D"]
-    },
-    methods:{
-        btnclick(){
-            this.letters.pop();
-            this.letters.shift();
-            this.letters.push('F','G','H');
-            this.letters.unshift('1','2','3');
-            this.letters.splice(2,0,"F");
-            this.letters[0]="wang";//非响应式操作
-            Vue.set(this.letters,2,'vue.set');
-        }
+  el:'#app',
+  data:{
+    letters:["A","B","C","D"]
+  },
+  methods:{
+    btnclick(){
+      this.letters.pop();
+      this.letters.shift();
+      this.letters.push('F','G','H');
+      this.letters.unshift('1','2','3');
+      this.letters.splice(2,0,"F");
+      this.letters[0]="wang";//非响应式操作
+      Vue.set(this.letters,2,'vue.set');
     }
+  }
 })
-    app.letters[0]='tai';
+app.letters[0]='tai';
 </script>        
 ```
 
@@ -351,7 +335,7 @@ const app = new Vue({
 
 # Vue.set()/delete()
 
-如**果在实例创建之后添加新的属性到实例上，它不会触发视图更新。**改变vue实例中引用类型的属性值，这样的修改会被vue监控到
+如果在实例创建之后添加新的属性到实例上，它不会触发视图更新。改变vue实例中引用类型的属性值，这样的修改会被vue监控到。
 
 `Vue.set(obj,"属性名",属性值)`
 
@@ -424,11 +408,11 @@ VueObj.$delete(obj,"属性名")
 
 例如给一个普通HTML标签加上了`ref="abc"`属性，在vue实例中需要这个dom节点时，这个元素dom节点就可以通过`this.$refs.abc`表示。
 
-给vue组件标签加上ref属性，使用`this.$refs.`调用时都会显示组件的JS引用对象（组件对象），而不是简单的dom节点，可以通过引用对象获取这个组件中的数据.
+给vue组件标签加上ref属性，使用`this.$refs.`调用时都会显示组件的JS引用对象（组件对象），而不是简单的dom节点，可以通过引用对象获取这个组件中的数据。
 
-例如`this.$refs.abc.number`可以直接获取ref="abc"的组件中data内number的值
+例如`this.$refs.abc.number`可以直接获取ref="abc"的组件中data内number的值。
 
-在添加了v-for的标签上加ref，最后获取到的是一个数组，要通过`this.$refs.ref[index]`访问具体对象
+在添加了v-for的标签上加ref，最后获取到的是一个数组，要通过`this.$refs.ref[index]`访问具体对象。
 
 
 
@@ -835,9 +819,7 @@ keyCode按键编码,keyAlias按键名称,用于监听某个的键盘按键点击
 ## v-cloak指令
 
 cloak斗篷
-添加了该指令的标签
-在vue解析之前,该标签会存在一个属性v-cloak
-在vue解析之前,该标签的v-cloak属性会消失
+添加了该指令的标签，在vue解析之前,该标签会存在一个class为v-cloak，在vue解析之前，该标签的v-cloak属性会消失。
 
 ```html
 <style>
@@ -855,14 +837,14 @@ cloak斗篷
 <script src="../vue.js"></script>
 <script>
     setTimeout(function () {
-        const add = new Vue({
+      const add = new Vue({
         //el属性：将Vue对象挂载在元素#app上
         el:'#add',
         //data属性：设置挂载元素的属性
         data:{
             message:"wtw"
         }
-        })
+      })
     },1000)
 </script>
 ```
@@ -870,8 +852,7 @@ cloak斗篷
 ## v-bind指令动态绑定元素属性
 
 v-bind指令基本作用：动态绑定属性
-Mustache语法只能书写在标签内容里，无法书写在标签属性里
-所以使用v-bind指令来将标签属性与vue对象属性动态绑定
+Mustache语法只能书写在标签内容里，无法书写在标签属性里，所以使用v-bind指令来将标签属性与vue对象属性动态绑定。
 语法糖 v-bind: ---> :
 
 ```html
@@ -903,18 +884,14 @@ Mustache语法只能书写在标签内容里，无法书写在标签属性里
 
 `v-bind:class="对象/数组"`
 
-对象写法
-`v-bind:class="{class:bool}" `
+对象写法：`v-bind:class="{class:bool}" `
 对象中键是样式名,值是布尔值,为真则存在该样式
-格式` v-bind:class="{类名1:boolean,类名2:boolean...}"`
+
+格式：` v-bind:class="{类名1:boolean,类名2:boolean...}"`
 如果键值对过于复杂也可以保存为函数返回值进methods和computed中
 
-数组写法
-`v-bind:class="[变量1,变量2...]"`
-数组写法也可以将样式名设置为变量名
-但数组写法不如对象写法灵活
-
-可以混合class和:class添加样式名
+数组写法：`v-bind:class="[变量1,变量2...]"`
+数组写法也可以将样式名设置为变量名，但数组写法不如对象写法灵活，可以混合class和:class添加样式名。
 
 ```html
 <style>
@@ -971,15 +948,11 @@ Mustache语法只能书写在标签内容里，无法书写在标签属性里
 
 ## v-bind指令动态绑定元素css属性
 
-    v-bind:style="对象/数组"
-    vue中css属性名推荐使用驼峰名写法
-    如果键值对太复杂同样可以抽取进methods中作为函数返回值调用
-    对象语法
-    v-bind:style="{key(属性名):value(属性值)}"
-    
-    数组语法
-    数组语法较为繁琐,先将键值对封装成多个对象存在data中
-    再元素行内调用时将这些对象再封装成数组
+`v-bind:style="对象/数组"`
+vue中css属性名推荐使用驼峰名写法，如果键值对太复杂同样可以抽取进methods中作为函数返回值调用
+对象语法：`v-bind:style="{key(属性名):value(属性值)}"`
+
+数组语法，数组语法较为繁琐,先将键值对封装成多个对象存在data中，元素行内调用时将这些对象再封装成数组
 
 ```html
     
@@ -1039,7 +1012,10 @@ Mustache语法只能书写在标签内容里，无法书写在标签属性里
 </script>
 ```
 
+
+
 ## v-else-if指令
+
 类似于else if的使用
 
 ```html
@@ -1076,33 +1052,32 @@ Mustache语法只能书写在标签内容里，无法书写在标签属性里
 </script>
 ```
 
+
+
 ## v-show
 
-**v-show决定一个元素是否在页面上显示**
-
-**v-if决定一个元素是否渲染（在dom中存在与否）**
+v-show决定一个元素是否在页面上显示，v-if决定一个元素是否渲染（在dom中存在与否）
 
 **显示隐藏频率高时选择v-show，只有一次切换选择v-if**
 
 ```html
-    <div id="add">
-        <span v-show="isShow">hello</span>
-    </div> 
-    <!--当v-show为false时，元素display为none-->
-    <!--切换后元素在dom中存在，只是行内样式display变为none-->
-    <script src="../vue.js"></script>
-    <script>
-        const add = new Vue({
-            el:'#add',
-            data:{
-               isShow: true
-            },
-            methods:{
-            }
-        })
-    </script>
-
+<div id="add">
+  <span v-show="isShow">hello</span>
+</div> 
+<!--当v-show为false时，元素display为none-->
+<!--切换后元素在dom中存在，只是行内样式display变为none-->
+<script src="../vue.js"></script>
+<script>
+  const add = new Vue({
+    el:'#add',
+    data:{
+      isShow: true
+    },
+    methods:{}
+  })
+</script>
 ```
+
 
 
 # v-model
@@ -1375,7 +1350,7 @@ v-model原理是，显示时通过v-bind将value属性绑定为message属性，�
     <cpn></cpn>
 </div>
 <template id="tem">
-<div></div>
+	<div></div>
 </template>
 <script src="../vue.js"></script>
 <script>
@@ -1398,25 +1373,22 @@ v-model原理是，显示时通过v-bind将value属性绑定为message属性，�
 ## 注册组件的基本步骤
 
 - 1.调用`Vue.extend()`方法创建组件构造器（可以在component中构建）
-```html
-    调用Vue.extend()创建的是一个组件构造器
-    通常在创建组件构造器时，传入tempalte代表自定义组件的模板
-    tempalte内必须有一个根元素，如所有元素包裹在一个div里
-    该模板就是复用的html代码
-```
-- 2.调用`Vue.component()`方法**注册全局组件**
 
-  ​	在`Vue实例下的components属性`下**注册局部组件**
-```html
-    调用Vue.component()方法是将刚才的构造器注册为一个组件
-    并且为它注册一个组件标签名
-    所以需要传递两个参数Vue.component(注册组件的标签名,组件构造器)
-	将组件注册在Vue类下
-```
-- 3.在Vue实例的作用范围内使用组件标签
+  调用Vue.extend()创建的是一个组件构造器，通常在创建组件构造器时，传入tempalte代表自定义组件的模板
+  ， tempalte内必须有一个根元素（如所有元素包裹在一个div里），该模板就是复用的html代码。
 
-   组件必须挂载在某个Vue实例下，否则不生效
-```
+  
+
+- 2.调用`Vue.component()`方法注册全局组件
+
+  在Vue实例下的components属性下注册局部组件
+
+  调用Vue.component()方法是将刚才的构造器注册为一个组件，并且为它注册一个组件标签名，所以需要传递两个参数Vue.component（注册组件的标签名,组件构造器），将组件注册在Vue类下。
+
+
+
+- 3.在Vue实例的作用范围内使用组件标签（组件必须挂载在某个Vue实例下，否则不生效）
+```vue
 <!--vue组件实现代码复用-->
 <div id="app">
     <!--步骤三：使用组件-->
@@ -1677,9 +1649,7 @@ template标签内的内容不会出现在dom中
 
 
 
-
-
-## 父子组件通信
+# 父子组件通信
 
 业务开发中如果每个子组件都向服务器发送一次请求更新数据的话对服务器的压力很大，所以实际开发中不会让每个子组件都发送请求，而是直接让大组件（父组件）发送请求，然后将数据分发传递给小组件（子组件）。
 真实开发中Vue实例（root组件）和子组件的通信和父子组件通信是一样的。
@@ -1695,7 +1665,7 @@ template标签内的内容不会出现在dom中
 
 
 
-### 父传子
+## 父传子
 
 properties---属性
 通过子组件元素行内利用v-bind获取Vue实例(父组件)数据,在通过props创建数组或对象接收数据，props数据最好不使用驼峰法命名变量,因为html不区分大小写,用-小写字母表示大写字母，并且页面渲染后props属性不会出现在dom上。
@@ -1817,7 +1787,7 @@ props比data先创建，所以data中可以通过this.propsName拿到props中的
 
 
 
-### 子传父
+## 子传父
 
 子组件通过`$emit Events`发射自定义事件来给父组件发送消息
 
@@ -1883,10 +1853,8 @@ this.$emit('父组件上的自定义事件名',默认参数)
 
 ## 双向绑定父子组件数据
 
-**props是单向数据流**
-
-不能用v-model双向绑定直接修改props内获取到的父组件的数据，props内的数据仅用来展示，如果想修改应该使用data()方法拷贝一份新数据,再对新数据data内的新数据进行修改
-如果想将父组件子组件内数据进行双向绑定应该通过父传子，子传父结合v-model的内部实现(:value和@input事件，input事件在数据变化时立刻触发)来处理
+**props是单向数据流**，不能用v-model双向绑定直接修改props内获取到的父组件的数据，props内的数据仅用来展示，如果想修改应该使用data()方法拷贝一份新数据,再对新数据data内的新数据进行修改。
+如果想将父组件子组件内数据进行双向绑定应该通过父传子，子传父结合v-model的内部实现来处理(:value和@input事件，input事件在数据变化时立刻触发)
 
 ```html
 <div id="app">
@@ -2076,6 +2044,8 @@ $children
 是通过数组下标访问对应子组件组成的数组，不太灵活使用较少
 例如this.$children[0].name调用子组件name属性
 
+
+
 $refs   
 
 reference引用，给子组件标签上加一个属性ref=""
@@ -2134,8 +2104,7 @@ reference引用，给子组件标签上加一个属性ref=""
 
   $parent  访问父级组件
   $root    访问根组件
-  this.parent可以子组件访问父组件，但不推荐这样访问
-  因为这样子组件的就不够独立了，复用性和独立性降低
+  this.parent可以子组件访问父组件，但不推荐，因为这样子组件的就不够独立了，复用性和独立性降低。
 
 ```html
 <div id="app">
@@ -2189,15 +2158,15 @@ reference引用，给子组件标签上加一个属性ref=""
 
 组件的原型指向Vue，所以相同地方很多，也拥有很多功能和属性
 
-## template属性
+## template
 
 template属性用于绑定html代码模板
 
-## props属性
+## props
 
 props属性用于父组件向子组件传递数据
 
-## data属性
+## data
 
 组件中无法直接引用Vue实例中的数据，如果想在组件中使用变量等数据的话需要在组件对象中单独添加一个data添加数据。
 **但组件的data属性必须是一个函数并返回一个数据对象**（理由是组件是复用的，很多地方都会使用，为了防止相互污染数据，所以函数每次使用都会返回一个新对象保护数据），这个函数返回一个对象，对象内部保存着数据键值对，**如果想一个组件的所有应用都数据互通就在外部创建一个对象，data函数返回这个对象名，这样每次修改都会修改这个对象内的数据。**
@@ -2231,7 +2200,7 @@ props属性用于父组件向子组件传递数据
 </script>
 ```
 
-## methods属性
+## methods
 
 组件也可以有methods属性供组件功能使用
 
@@ -2285,7 +2254,7 @@ props属性用于父组件向子组件传递数据
 
 
 
-## watch属性
+## watch
 
 侦听器
 
@@ -2382,12 +2351,9 @@ new Vue({
 
 ## computed
 
-dom中可以通过插值语法显示一些data中的数据，但一些情况下需要显示数据进行计算后的值，computed类似methods也是添加函数，且函数功能一般是计算,计算属性直接在插值语法{{}}中使用
+dom中可以通过插值语法显示一些data中的数据，但一些情况下需要显示数据进行计算后的值，computed类似methods也是添加函数，且函数功能一般是计算，计算属性直接在插值语法中当做属性使用
 
-**计算属性当做属性使用，调用函数时不加小括号**
-
-**计算属性比methods好在它具有缓存，计算结果不变时只调用一次方法,性能较高**
-**每个计算属性具有一个getter和setter方法，一般调用{{计算属性}}是获取get方法的返回值**
+**计算属性比methods好在它具有缓存，计算结果不变时只调用一次方法,性能较高**，每个计算属性具有一个getter和setter方法，一般调用{{计算属性}}是获取get方法的返回值
 
 **computed里面的函数建议有返回值，不建议去修改data中的属性**
 
@@ -2494,7 +2460,7 @@ dom中可以通过插值语法显示一些data中的数据，但一些情况下�
 
 
 
-## filters属性
+## filters
 
 过滤器
 
@@ -2539,9 +2505,7 @@ dom中可以通过插值语法显示一些data中的数据，但一些情况下�
 
 # is动态组件
 
-`:is="component-name"`
-
-根据数据，动态渲染的场景，即组件类型不确定
+`:is="component-name"`，根据数据，动态渲染的场景，即组件类型不确定
 
 我们使用模板时，通常标签名就是组件名，但想使用普通的html标签，但显示组件模板的内容，就需要is指令，让普通的html标签显示is指令中指向的组件内容
 
@@ -2828,7 +2792,6 @@ vue是一个异步渲染的框架，data改变后，DOM不会立刻去渲染，�
 method() {
 	addItem() {
 		this.list.push('abc')
-        
 		// 每次触发就往data里的list中加一项，与数据双向绑定的ul就会多一个li
 		// 但数据改变dom不会立刻更新，就去操作ul输出有几个li，输出的是dom更新之前的li个数
 		// const ulEle = this.$refs.ulbox
@@ -2999,18 +2962,14 @@ vue中如果需要使用动画的时候，需要使用一个内置组件transiti
 
 # mixins混入
 
-组件之间的重复代码可以使用混入(类直接的重复代码使用继承)
+组件之间的重复代码可以使用混入(类直接的重复代码可以使用继承)，当组件直接存在复用代码时可以使用mixin混入来减少代码量，组件的某一个相同属性具有大量代码相同时就可以使用混入
 
-当组件直接存在复用代码时可以使用mixin混入来减少代码量，组件的某一个相同属性具有大量代码相同时就可以使用混入
-
-mixins的缺点：代码不利于阅读，对象来源不明确，多mixin容易引起变量命名冲突，mixin和组件可能存在多对多的关系，复杂度高
-
-所以vue3中提出了Composition API来解决这些问题
+mixins的缺点：代码不利于阅读，对象来源不明确，多mixin容易引起变量命名冲突，mixin和组件可能存在多对多的关系，复杂度高，所以vue3中提出了Composition API来解决这些问题
 
 
 
-1.相同的代码封装成一个js文件并导成一个对象itemMixin
-例如两个组件created属性相同则往这个对象添加created属性并写相同部分的代码
+1. 相同的代码封装成一个js文件并导成一个对象itemMixin
+   例如两个组件created属性相同则往这个对象添加created属性并写相同部分的代码
 
 ```javascript
 export const itemMixin={
@@ -3022,29 +2981,12 @@ export const itemMixin={
 
 
 
-2.在需要使用这段代码的组件的vue实例中设置一个mixins属性，属性值是一个数组
-数组内的值是引入的包含代码的对象itemMixin
-`mixins:[itemMixin]`
+2. 在需要使用这段代码的组件的vue实例中设置一个mixins属性，属性值是一个数组，数组内的值是引入的包含代码的对象itemMixin
+   `mixins:[itemMixin]`
 
 
 
-3.必须要书写这个相同的属性，格式和普通的vue属性一样
-例如created()相同则要写上
-
-```
-created(){}
-```
-
-data混入要写
-
-```
-data() {
-	return {
-	}
-}
-```
-
-
+3. 必须要书写这个相同的属性，格式和普通的vue属性一样
 
 
 
@@ -3097,9 +3039,7 @@ export default {
 
 ```
 使用全局混入，所有Vue实例都会被混入
-Vue.mixin({
-
-})
+Vue.mixin(options)
 ```
 
 
@@ -3108,9 +3048,7 @@ Vue.mixin({
 
 # runtime
 
-Vue程序的运行过程，模板template会先保存在vm.options.template中
-
-vm.options.template然后parse(解析)成ast(抽象语法树)，然后ast会compile(编译)成render函数(vm.option.render)，render函数会创建虚拟dom并形成虚拟dom树，虚拟dom树最后会渲染到页面（UI）上
+Vue程序的运行过程，模板template会先保存在vm.options.template中，vm.options.template然后parse（解析）成ast（抽象语法树），然后ast会compile(编译)成render函数(vm.option.render)，render函数会创建虚拟dom并形成虚拟dom树，虚拟dom树最后会渲染到页面（UI）上
 
 ```javascript
 template-->AST语法树-->render-->virtual dom-->真实dom(UI)
@@ -3118,7 +3056,7 @@ template-->AST语法树-->render-->virtual dom-->真实dom(UI)
 
 vue的runtime-compiler和runtime-only模式的区别在于，runtime-compiler的main.js中Vue实例中直接使用模板，runtimee-only的main.js中Vue实例中没有模板，直接从render->vdom->UI
 
-runtime-only的性能更高,源码的代码量更少（小6kb左右），真实开发推荐使用runtime-only模式
+runtime-only的性能更高，源码的代码量更少（小6kb左右），真实开发推荐使用runtime-only模式
 
 
 
@@ -3128,9 +3066,7 @@ vue实例中的render函数的参数是createElement函数，简写是h
 
 
 
-createElement函数传入标签名
-
-则用这个h2标签直接替换掉app中的内容
+createElement函数传入标签名，则用这个h2标签直接替换掉app中的内容
 
 ```javascript
 createElement('标签')
@@ -3233,11 +3169,7 @@ vue-loader用于webpack加载.vue文件，vue-template-compiler用于将template
 
 # 脚手架CLI
 
-大型项目一定会使用到CLI
-
-Command-Line Interface，简写CLI，Vue CLI是Vue官方发布的脚手架项目
-
-使用vue-cli可以快速搭建Vue开发环境以及对应的webpack配置
+大型项目一定会使用到CLI，Command-Line Interface，简写CLI，Vue CLI是Vue官方发布的脚手架项目，使用vue-cli可以快速搭建Vue开发环境以及对应的webpack配置
 
 ```html
 Vue CLI依赖node，npm，webpack
@@ -3294,49 +3226,35 @@ vue init webpack 项目名称
 
 # Vue CLI3
 
-Vue CLI2是基于webpack3设计的，Vue CLI3是基于webpack4设计的
+Vue CLI2是基于webpack3设计的，Vue CLI3是基于webpack4设计的，Vue CLI3设计原则是0配置，隐藏了配置文件根目录下的build和config配置文件夹，提供了vue ui命令，提供可视化配置移除了static文件夹，新增了public文件夹，并且将index.html移动到了public中。
 
-Vue CLI3设计原则是0配置，隐藏了配置文件根目录下的build和config配置文件夹，提供了vue ui命令，提供可视化配置移除了static文件夹，新增了public文件夹，并且将index.html移动到了public中
+CLI3创建工程命令：`vue create projectname`，CLI3创建工程后会自动创建一个.git文件夹，可以用git命令进行操作
 
-```javascript
-CLI3创建工程命令
-vue create projectname
-CLI3创建工程后会自动创建一个.git文件夹
-可以用git命令进行操作
+node文件夹包括各种node包，public相当于CLI2的static文件夹，放静态文件，src是源代码文件夹
 
-node文件夹包括各种node包
-public相当于CLI2的static文件夹，放静态文件
-src是源代码文件夹
-
-
-启动本地服务器
-因为CLI3通过vue-cli-service管理了配置文件实现0配置
-将CLI中的dev修改为serve
-"serve": "vue-cli-service serve",
-所以启动本地服务器的命令变为
-npm run serve
-```
+因为CLI3通过vue-cli-service管理了配置文件实现0配置，将CLI中的dev修改为serve，`"serve": "vue-cli-service serve"`，所以启动本地服务器的命令变为：`npm run serve`
 
 ## CLI3配置修改方式
 
 CLI3修改隐藏了的配置有三种方式
 
-```javascript
 1.启动本地服务器：vue ui
 运行命令 vue ui
 会启动一个本地服务器，可以可视化设置配置文件，导入项目等操作
 
-
-2.打开node_modules/@vue/webpack.congig.js
-webpack.congig.js引入了 ./lib/Service.js
-Service.js具有一些配置，并引入了lib文件夹内其他配置完成整体配置
-这些配置就是cli3隐藏的配置文件
+2.打开`node_modules/@vue/webpack.congig.js`
+webpack.congig.js引入了 ./lib/Service.js，Service.js具有一些配置，并引入了lib文件夹内其他配置完成整体配，这些配置就是cli3隐藏的配置文件
 
 3.在工程根目录下创建vue.config.js文件
-在文件内编写导出的配置
+在文件内编写导出的配置，编写后自己写的配置文件就会和隐藏的配置文件合并起来
+
+```
 module.exports={
     //编写配置代码
 }
-编写后自己写的配置文件就会和隐藏的配置文件合并起来
 ```
+
+
+
+
 
