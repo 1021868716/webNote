@@ -26,6 +26,8 @@ mobx的核心理念是：状态变化引起的副作用应该被自动触发
 但是灵活利用中间件，可以通过约定完成许多复杂的工作。
 对 typescript 支持困难。
 
+
+
 **Mobx：**
 
 数据流流动不自然，只有用到的数据才会引发绑定，局部精确更新，但免去了粒度控制烦恼。
@@ -137,6 +139,8 @@ console.log(num.get(), string.get(), bool.get())
 ## 装饰器语法
 
 mobx为observable提供了一个装饰器语法，可以简单的实现监控类中的数据，修饰器调用会自动识别类型，无需再使用box，map等方法来生成可观察对象。用装饰器语法监控的基本类型无需使用get/set来进行读写。
+
+`@observable` 等同于` @observable.deep`
 
 ```js
 import {observable} from 'mobx'
@@ -269,7 +273,7 @@ action也可以通过函数和装饰器两种方式创建。
 
 ## action.bound
 
-`action` 装饰器/函数遵循 javascript 中标准的绑定规则。 但是，`action.bound` 可以用来自动地将动作绑定到目标对象。 注意，与 `action` 不同的是，`(@)action.bound` 不需要一个name参数，名称将始终基于动作绑定的属性。
+`action` 装饰器/函数遵循 javascript 中标准的绑定规则。 但是，`action.bound` 可以用来自动地将动作绑定到目标对象。 注意，与 `action` 不同的是，`@action.bound` 不需要一个name参数，名称将始终基于动作绑定的属性。
 
 action.bound不要和箭头函数一起使用；箭头函数已经是绑定过的并且不能重新绑定。
 
@@ -352,8 +356,6 @@ import {inject, observer} from 'mobx-react';
 class Timer extends React.Component {...};
 export default Timer
 ```
-
-
 
 上面的 `Timer` 组件还可以通过使用 `observer` 传递的无状态函数组件来编写:
 

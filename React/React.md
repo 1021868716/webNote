@@ -310,19 +310,15 @@ jsx中无法直接for循环
 
 通过数组的map遍历，每次都返回一段jsx来实现循环渲染，和vue一样，每个item需要绑上key
 
-```javascript
+```jsx
 list = ['123', '456'] 
-return <ul>
+return (<ul>
 {
-  this.state.list.map((item, index) =>{
-    return <li 
-             key={index} 
-             >
-      		  {item}
-  		    </li>
+  this.state.list.map((item, index) => {
+    return (<li key={index}>{item}</li>)
   })
 }
-</ul>
+</ul>)
 ```
 
 
@@ -332,60 +328,115 @@ return <ul>
 JSX中使用`on事件={ this.方法 }`对事件进行绑定，事件首字母大写，绑定事件时如果需要使用event对象，event参数应该放在最后一个参数位置，而且这个event不是dom中的event，而是react模拟dom中的event生成的合成事件参数
 
 ```javascript
- this.handleInputChange(title,event)
+ this.handleInputChange(title, event)
 // 已经绑定过this
 ```
 
 
 
-**JSX中调用的方法内this默认指向undefined**，组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，如果需要指向组件，需要在JSX中使用`this.方法.bind(this,参数)`来使用这个方法，或者在注册事件时采用箭头函数的方式定义函数就无需使用bind
+**JSX中调用的方法内this默认指向undefined（类中默认严格模式）**，组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，直接绑定就会报错，有以下两个方法可以将this正确指向
+
+- bind
+
+需要在JSX中使用`this.方法.bind(this, 参数)`来使用这个方法，或者在注册事件时采用箭头函数的方式内部调用就无需使用bind
 
 ```jsx
-<input value={ this.state.inputValue } onChange={ this.handleInputChange.bind(this) }/>
-或者使用箭头函数
-<input value={ this.state.inputValue } onChange={()=>{this.handleInputChange()} }/>
+handClick(num)  {
+  console.log("click", num);
+}
+render() {
+  const n = 10
+  return (
+    <button onClick={this.handClick.bind(this, n)}>click</button>
+    {
+      //或者使用箭头函数来注册事件
+	  //<button onChange={() => { this.handleInputChange(n)}}>click</button>
+    }
+  )
+}
+
 ```
 
-
-
-也可以在constructor中提前使用bind绑定this，在jsx中也可以直接使用函数
+也可以在constructor中提前使用bind绑定this，然后在jsx中也可以直接使用函数
 
 ```react
-this.handleInputChange = this.handleInputChange.bind(this)
-// 在constructor中提前改变了bind指向
-```
-
-如果已经在constructor绑定过this，想要在JSX中传参则需要使用箭头函数，且箭头函数不能写参数，否则会被当做e
-
-```jsx
-onClick={this.handleItemDelete(index)} // 这样写是错误的，无法运行
-```
-
-```jsx
-onClick={() =>{this.handleItemDelete(index)}}
-// 要借用箭头函数传参，但注意index不能当做箭头函数参数使用，直接使用，否则会被当做e
-```
-
-
-
-### 事件自动执行的错误
-
-```jsx
-handleClick = () => {
-console.log('123')
+constructor() {
+  super()
+  this.handClick = this.handClick.bind(this)
 }
-<a href="#" onClick={this.handClick}>编辑</a>
-// 这样写，组件渲染时click事件就会自动执行两次且之后不会再执行
-
-
-handleClick () ={
-console.log('123')
+handClick()  {
+  console.log("click");
 }
-<a href="#" onClick={this.handClick.bind(this)}>编辑</a>
-// 这样写，就会解决bug
+// 在constructor中提前改变了bind指向，render中就无需再bind了
+render() {
+  return (
+  	<button onClick={this.handClick}>click</button>
+  )
+}
+```
+
+**但是如果已经在constructor使用bind为事件绑定过this，还想要传参**，则注册事件需要使用箭头函数，然后内部调用事件，且箭头函数不能写参数，否则会被当做e
+
+```jsx
+constructor() {
+  super()
+  this.handClick = this.handClick.bind(this)
+}
+handClick(num) {
+  console.log("click", num);
+}
+render() {
+  let n = 10
+  return (
+    // onClick={this.handClick(index)} // 直接加()添加参数是错误的，无法运行
+    // 要借用箭头函数传参，但注意index不能当做箭头函数参数使用，直接使用，否则会被当做e
+    <button onClick={() => {this.handClick(n)}}>
+      click
+    </button>
+  );
+}
+
 ```
 
 
+
+- 箭头函数
+
+  - 箭头函数定义事件
+
+    ```react
+    class App extends React.Component {
+      handClick = () => {  // 箭头函数定义事件
+        console.log("click");     
+      };
+      render() {
+          return (<button onClick={this.handleClick}>click</button>) 
+      };
+    }
+    ```
+
+    
+
+  - 箭头函数注册事件
+
+    如果需要参数直接写进事件函数中，不用写在箭头函数中，否则会被当做e
+    
+    ```react
+    class App extends React.Component {
+      handClick(num) {
+        // 普通定义事件
+        console.log("click", num);
+      }
+      render() {
+        let n = 10
+    return (
+          <button onClick={ () => {this.handClick(n)} }>click</button>
+        );
+      }
+    }
+    ```
+    
+    
 
 
 
@@ -402,13 +453,13 @@ console.log('123')
 
 ### 引入样式
 
-React中引入样式在文件的开头 `import 'cssurl'`，该页面的JSX即可使用，JSX中class属性需要换为className，避免与继承class关键字相混淆
+React中引入样式在文件的开头 `import 'cssurl'`，该页面的JSX即可使用，JSX中标签的class属性需要换为className，避免与继承class关键字相混淆
 
 
 
 ### 行内样式
 
-style={obj}，内部存放一个对象，样式属性为key，字符串形式的值为value
+`style={{key: value}}`，style内部存放一个样式对象，样式属性为key，字符串形式的值为value
 
 ```jsx
 <div style={{backgroundColor:'red',color:'white',fontSize:40}}>看背景颜色和文字颜色</div>
@@ -482,7 +533,7 @@ label标签中的`for`属性等于跳转input的id，可以跳转焦点，但是
 
 render函数中我们可以使用if来判断返回哪个jsx，但是在jsx中不能直接使用if，只能使用三元表达式来进行条件判断
 
-```javascript
+```jsx
 return <div>
 {
   this.props.login
@@ -492,16 +543,14 @@ return <div>
 </div>
 ```
 
-
-
 也可以使用&&符合进行判断
 
-```javascript
-return <div>
+```jsx
+return (<div>
 {
   this.props.login && <div className="RecommendInfo">{this.props.realname}</div>
 }
-</div>
+</div>)
 ```
 
 
@@ -512,9 +561,9 @@ jsx中只能写表达式，不能写多行语句所以无法使用for循环，�
 
 
 
-## render函数
+## render
 
-组件类内部有一个 render函数，render函数返回  (JSX) ，用于构建组件的基本结构
+组件类内部有render生命周期函数，render函数返回  (JSX) ，用于构建组件的基本结构
 
 ```jsx
 import React, { Component, Fragment } from 'react'
@@ -531,83 +580,66 @@ class TodoList extends Component {
 export default TodoList
 ```
 
+
+
+## constructor
+
+constructor函数默认传入一个参数props，并且需要调用super(props)继承父组件属性，然后在constructor函数中构建组件自己的属性。constructor函数的this.state属性是一个对象，用于保存组件的数据。state通过setState()修改。
+
+可以不写constructor（js类会自动添加），一旦手动写了constructor，就必须在此函数中写super()，此时组件才有自己的this，在组件的全局中都可以使用this关键字，否则如果只是constructor 而不执行 super() 那么以后的this都是错的。
+
+```react
+class A extends React.Component {
+  constructor(props) {
+  	super(props)
+    ...
+  }
+}
+```
+
+ **如果在custructor生命周期不使用 this.props或者props时候，custructor可以不传入props**。使用this.props的时候，constructor需要加入props参数，super需要super(props)，此时用props也行，用this.props也行，他俩都是一个东西。
+
+
+
+# React.createElement()
+
 在render函数中返回的(JSX)会先生成React.createElement()，React.createElement()是更底层的生成虚拟dom的方法，性能更高
+
+ReactElement通过createElement创建，调用该方法需要传入三个参数：
+
+- type (指代这个ReactElement的类型)
+- config (ReactElement的属性)
+- children (ReactElement的内容)
 
 ```react
 render(){
-return (
-  <div id="wrapper" a="1">
-	<span>wtw</span>wy
-  </div>
-)}
+  return (
+    <div id="wrapper" a="1">
+	  <span style={{color:'red'}}>a</span>b
+    </div>
+  )
+}
 ```
 
 ```javascript
 //render函数返回JSX等同于返回React.createElement(),后者更接近虚拟DOM性能更高
 render() {
-  return React.createElement('div',{id:'wrapper'},a:'1',React.createElement('span',{style:  {color:'red'}},'wtw'),'wy') 
+  return React.createElement(
+    'div',
+    { id:'wrapper' },
+    a: '1',
+    React.createElement(
+      'span',
+      {style={{color:'red'}}},
+      'a'
+	),
+    'b'
+  ) 
 }
 
 ```
 
 
-
-## constructor函数
-
-constructor函数默认传入一个参数props，并且需要调用super(props)继承父组件属性，然后在constructor函数中构建组件自己的属性
-
-constructor函数的this.state属性是一个对象，用于保存组件的数据
-
-
-
-## 方法
-
-**JSX中调用的方法内this默认指向undefined**
-
-组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，如果需要指向组件，需要在JSX中使用`this.方法.bind(this)`来使用这个方法（或者编写方法时使用）
-
-建议所有方法都在state中提前保存bind，JSX使用时直接使用this.方法即可
-
-```javascript
-this.state = {
- this.handleInputChange = this.handleInputChange.bind(this)
- // 在constructor中提前改变了bind指向
-}
-```
-
-```react
-render() {
-    return (
-      <Fragment>
-          <input 
-            value={ this.state.inputValue } 
-            onChange={ this.handleInputChange.bind(this) }/>
-      </Fragment>)
-    };
-}
-
-handleInputChange(e) {
- // 如果jsx中没有bind(this)，那这里的this指向undefined，调用setState就会报错
- const value  = e.target.value
-  this.setState((prevState)=>
-  ({
-    inputValue: value,
-    list: [...prevState, prevState.inputValue]
-  })
-  )
-};
-```
-
-**如果已经在constructor绑定过this，想要在JSX中传参则需要使用箭头函数，且箭头函数不能写参数，否则会被当做e**
-
-```jsx
-onClick={this.handleItemDelete(index)} // 这样写是错误的，无法运行
-```
-
-```jsx
-onClick={()=>{this.handleItemDelete(index)}}
-// 要借用箭头函数传参，但注意index不能当做箭头函数参数使用，直接使用，否则会被当做e
-```
 
 
 
@@ -1046,11 +1078,7 @@ TodoItem.propTypes = {
 
 # 容器组件与UI组件
 
-将render函数返回的UI拆分出来单独放在一个js文件里，变成一个单独的组件（UI组件）方便维护，原本的组件在render中返回这个子UI组件。
-
-UI组件中只放JSX，只放UI，不负责任何逻辑处理，UI组件可以用函数写成无状态组件
-
-原本的组件存放数据与方法，叫容器组件
+将render函数返回的UI拆分出来单独放在一个js文件里，变成一个单独的组件（UI组件）方便维护，原本的组件在render中返回这个子UI组件。UI组件中只放JSX，只放UI，不负责任何逻辑处理，UI组件可以用函数写成无状态组件，原本的组件存放数据与方法，叫容器组件。
 
 **但需要将JSX中依赖的数据和方法传给子UI组件，需要引入的模块引入子UI组件**
 
@@ -1123,7 +1151,7 @@ export default TodoListUI
 
 
 
-# 无状态组件
+# 无状态组件（函数组件）
 
 当一个组件（例如UI组件）只有render函数时，可以将它定义为一个无状态组件（函数），无状态组件写成一个函数的形式，**函数接收一个props参数（用于接受父组件在子组件上挂载的数据）**，这个函数返回JSX
 
@@ -1160,6 +1188,46 @@ const TodoListUI = (props) => {
     )
 }
 ```
+
+
+
+# 函数组件/类组件的差异
+
+- 类组件是一个类，要继承class
+- 类组件可以使用this获取组件实例
+- 类组件有状态和生命周期
+
+但是两者最大的区别在于心智模型上：**函数组件捕获了（保留）渲染/执行时所用的值**，类似于函数的闭包效果。而类组件则是调用最新的属性值。两者区别是JS的特性造成的。
+
+```react
+// 定义一个类组件和一个函数组件
+// 原本props.message为 'old message'
+class ClassComponent extends React.Component {
+  handClick = () => {
+    setTimeout(() => {console.log(this.props.message)}, 3000)     
+  };
+  render() {
+      return (<button onClick={this.handleClick}>click</button>) 
+  };
+}
+
+function FuncComponent(props) {
+  const handClick = () => {
+    setTimeout(() => {console.log(props.message)}, 3000)     
+  };
+  return (<button onClick={handleClick}>click</button>)    
+}
+
+//在点击button后的定时器3s内修改props.message为 'new message'
+//类组件最终会打印 'new message'
+//函数组件最终会打印 'old message'
+```
+
+
+
+
+
+
 
 
 
@@ -2040,7 +2108,7 @@ PureComponent相较于Component区别就是,对props和state默认进行判断�
 
 无状态组件是一个函数，无法继承PureComponent来实现简单的渲染优化，react提供了memo函数来给无状态组件提供简单的渲染性能优化
 
-`memo`和`PureComponent`的作用是一样的, 不同的是`memo`是生成无状态组件，浅比较的是`Props`（函数组件没有state），`PureComponent`用来生成class组件,比较`Props`和`state` 
+`memo`和`PureComponent`的作用是一样的，不同的是`memo`是生成无状态组件，浅比较的是`Props`（函数组件没有state），`PureComponent`用来生成class组件,比较`Props`和`state` 
 
 React.memo第一个参数就是函数组件。
 

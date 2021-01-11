@@ -134,32 +134,26 @@ ie9及以上浏览器能够识别html5标签
 
 - datalist   标签定义选项列表。请与 input 元素配合使用该元素
 
-  ```
+  ```html
   <input type="text" value="请输入明星" list="star"/>
-  	<datalist id="star">
-  		<option value="刘德华">刘德华</option>
-  		<option value="刘若英">刘若英</option>
-  		<option value="刘晓庆">刘晓庆</option>
-  		<option value="戚薇">戚薇</option>
-  		<option value="戚继光">戚继光</option>
-  	</datalist>
+  <datalist id="star">
+    <option value="刘德华">刘德华</option>
+    <option value="刘若英">刘若英</option>
+    <option value="刘晓庆">刘晓庆</option>
+    <option value="戚薇">戚薇</option>
+    <option value="戚继光">戚继光</option>
+  </datalist>
   ```
 
 - fieldset 元素可将表单内的相关元素分组，打包    与legend 搭配使用
 
-  ```
+  ```html
   <fieldset>
-      		<legend>用户登录</legend>  标题
-      		用户名: <input type="text"><br /><br />
-      		密　码: <input type="password">
+   <legend>用户登录</legend>
+   用户名: <input type="text"><br/><br />
+   密　码: <input type="password">
   </fieldset>
   ```
-
-
-
-
-
-
 
 
 

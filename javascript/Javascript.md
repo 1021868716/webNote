@@ -6466,18 +6466,16 @@ window.onbeforeunload = function() {
 
 　　document.readyState 这个只读属性可以告诉程序当前文档加载到哪一个步骤，它有三个值：
 
-　　　　1. loading - 加载，document 仍在加载中；
+   　　　　1. loading - 加载，document 仍在加载中；
+   　　　　2. interactive - 互动，文档已经完成加载，文档已被解析，但是诸如图像，样式表和框架之类的子资源仍在加载。
+   　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
 
-　　　　2. interactive - 互动，文档已经完成加载，文档已被解析，但是诸如图像，样式表和框架之类的子资源仍在加载。
-
-　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
-
-　　而这个属性的每次改变同样有一个事件可以监听：
+而这个属性的每次改变同样有一个事件可以监听：
 
 ```javascript
 document.addEventListener('readystatechange', () => console.log(document.readyState));
 ```
 
- 　不过这个 change 事件很少会被用到，可能出现的地方在某些第三方类库中判断一些依赖关系等地方。
+不过这个 change 事件很少会被用到，可能出现的地方在某些第三方类库中判断一些依赖关系等地方。
 
 　　
