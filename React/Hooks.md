@@ -614,7 +614,7 @@ function child(props) {
 useCallback作用和useMemo类似，是useMemo的函数参数再返回一个函数的语法糖
 
 ```
-useMemo( ()=>{fn} ) 等价于 useCallback(fn)
+useMemo( () => fn ) 等价于 useCallback(fn)
 ```
 
 ```jsx
@@ -624,6 +624,45 @@ let getName =  useCallback(changeName(props.name), [props.name])
 ```
 
 但是跟useMemo有一点不同时，参数数组没变，useCallback依然会去执行函数，但是返回值会被抛弃不缓存，也就是执行函数，但是返回值被抛弃了，useCallback依旧缓存上次数组变化后执行的缓存结果。
+
+
+
+useCallback也常用于解决useEffect中`React Hook useEffect has missing dependencies`警告，也就是useEffect中要求调用的函数必须在内部定义。
+
+```react
+const searchExecute = async(value: string) => {
+  const jobs = await searchChildJob(value)
+  setChildJobs(jobs)
+}
+const searchDependencyExecute = async(value: string) => {
+  const jobs = await searchChildJob(value)
+  setDependencyExecuteJobs(jobs)
+}
+useEffect(() => {
+  searchExecute('')
+  searchDependencyExecute('')
+}, [props]);
+
+// 警告： React Hook useEffect has missing dependencies: 'searchDependencyExecute' and 'searchExecute'. Either include them or remove the dependency array
+```
+
+这是因为useEffect中要求调用的函数必须在内部定义，但是函数可能其他地方也要使用不能再effect中定义，这时就可以使用useCallback解决，然后就可以在effect的依赖中添加这两个函数解决警告
+
+```react
+const searchExecute = useCallback(async(value: string) => {
+  const jobs = await searchChildJob(value)
+  setChildJobs(jobs)
+}, [searchChildJob, setChildJobs])
+const searchDependencyExecute = useCallback(async(value: string) => {
+  const jobs = await searchChildJob(value)
+  setDependencyExecuteJobs(jobs)
+}, [searchChildJob, setDependencyExecuteJobs])
+
+useEffect(() => {
+  searchExecute('')
+  searchDependencyExecute('')
+}, [props, searchExecute, searchDependencyExecute]);
+```
 
 
 
