@@ -627,42 +627,51 @@ let getName =  useCallback(changeName(props.name), [props.name])
 
 
 
-useCallback也常用于解决useEffect中`React Hook useEffect has missing dependencies`警告，也就是useEffect中要求调用的函数必须在内部定义。
+## 配合useEffect
+
+useCallback也常用于解决useEffect中`React Hook useEffect has missing dependencies`警告，也就是useEffect中要求调用的函数必须在内部或者依赖中定义。
 
 ```react
-const searchExecute = async(value: string) => {
+const funcA = async(value: string) => {
   const jobs = await searchChildJob(value)
   setChildJobs(jobs)
 }
-const searchDependencyExecute = async(value: string) => {
+
+const funcB = async(value: string) => {
   const jobs = await searchChildJob(value)
   setDependencyExecuteJobs(jobs)
 }
+
 useEffect(() => {
-  searchExecute('')
-  searchDependencyExecute('')
+  funcA('')
+  funcB('')
 }, [props]);
 
-// 警告： React Hook useEffect has missing dependencies: 'searchDependencyExecute' and 'searchExecute'. Either include them or remove the dependency array
+// 警告： React Hook useEffect has missing dependencies: 'funcA' and 'funcB'. Either include them or remove the dependency array
 ```
 
-这是因为useEffect中要求调用的函数必须在内部定义，但是函数可能其他地方也要使用不能再effect中定义，这时就可以使用useCallback解决，然后就可以在effect的依赖中添加这两个函数解决警告
+这是因为useEffect中要求调用的函数必须在内部/依赖中定义，但是函数可能其他地方也要使用不能再effect中定义。直接写进依赖中也有问题，因为每次组件渲染都会重新定义这两个函数导致effect的重新执行。
+
+这时就可以使用useCallback解决，然后就可以在effect的依赖中添加这两个函数解决警告。
 
 ```react
-const searchExecute = useCallback(async(value: string) => {
+const funcA = useCallback(async(value: string) => {
   const jobs = await searchChildJob(value)
   setChildJobs(jobs)
 }, [searchChildJob, setChildJobs])
-const searchDependencyExecute = useCallback(async(value: string) => {
+
+const funcB = useCallback(async(value: string) => {
   const jobs = await searchChildJob(value)
   setDependencyExecuteJobs(jobs)
 }, [searchChildJob, setDependencyExecuteJobs])
 
 useEffect(() => {
-  searchExecute('')
-  searchDependencyExecute('')
-}, [props, searchExecute, searchDependencyExecute]);
+  funcA('')
+  funcB('')
+}, [props, funcA, funcB]);
 ```
+
+
 
 
 

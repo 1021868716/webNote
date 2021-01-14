@@ -1,42 +1,61 @@
 # Webpack
 
-## 常见名词
-
-**webpack的定义是一个bundler，即模块打包工具。**
-
-模块化的js文件就是一个模块，若干个js模块会打包成一个总的js文件，这个总的js文件称作bundle。
-
-
-
-**chunk表示一个文件**，默认情况下webpack的输入是一个入口文件，输出也是一个文件，这个输出文件就是一个chunk，chunkId就是产出时给每个文件一个唯一标识id，chunkhash就是文件内容的md5值，name就是在entry中指定的key值。
-
-
-
-**moudle**对应loader（加载器 ）的配置，主要对指定类型的文件进行操作，举个例子：js类型的文件和css文件需要不同的loader来处理。最常用的加载器是eslint-loader和babel-loader。
-
-
-
-**plugins**用于扩展webpack的功能，相比着loader更加灵活，不用指定文件类型。常用的plugins有三个，html-webpack-plugin、commonChunkPlugin和ExtractTextPlugin
-
-
-
 最开始的前端开发每一个html页面都需要引入许多不同的js文件，会多出大量的http请求并且文件结构不清晰，难以进行修改。所以当时的做法是设置一个入口JS文件，html只引入这个入口JS文件，但是这样还是有很多问题，例如在入口文件中导入其他文件的顺序必须符合依赖关系否则会报错，例如浏览器对es6兼容不好，我们还需要手动写es5语法等等诸多问题。
 
 而使用webpack对这个入口文件进行打包后，会帮我们进行依赖管理（原本的依赖关系可能是混乱的，html导入无法运行），由webpack统一管理后进行es6转es5等各种操作，最后生成一个最终的`main.js`文件，html引入这个js文件就可以了。webpack支持打包使用Module和CommonJs模块化的js文件。
 
-webpack有几个核心概念：
+## 常见概念
 
-入口(`entry`)、
+- bundler
 
-输出(`output`)、
-
-loader（模块转换器，用于模块内容的转换）、
-
-插件(插件，在构建流程中监听特定的事件来做一些处理)、
-
-chunk（打包出来的代码块，对应多个module）
+webpack的定义是一个bundler，即模块打包工具。模块化的js文件就是一个模块，若干个js模块会打包成一个总的js文件（bundle），这个总的js文件称作bundle。
 
 
+
+- bundle
+
+bundle是由webpack打包出来的文件，webpack最后生成浏览器可以直接运行的bundle
+
+
+
+- chunk
+
+chunk是指webpack在进行模块的依赖分析的时候，代码分割出来的代码块（代码片段），即是间接引入的模块，webpack 处理时是 chunk，当我们写的 module 源文件传到 webpack 进行打包时，webpack 会根据文件引用关系生成 **chunk** 文件，webpack 会对这个 chunk 文件进行一些操作。
+
+例如我们写的代码（module）被webpack引入后就变为了chunk，chunkId就是产出时给每个文件一个唯一标识id，chunkhash就是文件内容的md5值，name就是在entry中指定的key值。
+
+bundle只有一个，浏览器最终执行的是bundle，而chunk可能会有多个，webpack处理的文件都是chunk，这些chunk最终会合成bundle。
+
+
+
+- module
+
+对于一份同逻辑的代码，当我们手写下一个一个的文件，它们无论是 ESM 还是 commonJS 或是 AMD，他们都是 **module** 
+
+`module`，`chunk` 和 `bundle` 其实就是同一份逻辑代码在不同转换场景下的取了三个名字：
+
+我们直接写出来的代码是 module，进入webpack 处理时是 chunk，最后生成浏览器可以直接运行的 bundle。
+
+
+
+- loader
+
+loader是模块转换器，用于模块内容的转换，使wenbpack拥有加载和解析非js文件的能力，举个例子：js类型的文件和css文件需要不同的loader来处理。最常用的加载器是eslint-loader和babel-loader。
+
+
+
+- plugins
+
+**plugins**用于扩展webpack的功能，在构建流程中监听特定的事件来做一些处理，相比着loader更加灵活，不用指定文件类型。常用的plugins有三个，html-webpack-plugin、commonChunkPlugin和ExtractTextPlugin
+
+
+
+- entry：入口
+
+- output：输出
+
+- filename 指列在 entry 中，打包后输出的文件的名称
+- chunkFilename 指未列在 entry 中，却又需要被打包出来的文件的名称
 
 
 
@@ -112,27 +131,7 @@ webpack就完成了一次简单的打包，原本的项目文件夹下多出一�
 
 
 
-## webpack常见概念
 
-bundle，chunk，module
-
-- bundle是由webpack打包出来的文件，最后生成浏览器可以直接运行的 bundle
-- chunk是指webpack在进行模块的依赖分析的时候，代码分割出来的代码块，即是间接引入的模块，webpack 处理时是 chunk
-- module是开发中的单个模块，我们直接写出来的是 module
-
-
-
-filename，bundlename
-
-- filename 指列在 entry 中，打包后输出的文件的名称
-- chunkFilename 指未列在 entry 中，却又需要被打包出来的文件的名称
-
-
-
-Loader，Plugin
-
-loader是使wenbpack拥有加载和解析非js文件的能力，是在module.rules数组中进行配置
-plugin可以扩展webpack的功能，使得webpack更加灵活。可以在构建的过程中通过webpack的api改变输出的结果，在plugins数组中进行配置
 
 
 
@@ -200,7 +199,75 @@ module.exports = {
 
 
 
-# 配置文件分离
+
+
+# 配置分离
+
+可以分别创建两个配置文件`webpack.dev.js`和`webpack.prod.js`，分别对应开发和线上的配置文件，然后公用代码抽离出来创建一个`webpack.common.js`。
+
+然后在线上和开发的配置文件中引入`webpack-merge`这个模块将公共配置合并进去，并导出一个完整的配置
+
+```
+npm install webpack-merge -D
+```
+
+```javascript
+//webpack.common.js
+module.exports = {
+	entry: './src/index.js', 
+	output: {
+		filename: 'main.js',
+		path: path.resolve(__dirname, 'dist')
+	},
+}
+```
+
+ 在两个配置文件中使用merge引入webpack.common.js，然后合并导出
+
+```javascript
+const merge = require('webpack-merge')
+const commonConfig = require('./webpack.common.js')
+const devConfig = {
+  mode: 'development'
+  ...
+}
+module.exports = merge(commonConfig, devConfig)
+```
+
+```javascript
+const merge = require('webpack-merge')
+const commonConfig = require('./webpack.common.js')
+const prodConfig = {
+  mode: 'production'
+  ...
+}
+module.exports = merge(commonConfig, prodConfig)
+```
+
+
+
+可以在根目录下创建一个build文件夹专门放置webpack配置文件，将三个配置文件移入build文件夹，然后在package.json中进行配置，并分别命名打包命令
+
+```json
+"script": {
+	"dev": "webpack-dev-server --config ./build/webpack.dev.js",
+    "build": "webpack --config ./build/webpack.prod.js"
+}
+```
+
+配置文件移入build文件夹后跟dist文件夹有关的配置都需要改变
+
+```javascript
+output: {
+    filename: 'main.js',
+    // path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, '../dist')
+ }
+```
+
+
+
+## 分离打包
 
 有些配置是开发时需要用到的（例如本地服务器devserver），有些配置是上线时需要用到的配置（例如压缩js插件ugluglifyjs），所以可以将配置文件进行抽离，根据不同环境使用不同配置
 
@@ -217,6 +284,8 @@ module.exports = {
 ```javascript
 const uglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports={
+  ...
+  mode: 'production', // 生产环境代码压缩
   plugins:[
     new uglifyJsPlugin()
   ]
@@ -229,10 +298,12 @@ module.exports={
 
 ```javascript
 module.exports={
-devServer:{
-  contentBase: './dist',//选择服务的文件夹
-  inline: true
-}
+  ...
+  mode: 'development', // 开发环境代码不压缩
+  devServer:{
+    contentBase: './dist',//选择服务的文件夹
+    inline: true
+  }
 }
 ```
 
@@ -255,6 +326,7 @@ const uglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const webpackMerge = require('webpack-merge');
 const baseConfig = require('./base.config');
 module.exports = webpackMerge(baseConfig,{
+   mode: 'production',
    plugins:[
      new uglifyJsPlugin()
 ]})
@@ -268,6 +340,7 @@ module.exports = webpackMerge(baseConfig,{
 const webpackMerge = require('webpack-merge')
 const baseConfig = require('./base.config')
 module.exports=webpackMerge(baseConfig,{
+  mode: 'development',
   devServer:{
      contentBase: './dist',
      //选择服务的文件夹
@@ -307,6 +380,55 @@ output: {
 
 
 
+
+
+## 环境变量打包
+
+env是webpack的环境变量对象
+
+原本的配置分离是两个文件同时引入webpack.common.js，然后分别不同的命令打包
+
+使用环境变量打包是，webpack.common.js引入生产和开发配置，根据打包时的环境变量来进行导出不同的配置
+
+webpack.dev.js和webpack.prod.js无需再引入merge和commonConfig，在webpack.common.js引入这两个配置，打包时根据环境变量判断所处打包环境分别使用不同的配置。
+
+```javascript
+import merge = require('webpack-merge')
+import devConfig = require('./webpack.dev.js')
+import prodConfig = require('./webpack.prod.js')
+
+const commonConfig = {
+ // 公共配置
+}
+  
+module.exports = (env) => {
+  if(env && env.production) {
+    // env环境变量存在则为线上环境
+    return merge(commonConfig, prodConfig)
+  }else {
+    // 否则为开发环境
+    return merge(commonConfig, devConfig)
+  }
+}
+```
+
+修改package.json
+
+```json
+"script": {
+	"dev": "webpack --config webpack.common.js",
+	"build": "webpack --env.production --config webpack.common.js"
+}
+```
+
+执行dev打包时，默认不输入环境变量，env就是空，则导出开发环境的配置打包
+
+当执行build打包时，传入环境变量env.production，则导出生产环境的配置执行打包
+
+
+
+
+
 # 打包命令
 
 使用项目局部的webpack进行打包的默认命令为`npx webpack index.js`
@@ -315,9 +437,9 @@ wenpack配置文件设置入口entry后打包命令简写为`npx webpack`（这�
 
 在`package.json`中可以对终端代码设置自定义命令，为命令配置别名使用`npm run`运行自定义命令
 
-```
+```json
 "script": {
-	"build": "webpack"
+  "build": "webpack"
 }
 ```
 
@@ -335,9 +457,9 @@ mode:'production', //打包模式，表示打包后的js文件是否压缩
 
 属性值  
 
-​		  **production**  压缩    
+- production	压缩    
 
-​		  **development**  不压缩
+- development    不压缩
 
 
 
@@ -419,7 +541,7 @@ output: {
 
 
 
-# module
+# module/loader
 
 *loader* 让 webpack 能够去处理那些非 JavaScript 文件（**webpack 自身只理解 JavaScript**）。loader 可以将所有类型的文件转换为 webpack 能够处理的有效模块。然后就可以利用 webpack 的打包能力，对它们进行处理。
 
@@ -431,19 +553,17 @@ loader的配置在webpack.config.js中配置对象的module对象下的rules数�
 
 **loader的执行顺序是从下到上，从右到左。**一个匹配规则中可以配置使用多个 loader，即一个模块文件可以经过多个 loader 的转换处理，执行顺序是从最后配置的 loader 开始，一步步往前。**loader 的应用顺序在配置多个 loader 一起工作时很重要。**
 
-
-
 ```javascript
 module: {
-    	rules: [
-      	 {
-        	test:/\.jpg$/, //正则匹配以.jpg结尾的文件形式
-        	use: {
-          		loader: 'file-loader' // 如果匹配则使用file-loader对图片进行打包
-       	 	}
-         }
-       ]
-   }
+  rules: [
+    {
+      test:/\.jpg$/, //正则匹配以.jpg结尾的文件形式
+      use: {
+        loader: 'file-loader' // 如果匹配则使用file-loader对图片进行打包
+      }
+    }
+  ]
+}
 ```
 
 在webpack中Loader有两个目标：
@@ -730,7 +850,7 @@ css-loader需要配置`option.importLoaders : 2`是因为在scss文件中可能�
 
 
 
-# Plugin 插件
+# Plugins插件
 
 loader 被用于转换某些类型的模块，而插件（plugin）则可以用于执行范围更广的任务。插件的范围包括，从打包优化和压缩，一直到重新定义环境中的变量。插件接口功能极其强大，可以用来处理各种各样的任务。
 
@@ -822,7 +942,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 
 
-# resolve 解析
+# resolve解析
 
 ## alias 别名
 
@@ -850,7 +970,7 @@ module.exports = {
 
 
 
-# SourceMap 代码溯源 
+# SourceMap代码溯源 
 
 如果打包后的js代码出错，直接在浏览器中查看的错误会提示在打包好的dist文件夹下的js文件中，但排错时我们需要知道在src中源代码的错误在哪。
 
@@ -888,7 +1008,7 @@ module.exports = {
 
 
 
-# DevServer
+# DevServer自动打包
 
 每次修改源码webpack就会自动打包，一共有三种方案实现
 
@@ -1041,7 +1161,7 @@ app.listen(3000, () => {
 
 
 
-# HMR 热模块替换 
+# HMR热模块替换 
 
 Hot Module Replacement 热模块替换（HMR）
 
@@ -1208,11 +1328,11 @@ presets只处理语法上的问题，不处理api逻辑的相关问题，所以�
 
 
 
-## babel/polyfill
+## polyfill
 
 babel/preset-env配置完成后打包后的ES6语法全部就会按照babel/preset-env中的规则转化为ES5
 
-Babel默认只转换新的JavaScript语法（syntax），如箭头函数等，而不转换新的API，比如Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise等全局对象，以及一些定义在全局对象上的方法（比如Object.assign）都不会转码；因此我们需要polyfill；
+Babel默认只转换新的JavaScript语法（syntax），如箭头函数等，而不转换新的API，比如Iterator、Generator、Set、Maps、Proxy、Reflect、Symbol、Promise等全局对象，以及一些定义在全局对象上的方法（比如Object.assign、Array.from）都不会转码；因此我们需要polyfill来转码这些
 
 ```
 npm install --save @babel/polyfill
@@ -1228,7 +1348,7 @@ import "@babel/poly-fill";
 
 ## polyfill按需引入
 
-例如我们的文件中只有Promise这也一个ES6语法，但是引入babel/polyfil包会把所有ES6语法规则都一起注入，会特别占空间，因此在babel-loader的预设中设置按需引入useBuiltIns属性为usage，只有文件中使用到了的ES6语法才会被引入，精简了文件大小，且我们无暇手动在文件中`import "@babel/poly-fill"`，webpack会自动帮我们引入需要的语法规则。
+例如我们的文件中只有Promise这也一个ES6语法，但是引入babel/polyfil包会把所有ES6语法规则都一起注入，会特别占空间，因此在babel-loader的预设中设置按需引入useBuiltIns属性为usage，只有文件中使用到了的ES6语法才会被引入，精简了文件大小，且无需手动在入口文件index.js中手动`import "@babel/poly-fill"`，webpack会自动帮我们引入需要的语法规则。
 
 ```javascript
 module: {
@@ -1260,18 +1380,18 @@ presets: [
      "@babel/preset-env", 
      {
        "targets": {
-       "edge": "17",
-       "firefox": "60",
-       "chrome": "67",
-       "safari": "11.1",
-        },
-       useBuiltIns: 'usage'
+         "edge": "17",
+         "firefox": "60",
+         "chrome": "67",
+         "safari": "11.1",
+       },
+       useBuiltIns: 'usage' // 按需引入
      }
    ]
 ]
 ```
 
-并且设置按需引入以后，无需显示引入`import "@babel/polyfill";`，webpack会在打包时自动引入polyfill
+设置按需引入以后，无需手动在入口文件index.js中引入`import "@babel/polyfill";`，webpack会在打包时自动引入polyfill。
 
 
 
@@ -1331,7 +1451,7 @@ npm install --save @babel/runtime-corejs2
 
 
 
-# Tree Shaking 按需引入 
+# TreeShaking按需引入 
 
 我们在入口文件中引入其他js文件时，有可能只需要一个导出模块，但是webpack打包的时候会把整个js文件所有的导出模块一起引入，造成打包文件过大。
 
@@ -1376,120 +1496,11 @@ module.exports = {
 
 
 
-# 配置分离
-
-可以分别创建两个配置文件`webpack.dev.js`和`webpack.prod.js`，分别对应开发和线上的配置文件，然后公用代码抽离出来创建一个`webpack.common.js`。
-
-然后在线上和开发的配置文件中引入`webpack-merge`这个模块将公共配置合并进去，并导出一个完整的配置
-
-```
-npm install webpack-merge -D
-```
-
-```javascript
-//webpack.common.js
-module.exports = {
-	entry: './src/index.js', 
-	output: {
-		filename: 'main.js',
-		path: path.resolve(__dirname, 'dist')
-	},
-}
-```
-
- 在两个配置文件中使用merge引入webpack.common.js，然后合并导出
-
-```javascript
-const merge = require('webpack-merge')
-const commonConfig = require('./webpack.common.js')
-
-const devConfig = {
-    mode: 'development'
-}
-
-module.exports = merge(commonConfig, devConfig)
-```
-
-```javascript
-const merge = require('webpack-merge')
-const commonConfig = require('./webpack.common.js')
-
-const prodConfig = {
-    mode: 'production'
-}
-
-module.exports = merge(commonConfig, prodConfig)
-```
-
-
-
-可以在根目录下创建一个build文件夹专门放置webpack配置文件，将三个配置文件移入build文件夹，然后在package.json中进行配置，并分别命名打包命令
-
-```json
-"script": {
-	"dev": "webpack-dev-server --config ./build/webpack.dev.js",
-    "build": "webpack --config ./build/webpack.prod.js"
-}
-```
-
-配置文件移入build文件夹后跟dist文件夹有关的配置都需要改变
-
-```javascript
-output: {
-    filename: 'main.js',
-    // path: path.resolve(__dirname, 'dist')
-    path: path.resolve(__dirname, '../dist')
- }
-```
-
-## 环境变量env
-
-env是webpack的环境变量对象
-
-原本的配置分离是两个文件同时引入webpack.common.js，然后分别不同的命令打包
-
-使用环境变量打包是，webpack.common.js引入生产和开发配置，根据打包时的环境变量来进行导出不同的配置
-
-webpack.dev.js和webpack.prod.js无需再引入merge和commonConfig，在webpack.common.js引入这两个配置
-
-```javascript
-import merge = require('webpack-merge')
-import devConfig = require('./webpack.dev.js')
-import prodConfig = require('./webpack.prod.js')
-
-const commonConfig = {
- // 公共配置
-}
-  
-module.exports = (env) => {
-  if(env && env.production) {
-    // env环境变量存在则为线上环境
-    return merge(commonConfig, prodConfig)
-  }else {
-    // 否则为开发环境
-    return merge(commonConfig, devConfig)
-  }
-}
-```
-
-修改package.json
-
-```json
-"script": {
-	"dev": "webpack --config webpack.common.js",
-	"build": "webpack --env.production --config webpack.common.js"
-}
-```
-
-执行dev打包时，默认不输入环境变量，env就是空，则导出开发环境的配置打包
-
-当执行build打包时，传入环境变量env.production，则导出生产环境的配置执行打包
 
 
 
 
-
-# Code Splitting 代码分割 
+# CodeSplitting代码分割 
 
 Code Splitting是一个概念，指对一个js文件中的代码代码拆分成多个js文件，提高下载带宽利用率，提高性能。
 
@@ -1898,7 +1909,7 @@ output: [
 
  
 
-# Shimming
+# Shimming全局变量
 
 `webpack` 编译器(compiler)能够识别遵循 ES2015 模块语法、CommonJS 或 AMD 规范编写的模块。然而，一些第三方的库(library)可能会引用一些全局依赖（例如 `jQuery` 中的 `$`）。这些库也可能创建一些需要被导出的全局变量。这些“不符合规范的模块”就是 *shimming* 发挥作用的地方。
 

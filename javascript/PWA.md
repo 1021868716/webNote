@@ -30,7 +30,9 @@ Progressive Web App   渐进式网络应用
 
 - caches
 
-  浏览器中往cookie和local storage里注入数据都属于内存数据，对于资源例如css，图片等没办法做持久缓存。caches API依赖Service Worker拦截网络请求，可以拦截资源请求并返回cache中缓存的数据，这使得web页面在没有网络的情况下也能打开。可以通过控制台的Application下查看Cache Storage。
+  浏览器中往cookie和local storage里注入数据都属于内存数据，对于资源例如css，图片等没办法做持久缓存。
+  
+  caches API依赖Service Worker拦截网络请求，可以拦截资源请求并返回cache中缓存的数据，这使得web页面在没有网络的情况下也能打开。可以通过控制台的Application下查看Cache Storage。
 
 
 
