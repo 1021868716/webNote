@@ -245,7 +245,7 @@ axios.get('/user/12345')
 
 
 
-# axios.defaults
+# 全局配置axios.defaults
 
 全局默认配置
 
@@ -253,6 +253,52 @@ axios.get('/user/12345')
 axios.defaults.baseURL = 'https://api.example.com';
 axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+```
+
+因为很多url前缀都是重复的，很多参数也是重复的，所以可以将重复的信息抽离出来，或者利用axios的全局配置
+
+常见配置选项
+请求地址：`url: '/user'`
+请求类型：`method: 'get'`
+根路径：`baseURL: 'http://www.mt.com/api'`
+自定义的请求头：`headers:{'x-Requested-With':'XMLHttpRequest'}`
+URL查询对象：
+
+```
+params:{ id: 12 },
+request body
+data: { key: 'aa'}
+```
+
+超时设置：`timeout: 1000`
+跨域是否带Token：`withCredentials: false`
+
+设置语法 axios.defaults.配置选项 = 配置值
+例如
+`axios.defaults.baseURL ='' 设置默认url前缀`
+`axios.defaults.timeout = 5000  设置超时时间`
+
+```javascript
+import axios from 'axios'
+axios.defaults.baseURL = 'http://123.207.32.32:8000/api/hy';
+axios.defaults.timeout = 5000
+//设置url前缀全局url和超时时间配置
+axios.all([
+    //设置全局配置后可以省略前缀
+    //超时时间也自动配置上了
+    axios({url:'/home/multidata'}),
+    axios({
+        url:'/home/data',
+        params:{
+        type:'sell',
+        page:1
+        }})
+]).then((res)=>{
+    //res是两个url返回对象组成的数组
+    console.log(res);
+    console.log(res[0]);
+    console.log(res[1]);
+})
 ```
 
 
@@ -386,56 +432,6 @@ if(typeof cancel == 'function'){
 
 
 
-
-
-
-# axios全局配置axios.defaults
-
-因为很多url前缀都是重复的，很多参数也是重复的，所以可以将重复的信息抽离出来，或者利用axios的全局配置
-
-常见配置选项
-请求地址：`url: '/user'`
-请求类型：`method: 'get'`
-根路径：`baseURL: 'http://www.mt.com/api'`
-自定义的请求头：`headers:{'x-Requested-With':'XMLHttpRequest'}`
-URL查询对象：
-
-```
-params:{ id: 12 },
-request body
-data: { key: 'aa'}
-```
-
-超时设置：`timeout: 1000`
-跨域是否带Token：`withCredentials: false`
-
-设置语法 axios.defaults.配置选项 = 配置值
-例如
-`axios.defaults.baseURL ='' 设置默认url前缀`
-`axios.defaults.timeout = 5000  设置超时时间`
-
-```javascript
-import axios from 'axios'
-axios.defaults.baseURL = 'http://123.207.32.32:8000/api/hy';
-axios.defaults.timeout = 5000
-//设置url前缀全局url和超时时间配置
-axios.all([
-    //设置全局配置后可以省略前缀
-    //超时时间也自动配置上了
-    axios({url:'/home/multidata'}),
-    axios({
-        url:'/home/data',
-        params:{
-        type:'sell',
-        page:1
-        }})
-]).then((res)=>{
-    //res是两个url返回对象组成的数组
-    console.log(res);
-    console.log(res[0]);
-    console.log(res[1]);
-})
-```
 
 
 

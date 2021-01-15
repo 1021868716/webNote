@@ -1010,7 +1010,7 @@ module.exports = {
 
 # DevServer自动打包
 
-每次修改源码webpack就会自动打包，一共有三种方案实现
+提供自动打包，代理转发等功能，一共有三种方案实现
 
 
 
@@ -1072,7 +1072,7 @@ module.exports = {
 		path: path.resolve(__dirname, 'dist')
 	},
 	devServer: {
-		    contentBase: './dist',
+		contentBase: './dist',
         open: true,
         port: 8080,
         hot: true,
@@ -1080,7 +1080,7 @@ module.exports = {
         historyApiFallback：true,
         proxy: { 
           //转发代理，访问/api会被重定向到http://localhost:3000
-		      "/api":"http://localhost:3000",
+		  "/api":"http://localhost:3000",
           // 从/getjson请求header.json文件时会被转发到localhost:3000请求demo.json
           '/getjson': {
              target: 'http://localhost:3000',

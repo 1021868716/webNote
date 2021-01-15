@@ -475,7 +475,7 @@ module.exports = {
 yarn add @react-navigation/native
 ```
 
-还安装需要的依赖库：`react-native-gesture-handler`, `react-native-reanimated`, `react-native-screens` and `react-native-safe-area-context` and `@react-native-community/masked-view`
+还安装需要的依赖库：`react-native-gesture-handler`， `react-native-reanimated`, `react-native-screens` ， `react-native-safe-area-context`， `@react-native-community/masked-view`
 
 ```
 yarn add react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
@@ -487,7 +487,7 @@ yarn add react-native-reanimated react-native-gesture-handler react-native-scree
 
 `react-native-screens` ：使用原生代码实现导航器，提高性能
 
- `react-native-safe-area-context` ：识别异型屏幕，获取哪些地方是安全的
+ `react-native-safe-area-context` ：识别异型屏幕，获取屏幕上哪些地方是可以安全显示的
 
 `@react-native-community/masked-view`：堆栈式导航器依赖的库
 
