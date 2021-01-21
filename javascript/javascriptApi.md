@@ -70,39 +70,6 @@ console.log(user)
 
 
 
-## 解构语法{ }
-
-解构取值
-
-```javascript
-let user = {name:"wtw",age:18}
-//完整语法：let {user:user,age:age} = user
-//ES6解构语法
-let {name="123",title="abc",age} = user
-//解构也只支持默认值，如果目标中没有就用默认值
-
-console.log(name)//wtw
-console.log(age)//18
-console.log(title)//abc
-
-
-
-//数组的解构语法
-let arr=['a','b']
-let [a,b]=arr
-console.log(a,b)//a  b
-```
-
-解构赋值
-
-```javascript
-let name="wtw"
-let age=18
-let p = {name,age}
-console.log(p)
-//{ name: 'wtw', age: 18 }
-```
-
 
 
 ## 对象属性特征

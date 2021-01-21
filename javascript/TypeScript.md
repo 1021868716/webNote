@@ -68,21 +68,34 @@ ts-node demo.ts
 
 - ?
 
-属性或参数中使用 ？表示该属性或参数为可选项
+属性或参数中使用?表示该属性或参数为可选项
 
 
 
 - !
 
-属性或参数中使用 ！表示强制解析（告诉typescript编译器，这里一定有值），常用于vue-decorator中的@Prop
-
-变量后使用 ！：表示类型推断排除null、undefined
+属性或参数后使用!表示强制解析，类型推断排除null、undefined，意思是告诉typescript编译器，这里一定有值，防止ts报错，常用于vue-decorator中的@Prop等。
 
 
 
 - ?.
 
 可选链
+
+
+
+- `// @ts-ignore`
+
+TypeScript 2.6支持在.ts文件中通过在报错一行上方使用`// @ts-ignore: 注释`来忽略错误。如果遇到ts无法解决的报错，在确定正确的情况下可以在报错代码上方加上这行注释，这行代码的ts报错就会被忽略。
+
+```typescript
+if (false) { // ts会报错，因为这里的代码根本不会有机会执行
+    // @ts-ignore：跳过下一行的ts报错
+    console.log("hello");
+}
+```
+
+
 
 
 
@@ -118,43 +131,62 @@ ts-node demo.ts
 
 ts新增的数据类型：
 
-**tuple 元组**
+- **tuple 元组**
 
 元组类型用来描述已知数量和类型的数组
 
 
 
-**enum 枚举**
+- **enum 枚举**
 
 用来标识相互映射的枚举
 
 
 
-**any 任意类型**
+- **any 任意类型**
 
 用于表示可以为任意类型
 
 
 
-**void**
+- **void**
 
-和any相反，表示没有类型，用于表示函数没有返回值的情况
-
-
-
-**never**
-
-never 类型指那些永不存在的值的类型，它是那些总会抛出异常或根本不会有返回值的函数表达式的返回值类型，用于表示函数总是会异常，不能执行完毕的情况
-
-例如抛出异常的函数，无限循环的函数
+和any相反，表示没有类型，常用于表示函数没有返回值的情况
 
 
 
-**unknown**
+- **never**
+
+never类型表示的是那些永不存在的值的类型，常用于注解函数返回值。 例如， never类型是那些总是会抛出异常或根本就不会有返回值的函数的返回值类型，用于表示函数总是会异常，不能执行完毕的情况，例如抛出异常的函数，无限循环的函数。变量也可能是 never类型，当它们被永不为真的类型保护所约束时。
+
+never类型是任何类型的子类型，也可以赋值给任何类型；然而，没有类型是never的子类型或可以赋值给never类型（除了never本身之外）。 即使 any也不可以赋值给never。
+
+```typescript
+// 返回never的函数必须存在无法达到的终点
+function error(message: string): never {
+  throw new Error(message);
+}
+
+// 推断的返回值类型为never
+function fail() {
+  return error("Something failed");
+}
+
+// 返回never的函数必须存在无法达到的终点
+function infiniteLoop(): never {
+  while (true) {}
+}
+```
+
+
+
+- **unknown**
 
 TypeScript 3.0 引入了新的`unknown` 类型，它是 `any` 类型对应的安全类型。
 
 `unknown` 和 `any` 的主要区别是 `unknown` 类型会更加严格：在对 `unknown` 类型的值执行大多数操作之前，我们必须进行某种形式的检查。而在对 `any` 类型的值执行操作之前，我们不必进行任何检查。
+
+
 
 
 
@@ -805,7 +837,7 @@ const objArr: {name: string}[] = []
 
 
 
-# 元组 tuple
+# 元组tuple
 
 **元组类型用来描述已知数量和类型的数组，**各元素的类型不必相同，数组中的数据类型必须和规定的类型顺序对应起来，元素个数不能多也不能少且每一项对应的数据类型必须对应规定的数据类型
 
@@ -826,13 +858,79 @@ PS：在 Typescript 2.7之后， Tuple 的定义已经变成了有限制长度�
 
 
 
+# 枚举enum
+
+枚举（enum）是typescript新增的类型，枚举类型被编译成了一个枚举成员与枚举值双向映射的关系。枚举成员和枚举值（枚举值不是下标，而是一个映射名）是在进行逻辑判断时是等价的。
+
+每个枚举成员具有一个枚举值，枚举值（number类型）为上一个枚举成员的枚举值加1，第一个元素的枚举值默认为0。枚举成员相当于枚举值的变量名。
+
+枚举成员和枚举值是双向映射的关系，可以相互查找
+
+```
+查找枚举值：枚举对象.枚举元素
+查找枚举成员：枚举对象[枚举值]
+```
+
+
+
+**枚举值可以进行修改，下一个枚举成员的枚举值会在上一个枚举值的基础上加1**，枚举值手动更改以后该枚举值就不能被查询了
+
+```typescript
+enum Status {
+  zero, // 枚举值0
+  one, // 枚举值1
+  two = 3,  // 将原本为2的枚举值设置为3
+  three // 枚举值4
+}
+
+console.log(Status[2]) // undefined
+//枚举值2已经被修改掉了，查找枚举值为2的目标就查不到返回undefined
+```
+
+
+
+```typescript
+// js中使用对象存储
+// const Status = {
+//   zero: 0,
+//   one: 1
+// } 
+
+// ts中使用枚举
+// 枚举元素值从0开始递增
+enum Status {
+  zero, // 第一个枚举值默认为0
+  one, // 枚举值1
+  two  //枚举值2
+}
+
+console.log(typeof Status) //object
+console.log(typeof Status.one) //number
+
+// 双向映射
+console.log(Status.zero) //0
+console.log(Status[0]) //zero
+
+function getResule(statu: any){
+  if(statu === Status.one) {
+    return 'one'
+  }else if(statu === Status.two ) {
+    return 'two'
+  }
+}
+
+console.log(getResule(1)) // one
+console.log(getResule(Status.one)) // one
+
+```
+
+
+
+
+
 # 类
 
 ts的类和js的类很相似，但具有更多功能，例如重写父类中的方法，而且类中constructor中需要new时赋值的属性必须在类中先进行注解
-
-User重写了get方法，所以User实例执行重写后的get方法
-
-super关键字是调用父类的意思，我们在重写的方法中如果想使用父类的同名方法可以通过super调用出来
 
 ```typescript
 class teacher {
@@ -846,6 +944,7 @@ class teacher {
  // 相当于 this.name = name和name: string的语法糖
     
   getName() {
+    console.log（'father'）
     return this.name
   };
 }
@@ -855,7 +954,7 @@ class teacher {
 
 ## extends
 
-如果父类存在构造函数，子类构造函数中必须先用super()函数调用一次父类构造器
+如果父类存在构造函数，子类构造函数中必须先用super()函数调用一次父类构造器，并且super关键字是调用父类的意思，我们在重写的方法中如果想使用父类的同名方法也可以通过super调用出来
 
 ```typescript
 class User extends teacher {
@@ -866,7 +965,8 @@ class User extends teacher {
     return '123'
   }
   getName() { // 子类重写父类方法
-    // 使用super调用父类被重写的同名方法方法
+    console.log（'child'）
+    // 再使用super调用父类被重写的同名方法方法
     return super.getName() + 'abc'
   }
 } 
@@ -874,23 +974,25 @@ class User extends teacher {
 let user = new User('wtw')
 console.log(user.say())
 // 123
-console.log(user.getName())
+console.log(user.getName()) // User重写了get方法，所以User实例执行重写后的get方法
+// child
+// father
 // wtwabc
 ```
 
 
 
-## private/public/protected
+## 属性访问类型
 
 ts的类中的属性有三种访问类型private，protected，public
 
 **访问类型限制了类实例对象中该属性的访问权限**
 
-| 访问类型  | 权限                                 |
-| --------- | ------------------------------------ |
-| public    | 允许该属性在类内类外被实例直接调用   |
-| protected | 允许在类内使用以及子类继承           |
-| private   | 只允许在这个类内使用（子类无法继承） |
+| 访问类型  | 权限                                               |
+| --------- | -------------------------------------------------- |
+| public    | 允许该属性被继承和在类内类外被实例直接调用         |
+| protected | 允许在类内使用以及子类继承，但实例无法调用         |
+| private   | 只允许在这个类内使用，子类无法继承，实例也无法调用 |
 
 ```typescript
 class Person {
@@ -905,7 +1007,6 @@ class Person {
 const p = new Person()
 p.name = 'wtw'  // 公有属性可以在类外实例直接访问
 p.sayHi() // hi,wtw,age：18,height：170
-
 //私和保护属性不能实例直接调用
 // console.log(p.age) 报错
 // console.log(p.height) 报错
@@ -936,7 +1037,7 @@ constructor构造函数，会在new实例的时候执行，通过new附带的参
 
 如果父类也有构造函数，则子类的构造函数也必须第一步调用super调用父类构造函数进行赋值。
 
-跟js不同的是constructor的形参必须进行注解否则报错，有两种注解方式，一是在构造函数这种的形参部分进行注解，这样必须加上访问类型，这样可以省略`this.name = name`这一步，二是在类中进行注解。在
+跟js不同的是constructor的形参必须进行注解否则报错，有两种注解方式，一是在构造函数这种的形参部分进行注解，这样必须加上访问类型，这样可以省略`this.name = name`这一步，二是在类中进行注解。
 
 ```typescript
 class Person {
@@ -1082,8 +1183,6 @@ function Animal(animal: Bird | Dog) {
 }
 ```
 
-
-
 可以在接口中设定好某一属性为唯一标识，或者提前判断变量是否具有该属性，进行逻辑判断后如果语法不会导致逻辑错误，ts就不会报错
 
 ```typescript
@@ -1098,10 +1197,11 @@ interface Dog {
 }
 
 function Animal(animal: Bird | Dog) {
-// 经过判断再调用属性不会导致逻辑错误，则ts不会报错
+  // 经过判断再调用属性不会导致逻辑错误，则ts不会报错
   if(animal.fly){
      animal.sing()  
   }
+  // 或者
   if('sing' in animal) {
      animal.sing() 
   }
@@ -1110,15 +1210,14 @@ function Animal(animal: Bird | Dog) {
 
 
 
-# 类型断言as
+# 类型断言as/<>
 
-类型断言是我们告诉ts在这里的变量具体对应联合类型中某一类型，让其可以调用这个类型的非同名方法和属性。让其跳出类型保护的语法限制，使用断言，会手动指定这个变量的类型，就可以调用该类型的非同名属性，并且ts不会报错，断言`(变量 as 注解)`就当做一个指定了类型的变量来使用。
+类型断言是我们告诉ts在这里的变量具体对应联合类型中某一类型，让其可以调用这个类型的非同名方法和属性。让其跳出类型保护的语法限制，使用断言，会手动指定这个变量的类型，就可以调用该类型的非同名属性，并且ts不会报错，断言就当做一个指定了类型的变量来使用。
 
-```
-(变量 as 注解)
-```
+断言有两种形式：`(变量 as 注解)`或者`(<注解>变量)`，两者等同，但是tsx中只能使用as断言
 
 ```typescript
+// as断言
 function Animal(animal: Bird | Dog) {
   if(animal.fly) { // 如果fly为true，进入断言
     (animal as Bird).sing()
@@ -1126,77 +1225,19 @@ function Animal(animal: Bird | Dog) {
     (animal as Bird).eat()
   }
 }
-```
-
-
-
-
-
-# 枚举enum
-
-枚举（enum）是typescript新增的类型，枚举类型被编译成了一个枚举成员与枚举值双向映射的关系。枚举成员和枚举值（枚举值不是下标，而是一个映射名）是在进行逻辑判断时是等价的。
-
-每个枚举成员具有一个枚举值，枚举值（number类型）为上一个枚举成员的枚举值加1，第一个元素的枚举值默认为0。枚举成员相当于枚举值的变量名。
-
-枚举成员和枚举值是双向映射的关系，可以相互查找
-
-```
-查找枚举值：枚举对象.枚举元素
-查找枚举成员：枚举对象[枚举值]
-```
-
-
-
-**枚举值可以进行修改，下一个枚举成员的枚举值会在上一个枚举值的基础上加1**，枚举值手动更改以后该枚举值就不能被查询了
-
-```typescript
-enum Status {
-  zero, // 枚举值0
-  one, // 枚举值1
-  two = 3,  // 将原本为2的枚举值设置为3
-  three // 枚举值4
-}
-
-console.log(Status[2]) // undefined
-//枚举值2已经被修改掉了，查找枚举值为2的目标就查不到返回undefined
-```
-
-
-
-```typescript
-// js中使用对象存储
-// const Status = {
-//   zero: 0,
-//   one: 1
-// } 
-
-// ts中使用枚举
-// 枚举元素值从0开始递增
-enum Status {
-  zero, // 第一个枚举值默认为0
-  one, // 枚举值1
-  two  //枚举值2
-}
-
-console.log(typeof Status) //object
-console.log(typeof Status.one) //number
-
-// 双向映射
-console.log(Status.zero) //0
-console.log(Status[0]) //zero
-
-function getResule(statu: any){
-  if(statu === Status.one) {
-    return 'one'
-  }else if(statu === Status.two ) {
-    return 'two'
+// 尖括号断言
+function Animal(animal: Bird | Dog) {
+  if(animal.fly) { // 如果fly为true，进入断言
+    (<Bird>animal).sing()
+  } else {
+    (<Bird>animal).eat()
   }
 }
-
-console.log(getResule(1)) // one
-console.log(getResule(Status.one)) // one
-
 ```
+
+
+
+
 
 
 
@@ -1287,7 +1328,7 @@ console.log(data.getItem(1)) // { name: 'wy', age: 20 }
 
 
 
-# keyof
+# 索引查询keyof
 
 keyof是索引类型查询操作符，keyof会循环遍历成员并返回一个由所有成员名称组成的联合类型
 
@@ -1307,6 +1348,8 @@ type K2 = keyof Person[];
 
 type K3 = keyof { [x: string]: Person };  // k3 = string
 ```
+
+
 
 
 

@@ -236,17 +236,13 @@ export default class Life extends Component {
 
 
 
-## JSX语法
+## JSX
 
-在React.js中写html标签就叫 JSX 语法
+在js中写html标签并解析就叫 JSX 语法
 
 **组件类内部的render函数中 return  (JSX) 书写JSX语法，JSX语法中必须有一个根标签包裹所有元素**
 
-在js文件中引入React（`import React from 'react'`）就是为了解析JSX语法
-
-**JSX中可以使用JS语法，绑定变量，绑定事件等语法，但要加上{}包裹，不是加引号**
-
-**（vue是加引号，React是用一对大括号{}）**
+在js文件中引入React（`import React from 'react'`）就是为了解析JSX语法，JSX中可以使用JS语法，绑定变量，绑定事件等语法，但要加上{}包裹，不是加引号（vue是加引号，React是用一对大括号{}）
 
 ```react
 import React from 'react'
@@ -323,121 +319,6 @@ return (<ul>
 
 
 
-### 绑定事件
-
-JSX中使用`on事件={ this.方法 }`对事件进行绑定，事件首字母大写，绑定事件时如果需要使用event对象，event参数应该放在最后一个参数位置，而且这个event不是dom中的event，而是react模拟dom中的event生成的合成事件参数
-
-```javascript
- this.handleInputChange(title, event)
-// 已经绑定过this
-```
-
-
-
-**JSX中调用的方法内this默认指向undefined（类中默认严格模式）**，组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，直接绑定就会报错，有以下两个方法可以将this正确指向
-
-- bind
-
-需要在JSX中使用`this.方法.bind(this, 参数)`来使用这个方法，或者在注册事件时采用箭头函数的方式内部调用就无需使用bind
-
-```jsx
-handClick(num)  {
-  console.log("click", num);
-}
-render() {
-  const n = 10
-  return (
-    <button onClick={this.handClick.bind(this, n)}>click</button>
-    {
-      //或者使用箭头函数来注册事件
-	  //<button onChange={() => { this.handleInputChange(n)}}>click</button>
-    }
-  )
-}
-
-```
-
-也可以在constructor中提前使用bind绑定this，然后在jsx中也可以直接使用函数
-
-```react
-constructor() {
-  super()
-  this.handClick = this.handClick.bind(this)
-}
-handClick()  {
-  console.log("click");
-}
-// 在constructor中提前改变了bind指向，render中就无需再bind了
-render() {
-  return (
-  	<button onClick={this.handClick}>click</button>
-  )
-}
-```
-
-**但是如果已经在constructor使用bind为事件绑定过this，还想要传参**，则注册事件需要使用箭头函数，然后内部调用事件，且箭头函数不能写参数，否则会被当做e
-
-```jsx
-constructor() {
-  super()
-  this.handClick = this.handClick.bind(this)
-}
-handClick(num) {
-  console.log("click", num);
-}
-render() {
-  let n = 10
-  return (
-    // onClick={this.handClick(index)} // 直接加()添加参数是错误的，无法运行
-    // 要借用箭头函数传参，但注意index不能当做箭头函数参数使用，直接使用，否则会被当做e
-    <button onClick={() => {this.handClick(n)}}>
-      click
-    </button>
-  );
-}
-
-```
-
-
-
-- 箭头函数
-
-  - 箭头函数定义事件
-
-    ```react
-    class App extends React.Component {
-      handClick = () => {  // 箭头函数定义事件
-        console.log("click");     
-      };
-      render() {
-          return (<button onClick={this.handleClick}>click</button>) 
-      };
-    }
-    ```
-
-    
-
-  - 箭头函数注册事件
-
-    如果需要参数直接写进事件函数中，不用写在箭头函数中，否则会被当做e
-    
-    ```react
-    class App extends React.Component {
-      handClick(num) {
-        // 普通定义事件
-        console.log("click", num);
-      }
-      render() {
-        let n = 10
-    return (
-          <button onClick={ () => {this.handClick(n)} }>click</button>
-        );
-      }
-    }
-    ```
-    
-    
-
 
 
 ### 注释
@@ -478,17 +359,11 @@ list = ['<h1>123</h1>', '<h1>456</h1>']
 return <ul>
 {
   this.state.list.map((item, index) =>{
-    return <li 
-             key={index} 
-             >
-      		  {item}
-  		    </li>
+    return <li key={index}>{item}</li>
   })
 }
 </ul>
 ```
-
-
 
 
 
@@ -505,11 +380,7 @@ list = ['<h1>123</h1>', '<h1>456</h1>']
   {
     this.state.list.map((item, index) =>{
       return (
-        <li 
-         key={index} 
-         dangerouslySetInnerHTML={{__html: item}}
-         >
-        </li>
+        <li key={index} dangerouslySetInnerHTML={{__html: item}}></li>
       )
      })
    }
@@ -601,9 +472,191 @@ class A extends React.Component {
 
 
 
+
+
+# 事件
+
+在React 16及之前的版本里，React会用 document.addEventListener()来绑定大部分的事件，所有事件都绑定在document上。
+
+在React 17版本中， React不会再直接和document层面的事件机制绑定。它将会被绑定到React渲染的根Dom节点root上。React 17将会用rootNode.addEventListener()来进行绑定事件，并且弃用了事件池机制。
+
+```javascript
+const rootNode = document.getElementById('root');
+ReactDOM.render(<App />, rootNode);
+```
+
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ebf58acebcd34ec4bc2e422c01802350~tplv-k3u1fbpfcp-zoom-1.image)
+
+## 绑定事件
+
+JSX中使用`on事件={ this.方法 }`对事件进行绑定，事件首字母大写，绑定事件时如果需要使用event对象，event参数应该放在最后一个参数位置，而且这个event不是dom中的event，而是react模拟dom中的event生成的合成事件参数
+
+```javascript
+ this.handleInputChange(title, event)
+// 已经绑定过this
+```
+
+**JSX中调用的方法内this默认指向undefined（因为类中默认严格模式）**，组件内中的方法直接写在class里即可，但是方法默认的this指向是undefined，直接绑定就会报错，有以下两个方法可以将this正确指向
+
+
+
+- bind
+
+需要在JSX中使用`this.方法.bind(this, 参数)`来使用这个方法，或者在注册事件时采用箭头函数的方式内部调用就无需使用bind
+
+```jsx
+handClick(num)  {
+  console.log("click", num);
+}
+render() {
+  const n = 10
+  return (
+    <button onClick={this.handClick.bind(this, n)}>click</button>
+    {
+      //或者使用箭头函数来注册事件
+	  //<button onChange={() => { this.handleInputChange(n)}}>click</button>
+    }
+  )
+}
+
+```
+
+也可以在constructor中提前使用bind绑定this，然后在jsx中也可以直接使用函数
+
+```react
+constructor() {
+  super()
+  this.handClick = this.handClick.bind(this)
+}
+handClick()  {
+  console.log("click");
+}
+// 在constructor中提前改变了bind指向，render中就无需再bind了
+render() {
+  return (
+  	<button onClick={this.handClick}>click</button>
+  )
+}
+```
+
+**但是如果已经在constructor使用bind为事件绑定过this，还想要传参**，则注册事件需要使用箭头函数，然后内部调用事件，且箭头函数不能写参数，否则会被当做e
+
+```jsx
+constructor() {
+  super()
+  this.handClick = this.handClick.bind(this)
+}
+handClick(num) {
+  console.log("click", num);
+}
+render() {
+  let n = 10
+  return (
+    // onClick={this.handClick(index)} // 直接加()添加参数是错误的，无法运行
+    // 要借用箭头函数传参，但注意index不能当做箭头函数参数使用，直接使用，否则会被当做e
+    <button onClick={() => {this.handClick(n)}}>
+      click
+    </button>
+  );
+}
+
+```
+
+
+
+- 箭头函数
+
+  - 箭头函数定义事件
+
+    ```react
+    class App extends React.Component {
+      handClick = () => {  // 箭头函数定义事件
+        console.log("click");     
+      };
+      render() {
+          return (<button onClick={this.handleClick}>click</button>) 
+      };
+    }
+    ```
+
+    
+
+  - 箭头函数注册事件
+
+    如果需要参数直接写进事件函数中，不用写在箭头函数中，否则会被当做e
+
+    ```react
+    class App extends React.Component {
+      handClick(num) {
+        // 普通定义事件
+        console.log("click", num);
+      }
+      render() {
+        let n = 10
+    	return (
+          <button onClick={ () => {this.handClick(n)} }>click</button>
+        );
+      }
+    }
+    ```
+
+    
+
+## SyntheticEvent
+
+SyntheticEvent合成事件对象：我们在react中绑定的事件并不是原生的dom事件，而是react合成出来的。我们给元素绑定的事件全部绑定到了document上方便统一管理，而不是像原生js绑定到我们触发事件的元素上。
+
+react事件处理函数中的e本质是SyntheticEvent（合成事件对象），不是dom原生的event，它模拟了原生event的全部能力（例如 `stopPropagation()` 和 `preventDefault()`），但他和浏览器和dom标准没有关系，全部是react自己控制的。
+
+优点：
+
+1.  抹平浏览器之间的兼容性差异
+2. 可以自定义高级事件，例如React的onChange事件，它为表单元素定义了统一的值变动事件。
+3. 抽象跨平台事件机制，使RN也可以使用这套机制，和VirtualDOM的意义差不多，VirtualDOM抽象了跨平台的渲染方式，那么对应的SyntheticEvent目的也是想提供一个抽象的跨平台事件机制。
+4. 干预事件的分发。v16引入Fiber架构，React为了优化用户的交互体验，会干预事件的分发。不同类型的事件有不同的优先级，比如高优先级的事件可以中断渲染，让用户代码可以及时响应用户交互。
+
+
+
+- event.nativeEvent：调取原生event
+
+可以通过event.nativeEvent调出dom原生event。
+
+
+
+- event.persist()：异步时保留事件引用
+
+如果在react中想异步访问e（如在setTimeout内），应该在是处理事件时调用`event.persist()`，**这会从事件池中移除该合成函数并允许对该合成事件的引用被保留下来**，否则异步开始时，e可能已经变化了无法正确找到事件。从 v17 开始，`e.persist()` 将不再生效，因为 `SyntheticEvent` 不再放入事件池中。
+
+```javascript
+onChange = {
+  e => {
+    e.persist()
+    setTimeout(() => {
+  	  console.log(e.target.value)
+    }, 200)
+ }
+}
+```
+
+
+
+## 事件池
+
+事件池适用于仅适用于 React 16 及更早版本、React Native。Web 端的 React 17 不使用事件池。
+
+合成事件对象池是 React 事件系统提供的一种性能优化方式。不同类型的合成事件的SyntheticEvent具有不同的对象池。
+
+当对象池未满时，React创建新的事件对象派发给组件后将事件对象SyntheticEvent沉入事件对象池。当对象池装满后，React 从池中复用以前的事件对象，派发给组件避免继续创建新的事件对象节约性能。
+
+这意味着React的事件对象是可以复用的，所以异步中要`e.persist()`保留本次事件引用，否则e就会被其他组件复用，异步开始执行时e已经不是原来的事件对象了。
+
+
+
+
+
 # React.createElement()
 
-在render函数中返回的(JSX)会先生成React.createElement()，React.createElement()是更底层的生成虚拟dom的方法，性能更高
+在render函数中返回的JSX会先生成React.createElement()，React.createElement()是更底层的生成虚拟dom的方法，性能更高
 
 ReactElement通过createElement创建，调用该方法需要传入三个参数：
 
@@ -694,16 +747,6 @@ css modules本身需要**css-loader**来配合，这可能会出现的缺点：
 因此可以使用更多的社区方案来处理cssModules，例如styled-components
 
 
-
-
-
-# SyntheticEvent合成事件对象
-
-我们在react中绑定的事件并不是原生的dom事件，而是react合成出来的。我们给元素绑定的事件全部绑定到了document上，而不是我们触发事件的元素上。
-
-react事件处理函数中的event本质是SyntheticEvent（合成事件），不是dom原生的event，它模拟了原生event的全部能力，但他和浏览器和dom标准没有关系，全部是react自己控制的。
-
-可以通过event.nativeEvent调出dom原生event。
 
 
 
@@ -1007,6 +1050,8 @@ class Menu extends React.Component {
 }
 ```
 
+
+
 ## PropTypes/defaultProps
 
 PropTypes是一个插件（需要安装并引入）。PropTypes用于父组件传递给子组件的数据属性类型的校验,DefaultProps是用来给父组件没传值的属性赋默认值。类似vue自带的类型检测的type和default。
@@ -1225,12 +1270,6 @@ function FuncComponent(props) {
 
 
 
-
-
-
-
-
-
 # 插槽
 
 react中也可以实现类似vue中插槽的功能，子组件是会挂载到父组件的props.children属性上（多个组件会形成数组），并且在函数组件中，函数是可以传入一个对象参数的，这个对象就是props
@@ -1241,8 +1280,6 @@ react中也可以实现类似vue中插槽的功能，子组件是会挂载到父
 </a>
 // 此时就可以从a组件中可以通过props.title提取出aaa，也可以从props.children上提取出b组件实例
 ```
-
-
 
 
 
@@ -2216,4 +2253,19 @@ state不可变值的有一个方案时每次都彻底深拷贝，但这样性能
 
 
 # 结合TS
+
+tsx防抖
+
+```tsx
+const debounce = (fn: Function, ms = 300)=> {
+  let timeoutId: any;
+  return function (value: string, e?: React.ChangeEvent) {
+  	if(e) e.persist();
+  	clearTimeout(timeoutId);
+  	timeoutId = setTimeout(() => {
+    	fn(value)
+  	}, ms)
+  }
+}
+```
 

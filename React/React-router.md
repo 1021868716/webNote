@@ -94,7 +94,7 @@ import { Link } from 'react-router-dom'
 ```react
 import { useHistory } from 'react-router-dom'
 function Trash() {
-	let history = use useHistory()
+	let history = useHistory()
 	function handleClick() {
 	  history.push('/') // 使用js跳转路由
 	}

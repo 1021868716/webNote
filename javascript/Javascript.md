@@ -2318,6 +2318,94 @@ obj.a === null || obj.a === undefined
 
 
 
+# ES6解构
+
+解构取值
+
+```javascript
+let user = {name:"wtw",age:18}
+//完整语法：let {user:user,age:age} = user
+//ES6解构语法
+let {name="123", title="abc", age} = user
+//解构也只支持默认值，如果目标中没有就用默认值
+console.log(name)//wtw
+console.log(age)//18
+console.log(title)//abc
+
+//数组的解构语法
+let arr=['qqq','bbb']
+let [a, b]=arr
+console.log(a,b)//qqq  bbb
+```
+
+
+
+解构赋值
+
+```javascript
+let name="wtw"
+let age=18
+let p = {name,age}
+console.log(p) // { name: 'wtw', age: 18 }
+```
+
+
+
+## 拓展运算符解构
+
+拓展运算符是es6语法，拓展运算符可以对数组，对象等进行解构
+
+在数组上使用扩展运算符
+
+```javascript
+var obj= ['zs','男']
+console.log(...obj);
+// 结果
+// zs 男
+1234
+```
+
+以相同的方式在对象上使用扩展运算符会报错
+
+```javascript
+var obj = {
+    name:'zs',
+    sex:'男'
+}
+console.log(...obj);
+// 报错，对象不能直接拓展运算符解构
+// TypeError: Found non-callable @@iterator
+```
+
+在对象上使用扩展运算符的正确方式应该如下
+
+```javascript
+var obj = {
+    name:'zs',
+    sex:'男'
+}
+console.log({...obj});
+// 结果
+// { name: 'zs', sex: '男' }
+```
+
+还可以将对象的特定属性单独解构出来
+
+```javascript
+const person = {
+  name: 'www',
+  age: 18,
+  height: 180
+}
+const {name, ...others} = person
+// 将person.name属性解构成单独的name，其他属性解构成一个对象others
+
+console.log(name) // "www"
+console.log(others) // { age: 18, height: 180 }
+```
+
+
+
 
 
 
@@ -6044,7 +6132,7 @@ if (condition) {
 
 ### import as
 
-`import * as obj from 'xxx'`  会将 xx中所有 export 导出的内容组合成一个对象obj返回(例如import * as obj from 'xx'  这种写法是把所有的输出包裹到obj对象里);
+`import * as obj from 'xxx'`  会将 xx中所有 export 导出的内容组合成一个对象obj返回，例如import * as obj from 'xx'  这种写法是把所有的输出包裹到obj对象里;
 
 
 
@@ -6467,8 +6555,8 @@ window.onbeforeunload = function() {
 　　document.readyState 这个只读属性可以告诉程序当前文档加载到哪一个步骤，它有三个值：
 
    　　　　1. loading - 加载，document 仍在加载中；
-   　　　　2. interactive - 互动，文档已经完成加载，文档已被解析，但是诸如图像，样式表和框架之类的子资源仍在加载。
-   　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
+            　　　　2. interactive - 互动，文档已经完成加载，文档已被解析，但是诸如图像，样式表和框架之类的子资源仍在加载。
+            　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
 
 而这个属性的每次改变同样有一个事件可以监听：
 
