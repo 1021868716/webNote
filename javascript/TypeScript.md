@@ -80,7 +80,27 @@ ts-node demo.ts
 
 - ?.
 
-可选链
+可选链：js中很长一段点调用中，如果有任何一个属性是null或者undefined就会报错，而ts的可选链上，如果遇到 `null` 或 `undefined` 就可以立即停止某些表达式的运行。
+
+```javascript
+// js
+// 如果abcdef中出现任意一个null或者undefined就会报错
+console.log(a.b.c.d.e.f)
+```
+
+```typescript
+// ts
+// 如果遇到null或 undefined就立即停止表达式的运行
+console.log(a?.b?.c?.d?.e?.f)
+```
+
+可选链的polyfill
+
+```typescript
+const val = a?.b;
+等同于
+var val = a === null || a === void 0 ? void 0 : a.b;
+```
 
 
 
@@ -103,11 +123,19 @@ if (false) { // ts会报错，因为这里的代码根本不会有机会执行
 
 在TypeScript中有以下基本数据类型
 
-　　• 布尔类型（boolean）
+　　• boolean
 
-　　• 数字类型（number）
+　　• number
 
-　　• 字符串类型（string）
+　　• string
+
+​		• null/undefined
+
+​		• symbol
+
+​		• any/unknown
+
+　　• void/never
 
 　　• 数组类型（array）
 
@@ -115,13 +143,7 @@ if (false) { // ts会报错，因为这里的代码根本不会有机会执行
 
 　　• 枚举类型（enum）
 
-　　• 任意值类型（any）
-
-　　• null和undefined
-
-　　• void类型
-
-　　• never类型
+　　
 
 基本数据类型：bool，string，undefined，null，symbol，number
 
@@ -146,6 +168,14 @@ ts新增的数据类型：
 - **any 任意类型**
 
 用于表示可以为任意类型
+
+
+
+- **unknown**
+
+TypeScript 3.0 引入了新的`unknown` 类型，它是 `any` 类型对应的安全类型。
+
+`unknown` 和 `any` 的主要区别是 `unknown` 类型会更加严格：在对 `unknown` 类型的值执行大多数操作之前，我们必须进行某种形式的检查。而在对 `any` 类型的值执行操作之前，我们不必进行任何检查。
 
 
 
@@ -180,11 +210,7 @@ function infiniteLoop(): never {
 
 
 
-- **unknown**
 
-TypeScript 3.0 引入了新的`unknown` 类型，它是 `any` 类型对应的安全类型。
-
-`unknown` 和 `any` 的主要区别是 `unknown` 类型会更加严格：在对 `unknown` 类型的值执行大多数操作之前，我们必须进行某种形式的检查。而在对 `any` 类型的值执行操作之前，我们不必进行任何检查。
 
 
 
@@ -192,12 +218,12 @@ TypeScript 3.0 引入了新的`unknown` 类型，它是 `any` 类型对应的安
 
 # 类型注解/推断
 
-**type annotation类型注解**：手动规定这个变量应该是什么类型，可以使用联合类型 `| `
+type annotation类型注解：手动规定这个变量应该是什么类型，可以使用联合类型 `| `为变量注解多个类型
 
 `变量: 类型`
 
 ```typescript
-let count: number | string;
+let count: number|string;
 count = 123
 ```
 
@@ -227,7 +253,8 @@ const total = add({num1: 1, num2: 2})
 **type inference类型推断**：ts会自动分析变量类型并规定该变量的类型
 
 ```typescript
-let count = 123
+let a = '123'
+a = 456 // 报错，ts类型自动推断为string，后续无法修改类型
 ```
 
 
@@ -240,7 +267,7 @@ let count = 123
 
 **注解对象**
 
-对象可以注解为有属性详情的对象，也可以使用类来注解对象限定为这个类的实例，如果为详细的注解必须完全符合描述，也可以注解为object，就表示任意对象
+对象可以注解为interface，也可以使用类来注解对象，限定为这个类的实例，也可以注解为object，就表示任意对象
 
 ```typescript
 let teacher: {
@@ -255,23 +282,21 @@ let teacher: {
 let people: object = {
   name: 'wtw'
 }
-```
 
-```typescript
 class person{}
 const dell:Person = new Person() // 注解为Person类的实例
 ```
 
 
 
-**注解数组(元组)**
+**注解数组/元组**
 
 ```typescript
-let arr: number[] = [] 
-// 注解一个纯数字数组
+const arr: (number | string)[] = [1,'2',3];
+// 定义一个元素为数字和字符串数组
 
 let tom: [string, number] = ['Tom', 25]; 
-//定义一个包含两个元素的元组，第一个元素string，第二个元素怒，number：
+//定义一个包含两个元素的元组，第一个元素string，第二个元素number：
 ```
 
 
@@ -284,73 +309,70 @@ let tom: [string, number] = ['Tom', 25];
 
 interface创建用于描述**一个对象或者函数**的接口对象，**接口只是编码时用于语法校验的工具，并不会编译进js文件中。**
 
-使用接口作为注解有两种校验接口的方式
-
-强校验时，使用接口作为注解的对象必须完全符合接口描述（属性一一对应，不能多不能少，且类型符合描述）
-
-弱校验时，使用接口作为注解的对象除了拥有接口描述的属性，还能额外拥有自己的属性和方法，不会导致报错（属性可以多但不能少）
-
-描述html元素可以使用ts自带的HTMLElement，描述css可以使用ts自带的CSSDeclaration
+注解html元素可以使用ts自带的HTMLElement，注解css可以使用ts自带的CSSDeclaration
 
 ## **描述对象**
 
 ```
 interface 接口名 {
-  变量名: 变量描述
+  变量名: 变量描述;
+  方法名(参数名: 参数类型): 函数返回值类型;
 }
 ```
 
 ```typescript
 //对象（类）型的接口
 interface Person {
-    firstName: string;
-    secondName: string;
-    repeat: (input: string) => void;//声明对象方法的输入和返回值
-    // 或者repeat(input: string): void
+  firstName: string;
+  secondName: string;
+  repeat(input: string): void//声明对象方法的输入和返回值
+  //等同与repeat: (input: string) => void;
 }
 
 let obj: Person = {
   firstName: '123',
   secondName: '123',
-  repeat() {
-    return '123'
+  repeat(str) {
+    return 'hello,'+str
   }
 }
 ```
 
 
 
-### 强弱校验
+## 强弱校验
+
+使用接口作为注解有两种校验接口的方式
+
+强校验时，使用接口作为注解的对象必须完全符合接口描述（属性一一对应，不能多不能少，且类型符合描述）
+
+弱校验时，使用接口作为注解的对象除了拥有接口描述的属性，还能额外拥有自己的属性和方法，不会导致报错（属性可以多但不能少）**，弱校验使用较少，一般使用强校验配合?符的方式来创建interface注解不确定的对象**
 
 ```ts
 interface Human {
-    name: string;
-    age: number;
+  name: string;
+  age: number;
 }
 ```
-
-
 
 **强校验**：构建对象时直接以接口作为注解来创建
 
 ```typescript
 let y: Human= {
-    name:'xxx',
-    age:18,
-    gender:'yyy'
+  name:'xxx',
+  age:18,
+  gender:'yyy'
 }
 // 报错，强校验不能拥有多余的属性gender
 ```
-
-
 
 **弱校验**：创建缓存，再将缓存引用给新建的对象，启用弱校验。
 
 ```typescript
 let y = {
-    name: 'xxx',
-    age: 18,
-    gender: 'yyy'
+  name: 'xxx',
+  age: 18,
+  gender: 'yyy'
 }
 let x: Human = y // 不报错
 // 创建一个符合弱校验的对象，然后在创建接口作为注解的对象时将这个对象引用去就属于弱校验，不会报错
@@ -360,7 +382,7 @@ let x: Human = y // 不报错
 
 ## **描述函数**
 
-描述函数形参数量不要求完全一致，但是返回值必须符合描述
+**描述函数形参数量不要求完全一致（但类型必须一致），返回值必须符合描述**
 
 ```
 interface 函数名 {
@@ -385,48 +407,43 @@ var func2: myFunction = (arg1: string, arg2: number) => {
 
 
 
-函数参数的强弱校验
-
 接口和类型别名作为函数参数时具有强弱校验两种校验参数是否符合标准的方式
 
-弱校验，函数中使用变量缓存以后作为实参启用的是弱校验，只要对象中包含接口中规定的属性就认为他符合接口规范，多出来的属性不会导致报错
+**强校验**：函数中使用字面量对象作为实参启用的是强校验，必须完全符合接口标准才能通过校验
 
 ```typescript
 interface Point {
   x: number;
+}
+
+const getX = (point: Point):void =>{
+    console.log(point.x)
+}
+
+getX({x: 3, y: 4}) // 强校验，报错
+```
+
+
+
+**弱校验**：函数中使用变量缓存以后作为实参启用的是弱校验，只要对象中包含接口中规定的属性就认为他符合接口规范，多出来的属性不会导致报错
+
+```typescript
+interface Point {
+  x: number;
+}
+const getX = (point: Point):void =>{
+    console.log(point.x)
 }
 
 let point = {
   x: 3,
   y: 4
 }
-
-const getX = (point: Point):void =>{
-    console.log(point.x)
-}
-
 getX(point) // 3
 // 弱校验，不报错顺利运行
 ```
 
 
-
-强校验，函数中使用字面量对象作为实参启用的是强校验，必须完全符合接口标准才能通过校验
-
-```typescript
-interface Point {
-  x: number;
-}
-
-const getX = (point: Point):void =>{
-    console.log(point.x)
-}
-
-getX({
-  x: 3,
-  y: 4 // 强校验，报错
-}) 
-```
 
 
 
@@ -492,28 +509,6 @@ let point: Point = {
 
 
 
-## 方法
-
-接口同样能描述对象的方法，描述了方法名和方法的返回值类型
-
-```
-方法名(): 方法返回值类型
-```
-
-```typescript
-interface Point {
-  x: number;
-  say(): string;
-}
-
-let point: Point = {
-  x: 123,
-  say() {
-  	return 'hello' 
-  }
-}
-```
-
 
 
 ## implements
@@ -572,9 +567,9 @@ let user: User = {
 
 
 
-# type
+# type alias
 
-Type alias类型别名，和interface一样用于描述对象或者函数或基本类型，并且**type还可以直接描述一个基本类型**，type也适用于强校验和弱校验的规则
+Type alias类型别名，关键字为type，和interface一样用于描述对象或者函数，并且**type还可以直接描述一个基本类型**，type也适用于强校验和弱校验的规则
 
 ```typescript
 // 接口只能描述对象或者函数
@@ -588,8 +583,8 @@ type User = {
 }
 
 let wtw: User = {
-    name: 'wtw',
-    age: 18
+  name: 'wtw',
+  age: 18
 }
 ```
 
@@ -597,9 +592,9 @@ let wtw: User = {
 
 ## 两者的区别
 
-interface用于描述对象或者函数，type alias可以描述对象，函数和基本类型
+interface用于描述对象或者函数，type可以描述对象，函数和基本类型
 
-interface只能定义对象类型，type声明的方式可以定义组合类型，交叉类型和原始类型，如果用type alias 声明的方式，会导致一些功能的缺失，所以尽量使用接口进行描述。
+interface只能定义对象类型，type声明的方式可以定义组合类型，交叉类型和原始类型，如果用type声明的方式，会导致一些功能的缺失，所以尽量使用接口进行描述。
 
 - interface方式可以实现接口的extends/implements，而type 不行
 
@@ -624,25 +619,25 @@ type proxyKType = Record<K,T>
 ```typescript
 type petsGroup = 'dog' | 'cat' | 'fish';
 interface IPetInfo {
-    name:string,
-    age:number,
+  name:string,
+  age:number,
 }
 
 type IPets = Record<petsGroup, IPetInfo>;
 
 const animalsInfo:IPets = {
-    dog:{
-        name:'dogName',
-        age:2
-    },
-    cat:{
-        name:'catName',
-        age:3
-    },
-    fish:{
-        name:'fishName',
-        age:5
-    }
+  dog:{
+    name:'dogName',
+    age:2
+  },
+  cat:{
+    name:'catName',
+    age:3
+  },
+  fish:{
+    name:'fishName',
+    age:5
+  }
 }
 ```
 
@@ -731,7 +726,11 @@ demo()//报错，要求传入一个对象类型的形参，没有传入就会报
 
 
 
+
+
 ## 函数重载
+
+ts没有严格意义上的函数重载，函数重载是可以定义多个同名函数，有不同的函数体，但是ts中只能声明多个不同的函数，函数体只有一个。
 
 函数声明可以声明多个同名函数，实现时利用?和逻辑判断让每个声明都能执行且没有逻辑错误，函数重载就不会报错，这样函数的**实体**仍然只有一个，只是**声明**有多个。
 
@@ -750,7 +749,7 @@ function add (arg1: string | number, arg2?: string | number) {
   // 在实现上我们要注意严格判断两个参数的类型是否相等，而不能简单的写一个 arg1 + arg2
   // 否则认为有逻辑错误而报错
   if (typeof arg1 === 'string' && typeof arg2 === 'string') {
-    return arg1 + arg2
+    return 'hello,'+arg1 + arg2
   } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
     return arg1 + arg2
   }else {
@@ -759,7 +758,7 @@ function add (arg1: string | number, arg2?: string | number) {
 }
 
 console.log(add(1)) //1
-console.log(add('1','2')) //12
+console.log(add('1','2')) //hello,12
 console.log(add(1,2)) //3
 ```
 
@@ -791,7 +790,7 @@ console.log(add('1','2')) //12
 
 
 
-利用?和|来实现动态传入参数
+3)  **利用?和|来实现动态传入参数**
 
 ```ts
 interface myFunction {
@@ -819,18 +818,18 @@ console.log(add('1','2')) //1
 ts的数组和js的数组是一样的，数组也可以进行注解，规定元素必须为某种类型
 
 ```
-数组名: 类型注解[] = [...]
+数组名: 类型注解[] = []
 ```
 
 ```typescript
-const numbers: number[] = [1,2,3];
+const numberArr: number[] = [1, 2, 3];
 // 定义一个数字数组
 
-const arr: (number | string)[] = [1,'2',3];
+const arr: (number | string)[] = [1, '2', 3];
 // 定义一个元素为数字和字符串数组
 
-const objArr: {name: string}[] = []
-// 定义一个数组，只能存放对象类型，对象必须只能有一个string类型的name属性
+const objArr: {name: string}[] = [{name: 'abc'}]
+// 定义一个数组，只能存放对象类型，成员对象必须有且只能有一个string类型的name属性
 ```
 
 
@@ -982,11 +981,9 @@ console.log(user.getName()) // User重写了get方法，所以User实例执行�
 
 
 
-## 属性访问类型
+## 访问权限
 
-ts的类中的属性有三种访问类型private，protected，public
-
-**访问类型限制了类实例对象中该属性的访问权限**
+**访问类型限制了类实例对象中该属性的访问权限**，ts的类中的属性有三种访问类型private，protected，public
 
 | 访问类型  | 权限                                               |
 | --------- | -------------------------------------------------- |
@@ -1212,7 +1209,7 @@ function Animal(animal: Bird | Dog) {
 
 # 类型断言as/<>
 
-类型断言是我们告诉ts在这里的变量具体对应联合类型中某一类型，让其可以调用这个类型的非同名方法和属性。让其跳出类型保护的语法限制，使用断言，会手动指定这个变量的类型，就可以调用该类型的非同名属性，并且ts不会报错，断言就当做一个指定了类型的变量来使用。
+类型断言（type assertions）是我们告诉ts在这里的变量具体对应联合类型中某一类型，让其可以调用这个类型的非同名方法和属性。让其跳出类型保护的语法限制，使用断言，会手动指定这个变量的类型，就可以调用该类型的非同名属性，并且ts不会报错，断言就当做一个指定了类型的变量来使用。
 
 断言有两种形式：`(变量 as 注解)`或者`(<注解>变量)`，两者等同，但是tsx中只能使用as断言
 
@@ -1237,7 +1234,111 @@ function Animal(animal: Bird | Dog) {
 
 
 
+## const断言
 
+const断言（const assertions ）是 TypeScript 3.4 的杀手级新功能，官方解释：
+
+TypeScript 3.4 引入了一个名为 const 断言的字面值的新构造。"const" 断言只能用于引用枚举成员、字符串、数字、布尔值、数组或对象文本。它的语法是一个类型断言，用 const 代替类型名称（例如 `123 as const`）断言构造新的文字表达式时，我们可以向语言发出以下信号：
+
+该表达式中的字面类型不应被扩展（例如：不能从“hello”转换为字符串）
+
+对象字面量获取只读属性
+
+数组字面量成为只读数组
+
+
+
+- **没有类型扩展的字面类型**
+
+```typescript
+let a = 'x';   // has the type string
+const b = 'x'; // has the type 'x' 
+```
+
+let定义变量，变量是可以被重新分配的栈上内存地址的（也就是基本类型无法重新赋值，引用类型无法修改引用），const定义的常量是无法被重新分配栈上内存地址的。
+
+as const的第一个用法就是模拟const定义一个常量，可以在无法使用const关键字的地方定义常量，例如对象中初始化值
+
+```typescript
+let c = 'x' as const; // has the type 'x'
+c = 'qqqq' // 报错，c无法重新赋值
+let d = {
+  id: 'zzzzzz' as const 
+}
+d.id = 'qwerrrr' // 报错，d.id无法重新赋值
+```
+
+
+
+- **对象字面量获取只读属性**
+
+const对于引用类型来说，只能让其栈上的引用地址无法修改，堆上的属性值可以进行修改
+
+```typescript
+const obj = {
+  id: 'wtw',
+  age: 18
+}
+obj.id = 'qqq'// 成功修改
+obj = { //报错，无法修改引用
+  id: 'qww'
+}
+```
+
+可以对对象每个属性使用readonly注解或者固定注解来防止修改（两者区别在于报错不同），但是一旦属性数量多了后很难维护，现在可以使用const断言语法糖，实现原理是给对象内所有属性都加上readonly
+
+```typescript
+// 使用readonly注解
+interface person  {
+  readonly id: 'wtw',
+  readonly age: 18  
+} 
+const obj1:person = {
+  id: 'wtw',
+  age: 18  
+}
+obj1.id = 'qqq' // 报错，无法修改只读属性
+```
+
+```typescript
+// 使用固定注解
+interface person{
+  id: 'wtw',
+  age: 18  
+}
+const obj2:person = {
+  id: 'wtw',
+  age: 18  
+} 
+obj2.id = 'qqq' // 不符合固定注解，报错
+```
+
+```typescript
+// 使用const断言，原理等同与使用readonly注解
+const obj3 = <const>{
+  id: 'wtw',
+  age: 18
+}
+obj3.id = 'qqq' // 报错，无法修改只读属性
+```
+
+
+
+- **数组字面量成为只读数组**
+
+普通元组可以控制数组的类型和数量，但是内部属性可以修改，无法做到完全的只读数组
+
+```typescript
+const mtTuplt: [string, string, number] = ['a','b',123]
+mtTuplt[2] = 456 // 可以修改
+```
+
+使用const泛型可以修改为只读数组，原理是给数组每个成员都加上readonly
+
+```typescript
+const mtTuplt = <const>['a','b',123]
+mtTuplt[2] = 456 // 报错，无法修改只读属性
+```
 
 
 
@@ -1330,23 +1431,54 @@ console.log(data.getItem(1)) // { name: 'wy', age: 20 }
 
 # 索引查询keyof
 
-keyof是索引类型查询操作符，keyof会循环遍历成员并返回一个由所有成员名称组成的联合类型
+keyof是索引类型查询操作符，TypeScript 允许我们遍历某种类型的属性，并通过 keyof 操作符提取其属性的名称。keyof操作符是在 TypeScript 2.1 版本引入的，该操作符可以用于获取某种类型的所有键，其返回类型是联合类型。
 
-typescript的`keyof`关键字，将一个类型T映射为它**所有成员名称**的联合类型。
+typescript的keyof关键字，将一个类型T映射为它**所有成员名称**的联合类型。
+
+
+
+- keyof interface
 
 ```typescript
 interface Person {
-    name: string;
-    age: number;
-    location: string;
+  name: string;
+  age: number;
+  location: string;
 }
  
 type K1 = keyof Person; // K1 = "name" | "age" | "location"
-
 type K2 = keyof Person[]; 
 // keyof的是一个数组，K2 = "length" | "push" | "pop" | "concat" | ...
+type K3 = keyof { [x: string]: Person };  // k3 = string | number
+```
 
-type K3 = keyof { [x: string]: Person };  // k3 = string
+
+
+- keyof class
+
+```typescript
+class Person {
+  name: string = "Semlinker";
+}
+
+let a: keyof Person;
+console.log(a) // undefined
+a = "name" // 成功赋值
+a = "age" 
+// Type '"age"' is not assignable to type '"name"'.
+// 报错，a被注解为string类型的"name"，所以只能赋值为name
+```
+
+
+
+- keyof 基本数据类型
+
+会将基本类型上的方法，属性等作为联合类型返回
+
+```typescript
+let K1: keyof boolean; // let K1: "valueOf"
+let K2: keyof number; // let K2: "toString" | "toFixed" | "toExponential" | ...
+let K3: keyof symbol; // let K1: "valueOf"
 ```
 
 
@@ -1389,11 +1521,7 @@ console.log(people.getInfo('name')) //wtw
 console.log(people.getInfo('birthday')) //not find
 ```
 
-
-
-**可以利用keyof和泛型来解决这个问题**
-
-利用keyof和泛型结合保护了程序的安全，避免了意料之外的访问
+**可以利用keyof和泛型来解决这个问题**：利用keyof和泛型结合保护了程序的安全，避免了意料之外的访问
 
 ```typescript
 getInfo<T extends keyof Person>(key: T) {
@@ -1435,24 +1563,20 @@ namespace SomeNameSpaceName {
 
 const a: SomeNameSpaceName.ISomeInterfaceName = {}
 const b = new SomeNameSpaceName.SomeClassName()
-// const c = new SomeNameSpaceName.User() // 报错，命名空间没有暴露User的接口，外部无法使用
+const c = new SomeNameSpaceName.User() // 报错，命名空间没有暴露User的接口，外部无法使用
 ```
 
 
 
 ## 引入命名空间
 
-普通的 JS 模块文件可以相互引用一样，包含 namespace 的命名空间文件也可以相互引入，还可以组合成一个更大的命名空间，引入之后可以正确的显示语法提示。
+普通的 JS 模块文件可以相互引用一样，包含 namespace 的命名空间文件也可以相互引入，还可以组合成一个更大的命名空间，引入之后可以正确的显示语法提示。无论是在其他命名空间中引入命名空间，还是在一个ts文件中引入命名空间来使用都可以通过完全限定名的方式。
 
-reference 注释引用命名空间
-
-在ts中reference 注释引用不算注释，会正确的引用对应的文件的命名空间，即可通过“完全限定名”进行访问。
+reference 注释引用命名空间，在ts中reference注释引用不算注释，会正确的引用对应的文件的命名空间，即可通过“完全限定名”进行访问。
 
 ```
 /// <reference path='文件路径' />
 ```
-
-无论是在其他命名空间中引入命名空间，还是在一个ts文件中引入命名空间来使用都可以通过完全限定名的方式
 
 **在命名空间中引入命名空间**
 
@@ -1849,7 +1973,7 @@ npm install typescript -g
 
 
 
-## 编译
+## 编译命令
 
 编译是指将.ts文件转换为js引擎能执行的js文件
 
@@ -1859,7 +1983,7 @@ npm install typescript -g
 
 `tsc demo.ts`	将指定ts文件编译为js文件（不会按照tsconfig.json的配置编译），如果想使用tsconfig.json编译指定文件应该配置`include`字段以后使用`tsc`命令打包
 
-`tsc  demo.ts  -t  es5` 	将制定ts文件编译为es5及以上的版本，有些高级特性必须编译为es5以上的版本时就需要运行这个命令编译（如get/set关键字）
+`tsc demo.ts -t es5` 	将制定ts文件编译为es5及以上的版本，有些高级特性必须编译为es5以上的版本时就需要运行这个命令编译（如get/set关键字）
 
 `ts-node demo.js`	使用tsconfig.json配置直接运行ts文件
 
@@ -1885,14 +2009,14 @@ npm install nodemon
 
 在package.json中配置，再开启另外一个命令行工具运行`npm run start`，每当js文件改变后就会自动重新运行
 
-```
+```json
 "script": {
   "build": "tsc -w",
   "start": "nodemon ./build/demo.js"
 }
 ```
 
-"tsc -w"和nodemon组合起来，每次ts改变，就会重新生成js文件，js文件每次重新生成nodemon检测到以后就会重新运行。
+`tsc -w`和nodemon组合起来，每次ts改变，就会重新生成js文件，js文件每次重新生成nodemon检测到以后就会重新运行。
 
 
 
@@ -1904,7 +2028,7 @@ npm install concurrently -D
 
 然后再package.json中配置
 
-```
+```json
 "script": {
   "build": "tsc -w",
   "start": "nodemon ./build/demo.js",
@@ -2080,32 +2204,6 @@ declare module 'jquery' {
 ```
 
 
-
-# ?.可选链
-
-js中很长一段点调用中，如果有任何一个属性是null或者undefined就会报错，而ts的可选链上，如果遇到 `null` 或 `undefined` 就可以立即停止某些表达式的运行。
-
-```javascript
-// js
-// 如果abcdef中出现任意一个null或者undefined就会报错
-console.log(a.b.c.d.e.f)
-```
-
-```typescript
-// ts
-// 如果遇到null或 undefined就立即停止表达式的运行
-console.log(a?.b?.c?.d?.e?.f)
-```
-
-
-
-可选链的polyfill
-
-```typescript
-const val = a?.b;
-等同于
-var val = a === null || a === void 0 ? void 0 : a.b;
-```
 
 
 
