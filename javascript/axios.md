@@ -78,7 +78,7 @@ axios({
 
   
 
-# axios请求
+## 请求方式
 
 - **axios(config)**
 
@@ -102,6 +102,43 @@ axios({})
 
 })
 ```
+
+
+
+# axios.get/post
+
+- get带参数
+
+axios.get(url[, config])
+
+```javascript
+axios.get('demo/url', {
+    params: {
+        id: 123,
+        name: 'Henry',
+    },
+   timeout: 1000,
+  ...//其他相关配置
+})
+```
+
+
+
+- post带参数
+
+axios.post(url[, data[, config]])
+
+```javascript
+axios.post('demo/url', {
+    id: 123,
+    name: 'Henry',
+},{
+   timeout: 1000,
+    ...//其他相关配置
+})
+```
+
+
 
 
 

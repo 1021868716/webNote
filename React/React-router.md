@@ -487,7 +487,7 @@ function HomeButton() {
   let history = useHistory();
 
   function handleClick() {
-    history.push("/home");
+    history.push("/home", {message: 'hello'}));
   }
 
   return (
@@ -495,6 +495,17 @@ function HomeButton() {
       Go home
     </button>
   );
+}
+```
+
+使用push后，跳转页面的history.action会变为字符串PUSH，可以在跳转页面history.location.state拿到所有携带的参数
+
+```javascript
+// /home
+const history = useHistory();
+...
+if(history.action ==='PUSH' && history.location.state ) {
+  console.log(history.location.state.message) // hello
 }
 ```
 

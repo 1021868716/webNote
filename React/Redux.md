@@ -6,9 +6,9 @@
 npm install redux
 ```
 
-React是单项数据流且是函数式编程思想
+Redux 是 JavaScript 状态容器，提供可预测化的状态管理。
 
-React中Redux导出的store是唯一的，且只有store能改变自己的数据，reducer不能改变store，只能接收action并返回一个数据对象state，store拿到这个返回的state对象自己更新自己的数据
+React是单项数据流且是函数式编程思想，React中Redux导出的store是唯一的，且只有store自己能改变自己的数据，reducer不能改变store，只能接收action并返回一个数据对象state，store拿到这个返回的state对象自己更新自己的数据
 
 安装React绑定库和开发者工具
 
@@ -534,8 +534,6 @@ npm install --save react-redux
 
 React-Redux自带了一个核心组件Provider，Provider连接一个store后，他的所有子组件都有能力通过引入connect方法与store建立映射关系，将需要使用store数据的组件放入Provider中使用。
 
-
-
 首先src/index.js中引入react-redux，使用核心组件Provider连接store，然后需要使用store的组件作为Provider的子组件
 
 ```react
@@ -560,9 +558,11 @@ ReactDOM.render(APP, document.getElementById('root'));
 
 connect本质是一个高阶组件（HOC），在组件中引入react-redux中的connect方法建立store与组件的映射关系，connect有两个参数：mapStateToProps和mapDispatchToProps，都需要传入函数，并且两个函数都需要返回对象，第一个函数的对象时建立store中数据与组件props数据的关系，第二个函数返回的对象是提供修改store中数据的方法。
 
-第一个参数函数参数是state（sotre中的），用于建立组件与store之间的映射关系，store的数据会映射到组件的props上，组件内可以通过props进行调用可以访问关联过的store数据，连接后组件使用store中数据的方式变为使用 this.props.属性
+第一个参数函数参数是state（sotre中的），用于建立组件与store之间的映射关系，store的数据会映射到组件的props上，组件内可以通过props进行调用可以访问关联过的store数据，连接后组件使用store中数据的方式变为使用 this.props.属性。
 
 第二个参数函数参数是dispatch，用于建立组件与store的dispath方法之间的映射，修改方法也映射到了props上，调用方法dispatch action来修改store，组件可以使用第二个参数函数返回的对象中的方法修改store中的数据
+
+
 
 导出组件之前使用connect建立映射关系，然后把高阶组件再导出出去
 
@@ -608,7 +608,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(TodoList)
 
 
 
-## 拆分reducer
+## combineReducers拆分reducer
 
 当reducer含有太多代码时可以将在每个组件内生成一个reducer.js，自己管理自己的action，store内的reducer再通过引入redux的combineReducers方法整合这些小的reducer.js
 

@@ -939,11 +939,35 @@ while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
 
 因此模板肯定是将类html代码转化为了某种js代码来完成这些操作。这样的过程叫模板编译。模板编译为render函数，执行render函数返回vnode，基于vnode在执行patch和diff。
 
+模板编译分为三个阶段：解析parse，优化optimize，生成generate
+
+- parse：使用大量的正则表达式对template字符串进行解析。将标签，指令，属性等转化为AST
+- optimize：遍历AST，找到其中的一些静态节点进行标记，方便页面下次重渲染的时候进行diff比对时能直接复用这些节点，优化runtime性能
+- generate：将最终的ADST转化为render函数字符串
+
+
+
+## template预编译
+
+Vue组件的模板编译只会在组件实例化的时候编译一次，生成渲染函数之后再也不会进行编译。
+
+因此编译对组件的runtime是一种性能损耗，而模板编译的目的仅仅是将template转化为render function。这个过程正好是项目构建过程中可以完成的。这样可以让实际组件在runtime时直接跳过模板编译，进而提升性能，这个在项目构建的编译template的过程就叫预编译。
+
+
+
+## template/jsx区别
+
+对于 runtime 来说，只需要保证组件存在 render 函数即可，而我们有了预编译之后，我们只需要保证构建过程中生成 render 函数就可以。jsx和template都只是一种形式，最终都会转为render。
+
+在 webpack 中，我们使用vue-loader编译.vue文件，内部依赖的vue-template-compiler模块，在 webpack 构建过程中，将template预编译成 render 函数。与 react 类似，在添加了jsx的语法糖解析器babel-plugin-transform-vue-jsx之后，就可以直接手写render函数。
+
+所以，template和jsx的都是render的一种表现形式，不同的是：JSX相对于template而言，具有更高的灵活性，在复杂的组件中，更具有优势，而 template 虽然显得有些呆滞。但是 template 在代码结构上更符合视图与逻辑分离的习惯，更简单、更直观、更好维护。
+
 
 
 ## with沙箱
 
-JavaScript有with语法，用于制造沙箱环境（常见的沙箱还要Proxy）
+JavaScript有with语法，用于制造沙箱环境（常见的沙箱还要Proxy），template生成的render中会使用with来制造沙箱环境。
 
 ```javascript
 const obj = { a: 100, b: 200 }
@@ -1016,9 +1040,9 @@ class属性因为是一个关键字所以编译为staticClass（虚拟dom中叫c
 ```javascript
 const compiler = require('vue-template-compiler')
 const template = `
-	<div id="div1" class="container">
-		<img :src="imgUrl"/>
-	</div>
+  <div id="div1" class="container">
+	<img :src="imgUrl"/>
+  </div>
 `
 // 编译
 const res = compiler.compile(template)
@@ -1055,9 +1079,9 @@ v-for是根据`_l`，renderList函数来循环遍历list并渲染元素
 ```javascript
 const compiler = require('vue-template-compiler')
 const template = `
-	<div>
-    	<div v-for='(item,index) in list' :key='item.id'>{{item.title}}</div>
-	</div>
+  <div>
+    <div v-for='(item,index) in list' :key='item.id'>{{item.title}}</div>
+  </div>
 `
 // 编译
 const res = compiler.compile(template)
@@ -1072,7 +1096,7 @@ console.log(res.render)
 ```javascript
 const compiler = require('vue-template-compiler')
 const template = `
-    <div @click='handleClick'>btn</div>
+  <div @click='handleClick'>btn</div>
 `
 // 编译
 const res = compiler.compile(template)
@@ -1089,7 +1113,7 @@ v-model主要是v-bind绑定value=name属性，来让input显示name的内容，
 ```javascript
 const compiler = require('vue-template-compiler')
 const template = `
-	<input type='text' v-mode='name'></input>
+  <input type='text' v-mode='name'></input>
 `
 // 编译
 const res = compiler.compile(template)
