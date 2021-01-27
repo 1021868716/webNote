@@ -765,12 +765,14 @@ SyntheticEvent模拟了原生dom事件event的全部能力，例如阻止默认�
 
 # Fiber
 
-React 中patch可以拆分为两个阶段
+fiber：n. 纤维
+
+React 中使用fiber后patch的过程可以拆分为两个阶段
 
 - reconciliation 阶段：执行diff算法，纯js计算，且该阶段的任务也可以拆分成了一个个子片段的小任务。
 - commit 阶段： 将diff结果渲染DOM
 
-如果不拆分可能会出现性能问题：js时单线程的，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
+如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
 
 React的解决方案就是fiber，fiber时React运行时的一个机制：
 
@@ -785,14 +787,12 @@ React的解决方案就是fiber，fiber时React运行时的一个机制：
 React 框架内部的运作可以分为 3 层：
 
 - Virtual DOM 层，描述页面长什么样。
-- Reconciler 层（Fiber Reconciler），负责调用组件生命周期方法，进行 Diff 运算等。
+- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler），负责调用组件生命周期方法，进行 Diff 运算等。
 - Renderer 层，根据不同的平台，渲染出相应的页面，比较常见的是 ReactDOM 和 ReactNative。
 
-为了加以区分，以前的 Reconciler 被命名为Stack Reconciler（现在是Fiber Reconciler）。Stack Reconciler 运作的过程是不能被打断的，必须一条道走到黑。
+为了加以区分，以前的 Reconciler 被命名为Stack Reconciler，现在是Fiber Reconciler。Stack Reconciler 运作的过程是不能被打断的，必须一条道走到黑。而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，可以分段执行：
 
-而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，可以分段执行：
-
-为了达到这种效果，就需要有一个调度器 (Scheduler) 来进行任务分配。任务的优先级有六种：
+为了达到这种效果，就需要有一个调度程序 (Scheduler) 来进行任务分配。任务的优先级有六种：
 
 - synchronous，与之前的Stack Reconciler操作一样，同步执行
 - task，在nexttick之前执行
@@ -814,13 +814,21 @@ Fiber Reconciler 在执行过程中，会分为 2 个阶段。
 
 ## Fiber树
 
-Fiber Reconciler 在阶段一进行 Diff 计算的时候，会生成一棵 Fiber 树。这棵树是在 Virtual DOM 树的基础上增加额外的信息来生成的，它本质来说是一个链表。
+Fiber Reconciler 在阶段一进行 Diff 计算的时候，会生成一棵 Fiber 树。这棵树是在 Virtual DOM 树的基础上增加额外的信息来生成的，**Fiber树本质来说是一个链表**。
 
 Fiber 树在首次渲染的时候会一次过生成。在后续需要 Diff 的时候，会根据已有树和最新 Virtual DOM 的信息，生成一棵新的树。这颗新树每生成一个新的节点，都会将控制权交回给主线程，去检查有没有优先级更高的任务需要执行。如果没有，则继续构建树的过程：
 
 如果过程中有优先级更高的任务需要进行，则 Fiber Reconciler 会丢弃正在生成的树，在空闲的时候再重新执行一遍。
 
 在构造 Fiber 树的过程中，Fiber Reconciler 会将需要更新的节点信息保存在`Effect List`当中，在阶段二执行的时候，会批量更新相应的节点。
+
+
+
+
+
+# Concurrent Mode
+
+concurrent：并存的; 同时发生的;adj.
 
 
 

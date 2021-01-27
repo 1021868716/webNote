@@ -217,7 +217,7 @@ function ExampleApplication() {
 
 
 
-# 组件化
+# JSX
 
 引入 React 解析jsx语法，并使用React.Component创建组件类，也可以单独引入Component负责创建组件，但因为Component属于React对象下，所以也可以不引入Component直接使用React.Component来继承组件。
 
@@ -236,7 +236,7 @@ export default class Life extends Component {
 
 
 
-## JSX
+## 语法
 
 在js中写html标签并解析就叫 JSX 语法
 
@@ -418,9 +418,7 @@ return <div>
 
 ```jsx
 return (<div>
-{
-  this.props.login && <div className="RecommendInfo">{this.props.realname}</div>
-}
+  {(record.status === 0 || record.status === 2) && <div>启用</div>}
 </div>)
 ```
 

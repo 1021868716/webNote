@@ -4,7 +4,7 @@ ts兼容js语法，但ts不能直接在node或者浏览器环境下运行，必�
 
 ts的静态类型使得编写代码时就可以快速定位一些错误并且在编辑器中ts的代码提示更友好。例如js中我们访问一个对象中没有的属性不会报错，需要在运行后才能定位错误，但是ts中访问一个对象不存在的属性就会直接报错。
 
-javascript是动态类型语言，变量的类型是可变的，但是typescript是静态类型的语言，变量类型不可改变
+javascript是动态类型语言，变量的类型是可变的，但是typescript是静态类型的语言，变量类型不可改变。js的对象中的键全是字符串，TypeScript支持两种索引签名：字符串和数字。
 
 
 
@@ -32,7 +32,7 @@ tsc --init
 
 
 
-## 编译js
+## 编译为js
 
 运行tsc命令将ts编译为js，编译后会出现一个同名js文件
 
@@ -68,7 +68,18 @@ ts-node demo.ts
 
 - ?
 
-属性或参数中使用?表示该属性或参数为可选项
+interface中属性或参数中使用?表示该属性或参数为可选项
+
+```typescript
+interface keyVal {
+  name: string;
+  age?: number;
+}
+const per: keyVal = {
+  name: 'qqq',
+  age: 99 // 没有age属性也不会报错
+}
+```
 
 
 
@@ -80,18 +91,26 @@ ts-node demo.ts
 
 - ?.
 
-可选链：js中很长一段点调用中，如果有任何一个属性是null或者undefined就会报错，而ts的可选链上，如果遇到 `null` 或 `undefined` 就可以立即停止某些表达式的运行。
+可选链：JS/TS中很长一段点调用的运行中，如果有任何一个属性是null或者undefined就会报错，而ts的可选链上，如果遇到 `null` 或 `undefined` 就可以立即停止某些表达式的运行并返回undefined
 
 ```javascript
-// js
-// 如果abcdef中出现任意一个null或者undefined就会报错
-console.log(a.b.c.d.e.f)
+// JS/TS中如果abcde中出现任意一个null或者undefined就会报错
+// 但是JS没有类型检查会在运行时报错，
+// TS有类型检查的情况下是在开发时报错，没有类型检查的其他来源的数据则是在运行时才会报错
+console.log(a.b.c.d.e.f) // 运行时会报错
 ```
 
 ```typescript
-// ts
-// 如果遇到null或 undefined就立即停止表达式的运行
-console.log(a?.b?.c?.d?.e?.f)
+// ts可选链
+// 如果abcde遇到null或 undefined就立即停止表达式的运行并返回undefined
+console.log(a?.b?.c?.d?.e?.f) 
+```
+
+```typescript
+let a = { b: {c:1, d :2}};
+a.b = null
+console.log(a?.b?.c) // undefined
+console.log(a.b.c) // ts运行时报错
 ```
 
 可选链的polyfill
@@ -484,26 +503,38 @@ point.x = 2 //报错
 
 
 
-## propName
+## [propName: string]
 
-`[propName: 变量名注解]: 变量注解`属性表示不定变量（数量不定），可以为任意变量。
+`[键名变量: 变量名注解]: 变量注解`属性表示不定变量（数量不定，可以为0个），可以为任意变量。
 
-例如` [propName: string]: any`表示变量名为字符串类型，变量为any类型
+例如` [propName: string]: any`表示注解为任意个变量名为字符串类型的键，对应值为any类型
 
-propName后的变量注解推荐为any，如果propName的变量类型设置为具体某一类型应该保证该接口其他所有注解都为这个类型，如果其他注解分别为不同的类型，那propName的变量注解应该为any，不应该设置为具体类型，否则会报错
+propName为键名变量，可以随便取，propName后的注解可以为number和string（TS的键类型支持number和string，JS只支持string），值注解推荐为any，如果propName的变量类型设置为具体某一类型应该保证该接口其他所有注解都为这个类型，如果其他注解分别为不同的类型，那propName的变量注解应该为any，不应该设置为具体类型，否则会报错
 
 ```typescript
 interface Point {
   x: number;
   y: number;
-  [propName: string]: any;
+  [propName: string]: string|number;
 }
 
 let point: Point = {
   x: 3,
   y: 2,
   z: '13',
-  d: 14 // 多个不会报错，propName可以数量不定
+  233: 14 // 多个/0个不会报错，propName属性可以数量不定，且数字类型的键233使用string注解不会报错
+}
+```
+
+propName可以换成其他键名也是有效的，指任意键名，但是数字类型的键使用string注解不会报错，反之string类型的键使用number注解就会报错
+
+```typescript
+interface Point {
+  [key: number]: string|number;
+}
+let point: Point = {
+  233: 14,
+  z: '13' // 报错，string类型的键无法使用number类型的注解
 }
 ```
 

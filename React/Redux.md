@@ -642,3 +642,67 @@ const mapStateToProps= (state) => {
 使用connect连接了组件之后，一旦store数据更新，所有连接了的组件的component都会重新渲染，拉低了性能，可以在shouldComponentupdate这个生命周期函数中做代码优化，判断只有和组件相关的数据发生改变时才去执行render函数重新渲染，否则就return false来拒绝虚拟dom的比对，不重新渲染。
 
 每个组件都去写生命周期函数优化会比较麻烦，react提供了一个新组件PureComponent，替代原来的从react中引入的Component，PureComponent是纯组件，这个组件内部实现了一个shouldComponentupdate浅比对，无需我们自己手动比对。
+
+
+
+
+
+# redux-toolkit
+
+如果React项目中使用react hook、redux、redux-thunk，可以使用 redux-toolkit （RTK）优化项目结构。
+
+**Redux 使用常见问题**
+
+- 配置复杂，devtool...
+- 模板代码太多，创建constant，action，reducer...
+- 需要添加很多依赖包，如redux-thunk、immer...
+
+```
+# 优化前
+ /counter
+    constants.ts
+    actions.ts
+    reducer.ts
+    saga.ts
+    index.tsxÏ
+# 优化后
+/counter
+    slice.ts
+    index.tsx
+```
+
+
+
+**RTK干了哪些事？**
+
+- `configureStore()` 包裹createStore，并集成了`redux-thunk`、`Redux DevTools Extension`，默认开启
+- `createReducer()` 创建一个reducer，action type 映射到 case reducer 函数中，不用写switch-case，并集成`immer`
+- `createAction()` 创建一个action，传入动作类型字符串，返回动作函数
+- `createSlice()` 创建一个slice，包含 createReducer、createAction的所有功能
+- `createAsyncThunk()` 创建一个thunk，接受一个动作类型字符串和一个Promise的函数
+- ...
+
+
+
+## 安装RTK
+
+创建新项目
+
+```shell
+# 使用 redux-typescript 模板，推荐使用typescript
+npx create-react-app react-rtk-ts --template redux-typescript
+
+# 使用redux 模板
+# npx create-react-app react-rtk-ts --template redux
+```
+
+老项目中引入
+
+```shell
+# 使用 npm
+npm install @reduxjs/toolkit
+
+# 使用 yarn
+yarn add @reduxjs/toolkit
+```
+
