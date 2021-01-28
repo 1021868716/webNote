@@ -190,14 +190,14 @@ import React from 'react';
 function ExampleApplication() {
   return (
     <div>
-      <Header />
+      <Header/>
       <React.StrictMode>
         <div>
-          <ComponentOne />
-          <ComponentTwo />
+          <ComponentOne/>
+          <ComponentTwo/>
         </div>
       </React.StrictMode>
-      <Footer />
+      <Footer/>
     </div>
   );
 }
@@ -883,7 +883,7 @@ this.setState({
 
 # 组件通信
 
-### 父传子
+## 父传子
 
 this.props
 
@@ -928,11 +928,7 @@ handleClick() {
 
 ```
 
-
-
-
-
-### 子传父
+## 子传父
 
 父组件向子组件传入父组件的自定义事件，子组件可以将消息传入事件参数中，然后让父组件执行这个事件。
 
@@ -981,23 +977,23 @@ class TodoItem extends React.Component {
 
 
 
-### this.props.children
+## this.props.children
 
 类似于vue的slot，父组件让子组件包裹的内容会传递到子组件的this.props.children属性中，子组件可以进行调用
 
 ```react
 // 父组件中调用子组件
-<child>abcd</child>
+<father><child>abcd</child><father>
 ```
 
 ```react
 // 子组件
-<div>{this.props.children}</div>
+<div>{this.props.children}</div>//abcd
 ```
 
 
 
-### 单向数据流
+## 单向数据流
 
 父组件可以向子组件传递数据，但子组件无法修改这个数据
 
@@ -1011,13 +1007,9 @@ React不算mvvm而是mv*，虽然可以实现双向绑定，在React中实现双
 
 
 
+# 数据驱动视图
 
-
-
-
-# 数据驱动
-
-一旦改变state或者props内的数据，组件的render函数就会重新执行并渲染页面。页面是由render函数渲染出来的，所以数据变化页面就会跟着变化。
+一旦改变state或者props内的数据，类组件的render函数就会重新执行并渲染页面。页面是由render函数渲染出来的，所以数据变化页面就会跟着变化。
 
 父组件的render函数执行时，内部的子组件也会被重新渲染，所以子组件的render函数也都会被重新执行一次
 
@@ -1062,7 +1054,7 @@ PropTypes是一个插件（需要安装并引入）。PropTypes用于父组件�
 
 - oneOfType   类型多选一
 
-`类名.propTypes = {属性:PropTypes.oneOfType(PropTypes.string,PropTypes.number)}`
+`类名.propTypes = { 属性名:PropTypes.oneOfType(PropTypes.string, PropTypes.number) }`
 
 表示可以为string或者number类型
 
@@ -1071,7 +1063,7 @@ PropTypes是一个插件（需要安装并引入）。PropTypes用于父组件�
 - arrayType    限制数组item的类型
 
 ```
-类名.propTypes = {属性:PropTypes.arrayType(PropTypes.string,PropTypes.number)}
+类名.propTypes = { 属性:PropTypes.arrayType(PropTypes.string,PropTypes.number) }
 ```
 
 表示接收一个数组，数组内容应该是数字或者字符串类型
@@ -1091,7 +1083,6 @@ TodoItem.propTypes = {
   deleteItem: PropTypes.func,
   index: PropTypes.number
 }
-
 
 TodoItem.defaultProps = {
   test:'helloworld'
@@ -1194,11 +1185,11 @@ export default TodoListUI
 
 
 
-# 无状态组件（函数组件）
+# 函数组件
 
 当一个组件（例如UI组件）只有render函数时，可以将它定义为一个无状态组件（函数），无状态组件写成一个函数的形式，**函数接收一个props参数（用于接受父组件在子组件上挂载的数据）**，这个函数返回JSX
 
-注意无状态组件中不可以使用this，跟普通UI差别在于JSX中的this.props可以直接替换为props，无状态组件的性能较高，因为他就是一个函数，而UI组件是一个类，自带一些无用的生命周期函数，也不会生成组件的实例浪费性能。
+注意无状态组件中不可以使用this，跟普通UI差别在于JSX中的this.props可以直接替换为props，无状态组件的性能较高，因为他就是一个函数，而UI组件是一个类，自带一些无用的生命周期函数，也不会生成组件的实例浪费性能，但是因此也不能携带状态（使用hooks除外）。
 
 ```react
 // TodoListUI.js
@@ -1273,11 +1264,17 @@ function FuncComponent(props) {
 react中也可以实现类似vue中插槽的功能，子组件是会挂载到父组件的props.children属性上（多个组件会形成数组），并且在函数组件中，函数是可以传入一个对象参数的，这个对象就是props
 
 ```jsx
-<a title='aaa'>
-  <b></b>
-</a>
-// 此时就可以从a组件中可以通过props.title提取出aaa，也可以从props.children上提取出b组件实例
+<father title='aaa'>
+  <child></child>
+</father>
+// 此时就可以从father组件中可以通过props.title提取出aaa，也可以从props.children上提取出child组件
 ```
+
+类似于vue的slot，父组件包裹的内容会传递到子组件的this.props.children属性中，子组件可以进行调用
+
+
+
+
 
 
 
@@ -1366,7 +1363,7 @@ render(){
 
 
 
-1.	​	componentWillMount()   **v16.3后被废除**
+1.	​	~~componentWillMount()~~   **v16.3后被废除**
 
 **componentWillMount()  组件即将（还没有）被挂载到页面上的时候执行一次**
 
@@ -1404,7 +1401,7 @@ state 或者 prop 改变，或者父组件的render函数触发时都会触发�
 
 
 
-1.	​	componentWillReceiveProps(nextProps)    **v16.3后被废除**
+1.	​	~~componentWillReceiveProps(nextProps)~~    **v16.3后被废除**
 
 组件接受新的props时调用，父组件的render函数重新执行了，子组件的这个生命周期函数就会执行
 
@@ -1439,7 +1436,7 @@ shouldComponentUpdate(nextProps, nextState){
 
 
 
-3.	​	componentWillUpdate(nextProps, nextState)   **v16.3后被废除**
+3.	​	~~componentWillUpdate(nextProps, nextState)~~   **v16.3后被废除**
 
 在组件被更新之前，shouldComponentUpdate()返回true之后执行
 
@@ -1477,7 +1474,7 @@ state (调用setState)或者 prop 改变，或者父组件的render函数触发�
 
 
 
-## v16.3生命周期
+## v16.3
 
 **react v16.3以后删除以下三个生命周期**
 
@@ -1489,19 +1486,17 @@ componentWillUpdate
 
 新增两个生命周期
 
-**static getDerivedStateFromProps**
+- **static getDerivedStateFromProps**
 
 触发时间：在组件构建之后(虚拟dom之后，实际dom挂载之前) ，以及每次获取新的props之后。
-每次接收新的props之后都会返回一个对象作为新的state，返回null则说明不需要更新state.
-配合componentDidUpdate，可以覆盖componentWillReceiveProps的所有用法
+每次接收新的props之后都会返回一个对象作为新的state，返回null则说明不需要更新state。配合componentDidUpdate，可以覆盖componentWillReceiveProps的所有用法
 
 
 
-**getSnapshotBeforeUpdate**
+- **getSnapshotBeforeUpdate**
 
 触发时间: update发生的时候，在render之后，在组件dom渲染之前。
-返回一个值，作为componentDidUpdate的第三个参数。
-配合componentDidUpdate, 可以覆盖componentWillUpdate的所有用法。
+返回一个值，作为componentDidUpdate的第三个参数。配合componentDidUpdate, 可以覆盖componentWillUpdate的所有用法。
 
 
 
@@ -1870,53 +1865,51 @@ ReactDOM.render(
 
 
 
-
-
-# Diff算法
-
-diffrence 差异
-
-React中的Diff算法是同层比对，两颗新旧虚拟dom组件树上，父组件与父组件比，子组件与子组件比，一层一层比对，一旦发现某层发现某个组件改变就立刻停止比对，这个组件这一层和这一层之下的子组件全部都会被替换。这样虽然可能会导致之后没有改变的子组件无法复用造成了性能的浪费，但这样算法简单，节点比对速度很快。
-
-虚拟dom树上的key值就是用于比对两个节点是否应该进行比对，所以推荐虚拟dom循环时加上唯一的稳定的key值，可以key值相同直接进行比较。为什么不能使用数组下标index做key值，因为会导致key值不稳定，每次都会去对比dom，随时都在变动，key值就失去了意义了。
-
-
-
-
-
 # 虚拟DOM
 
 虚拟DOM是一个JS对象用于描述真实的DOM，虚拟DOM提高了VUE和React更新UI的性能，也为类似React Native这种跨端应用的实现提供了基础
 
 ```react
 render(){
-	return (
-		<div id="wrapper" a="1">
-			<span style="color:red">wtw</span>wy
-		</div>
-	)
-  }		
+  return (
+	<div id="wrapper" title="1">
+	  <span style="color:red">xxx</span>zzz
+	</div>
+  )
+}		
 ```
 
 ```javascript
 // render函数返回JSX后会转化为React.createElement()然后转化为虚拟dom
-// h代表React.createElement()
-h('div',{id:'wrapper'},a:'1',h('span',{style:{color:'red'}},'wtw'),'wy')
+React.createElement(
+  'div',
+  {id:'wrapper'},
+  title:'1',
+  React.createElement(
+    'span',
+    {style:{color:'red'}},
+    'xxx'
+  ),
+  'zzz'
+)
 ```
 
 ```javascript
 //render函数创建出虚拟dom对象
 {
-    type : 'div',
-    props : {id:"wrapper",a:'1'},
-    children:[
-        {type:'span',props:{color:'red',value:"wtw"}},
-        {type:'',props:'',children:[],text:'wy'}
-    ]
+  $$typeof: Symbol(react.element),
+  type : 'div',
+  props : {id:"wrapper",a:'1'},
+  children:[
+    {type:'span',props:{color:'red',value:"xxx"}},
+    {type:'',props:'',children:[],text:'zzz'}
+  ]
 }
 ```
 
-React会将初始的真实DOM转化为一个虚拟DOM，每当数据进行变化就会生成一个新的虚拟DOM，然后通过Diff算法对比原来的DOM，找到数据的部分后对原本的虚拟DOM进行了修改。JS对象之间的比对性能消耗极低，然后直接操作DOM对相应部分进行修改，达到提供更新UI性能的目的
+React会将初始的真实DOM转化为一个虚拟DOM，React将$$typeof属性添加到这些对象，以将它们唯一地标识为React元素。然后我们可以通过type，key和props属性来描述元素。
+
+每当数据进行变化就会生成一个新的虚拟DOM，然后通过Diff算法对比原来的DOM，找到数据的部分后对原本的虚拟DOM进行了修改。JS对象之间的比对性能消耗极低，然后直接操作DOM对相应部分进行修改，达到提供更新UI性能的目的
 
 React渲染页面步骤：JSX--->虚拟DOM--->真实DOM--->数据改变更新虚拟DOM--->更新部分真实DOM
 
@@ -1928,6 +1921,20 @@ React渲染页面步骤：JSX--->虚拟DOM--->真实DOM--->数据改变更新虚
 6. 数据+模板生成新的虚拟DOM
 7. Diff算法比较初始虚拟DOM和新虚拟DOM，找出不同
 8. 直接操作真实DOM中对应的地方进行修改
+
+
+
+# Diff算法
+
+diffrence 差异
+
+React中的Diff算法是同层比对，两颗新旧虚拟dom组件树上，父组件与父组件比，子组件与子组件比，一层一层比对，一旦发现某层发现某个组件改变就立刻停止比对，这个组件这一层和这一层之下的子组件全部都会被替换。这样虽然可能会导致之后没有改变的子组件无法复用造成了性能的浪费，但这样算法简单，节点比对速度很快。
+
+虚拟dom树上的key值就是用于比对两个节点是否应该进行比对，所以推荐虚拟dom循环时加上唯一的稳定的key值，可以key值相同直接进行比较。
+
+为什么不能使用数组下标index做key值，因为会导致key值不稳定，每次都会去对比dom，随时都在变动，key值就失去了意义了。
+
+
 
 
 
@@ -2180,61 +2187,31 @@ export default App;
 
 
 
+# Portals
 
+Portals 传送门
 
-# 浅比较函数
+默认情况下，组件默认会按照既定层次进行嵌套渲染，即dom树上子组件包裹在父组件中渲染，如果需要让子组件渲染到父组件之外就需要使用到Portals。（例如fixed的子组件需要渲染到body第一层上，能有更好的浏览器兼容性）。使用Portals我们可以自定义这个组件需要到的渲染的位置。
 
-手撕shallowEqual函数
+子组件的render函数返回ReactDOM.createPortal()，第一个参数是返回的jsx，第二个参数是渲染的位置
 
-```javascript
-// 拿出原型链上的方法
-const hasOwn = Object.prototype.hasOwnProperty
-
-// 这个函数实际上是Object.is()的polyfill
-function is(x, y) {
-  if (x === y) {
-    // 处理为+0 != -0的情况
-    return x !== 0 || y !== 0 || 1 / x === 1 / y
-  } else {
-    // 处理 NaN === NaN的情况
-    return x !== x && y !== y
-  }
-}
-
-export default function shallowEqual(objA, objB) {
-  // 首先使用is对基本数据类型比较
-  if (is(objA, objB)) return true
-  
-  // 由于Obejct.is()可以对基本数据类型做一个精确的比较， 所以如果不等
-  // 只有一种情况是误判的，那就是object,所以在判断两个对象都不是object，就可以返回false了
-  if (typeof objA !== 'object' || objA === null ||
-      typeof objB !== 'object' || objB === null) {
-    return false
-  }
-
-  // 过滤掉基本数据类型之后，就是对对象的比较了
-  // 首先拿出key数组，对key的长度进行对比
-
-  const keysA = Object.keys(objA)
-  const keysB = Object.keys(objB)
-
-  // 长度不等直接返回false
-  if (keysA.length !== keysB.length) return false
-  // key相等的情况下，在去循环比较
-  for (let i = 0; i < keysA.length; i++) {
-  // key值相等的时候
-  // 借用原型链上真正的 hasOwnProperty 方法，判断ObjB里面是否有A的key的key值
-  // 属性的顺序不影响结果也就是{name:'daisy', age:'24'} 跟{age:'24'，name:'daisy' }是一样的
-  // 最后，对对象的value进行一个基本数据类型的比较，返回结果
-    if (!hasOwn.call(objB, keysA[i]) ||
-        !is(objA[keysA[i]], objB[keysA[i]])) {
-      return false
-    }
-  }
-
-  return true
+```react
+render() {
+  return ReactDOM.createPortal(<div>hello,world</div>,document.body)
 }
 ```
+
+ 
+
+Portals使用场景
+
+- 父组件设置了overflow: hidden，子组件超出父组件又想展示出来可以使用Portals渲染到其他地方
+- 父组件z-index太小
+- fixed需要放在body第一层
+
+
+
+
 
 
 

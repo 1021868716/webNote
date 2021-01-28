@@ -204,8 +204,6 @@ N：遍历所有的dirtyComponents，
 
 
 
-
-
 # batchUpdate机制
 
 setState有时是异步的（方法中使用），有时是同步的（setTimeout，自定义的DOM事件），有时是合并的（传入对象），有时不合并（传入函数）。
@@ -308,49 +306,6 @@ render() {
 
 
 # this.props.children
-
-类似于vue的slot，父组件让子组件包裹的内容会传递到子组件的this.props.children属性中，子组件可以进行调用
-
-```react
-// 父组件中调用子组件
-<child>abcd</child>
-```
-
-```react
-// 子组件
-<div>{this.props.children}</div>
-```
-
-
-
-
-
-# Portals
-
-Portals 传送门
-
-默认情况下，组件默认会按照既定层次进行嵌套渲染，即dom树上子组件包裹在父组件中渲染，如果需要让子组件渲染到父组件之外就需要使用到Portals。（例如fixed的子组件需要渲染到body第一层上，能有更好的浏览器兼容性）。使用Portals我们可以自定义这个组件需要到的渲染的位置。
-
-子组件的render函数返回ReactDOM.createPortal()，第一个参数是返回的jsx，第二个参数是渲染的位置
-
-```react
-render() {
-	return ReactDOM.createPortal(
-		<div>hello,world</div>,
-    document.body
-	)
-}
-```
-
- 
-
-Portals使用场景
-
-- 父组件设置了overflow: hidden，子组件超出父组件又想展示出来可以使用Portals渲染到其他地方
-- 父组件z-index太小
-- fixed需要放在body第一层
-
-
 
 
 
@@ -767,16 +722,23 @@ SyntheticEvent模拟了原生dom事件event的全部能力，例如阻止默认�
 
 fiber：n. 纤维
 
+除了React元素的Virtual DOM树之外，框架有一个用于保持状态的内部实例树(internal instances)（组件，DOM节点等），与之相对的是跟具体平台有关的public instance，也被称为Host instance 。从React 16开始，React推出了该内部实例树的新实现以及负责操作树的算法，被称为Fiber。
+
 React 中使用fiber后patch的过程可以拆分为两个阶段
 
 - reconciliation 阶段：执行diff算法，纯js计算，且该阶段的任务也可以拆分成了一个个子片段的小任务。
+
+  React会在**reconciliation**期间执行各种活动，例如检查组件的state个props，进行diff比对，调用生命周期，更新引用等。所有这些活动在fiber架构中统称为“work”。
+
+  
+
 - commit 阶段： 将diff结果渲染DOM
 
-如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
 
-React的解决方案就是fiber，fiber时React运行时的一个机制：
 
-将reconciliation阶段进行任务拆分（commit阶段任务无法拆分），拆分成了一个个子片段的小任务。DOM需要渲染时先暂停reconciliation阶段正在进行的js计算，剩余的子片段的任务将在空闲时恢复。
+reconciliation 阶段如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
+
+React的解决方案就是fiber，fiber时React运行时的一个机制：将reconciliation阶段进行任务拆分（commit阶段任务无法拆分），拆分成了一个个子片段的小任务。DOM需要渲染时先暂停reconciliation阶段正在进行的js计算，剩余的子片段的任务将在空闲时恢复。
 
 
 
@@ -787,10 +749,17 @@ React的解决方案就是fiber，fiber时React运行时的一个机制：
 React 框架内部的运作可以分为 3 层：
 
 - Virtual DOM 层，描述页面长什么样。
-- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler），负责调用组件生命周期方法，进行 Diff 运算等。
+- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler），负责执行：调用组件生命周期方法，进行 Diff 运算等work。
 - Renderer 层，根据不同的平台，渲染出相应的页面，比较常见的是 ReactDOM 和 ReactNative。
 
 为了加以区分，以前的 Reconciler 被命名为Stack Reconciler，现在是Fiber Reconciler。Stack Reconciler 运作的过程是不能被打断的，必须一条道走到黑。而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，可以分段执行：
+
+Fiber Reconciler 在执行过程中，会分为 2 个阶段。
+
+- 阶段一，生成 Fiber 树，得出需要更新的节点信息。这一步是一个渐进的过程，可以被打断。
+- 阶段二，将需要更新的节点一次过批量更新，这个过程不能被打断。
+
+阶段一可被打断的特性，让优先级更高的任务先执行，从框架层面大大降低了页面掉帧的概率。
 
 为了达到这种效果，就需要有一个调度程序 (Scheduler) 来进行任务分配。任务的优先级有六种：
 
@@ -803,12 +772,7 @@ React 框架内部的运作可以分为 3 层：
 
 优先级高的任务（如键盘输入）可以打断优先级低的任务（如Diff）的执行，从而更快的生效。
 
-Fiber Reconciler 在执行过程中，会分为 2 个阶段。
 
-- 阶段一，生成 Fiber 树，得出需要更新的节点信息。这一步是一个渐进的过程，可以被打断。
-- 阶段二，将需要更新的节点一次过批量更新，这个过程不能被打断。
-
-阶段一可被打断的特性，让优先级更高的任务先执行，从框架层面大大降低了页面掉帧的概率。
 
 
 

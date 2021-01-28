@@ -2311,10 +2311,12 @@ NaN === NaN // false，我们期待它返回true
 除了==null之外，其他一律使用===，因为
 
 ```javascript
-obj.a == null
-全等于
-obj.a === null || obj.a === undefined
+obj.a == null 全等于 obj.a === null || obj.a === undefined
 ```
+
+ `==` 运算符在判断相等前对两边的变量(如果它们不是同一类型) 进行强制转换 (这种行为的结果会将 `"" == false` 判断为 `true`)
+
+ `===` 运算符 (也包括 `==` 运算符) 将数字 `-0` 和 `+0` 视为相等 ，而将`Number.NaN`与`NaN`视为不相等.
 
 
 
@@ -6556,7 +6558,7 @@ window.onbeforeunload = function() {
 
    　　　　1. loading - 加载，document 仍在加载中；
             　　　　2. interactive - 互动，文档已经完成加载，文档已被解析，但是诸如图像，样式表和框架之类的子资源仍在加载。
-            　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
+                        　　　　3. complete - 文档和所有子资源已完成加载。状态表示 `load` 事件即将被触发。
 
 而这个属性的每次改变同样有一个事件可以监听：
 
