@@ -4,7 +4,7 @@ ts兼容js语法，但ts不能直接在node或者浏览器环境下运行，必�
 
 ts的静态类型使得编写代码时就可以快速定位一些错误并且在编辑器中ts的代码提示更友好。例如js中我们访问一个对象中没有的属性不会报错，需要在运行后才能定位错误，但是ts中访问一个对象不存在的属性就会直接报错。
 
-javascript是动态类型语言，变量的类型是可变的，但是typescript是静态类型的语言，变量类型不可改变。js的对象中的键全是字符串，TypeScript支持两种索引签名：字符串和数字。
+javascript是动态类型语言，变量的类型是可变的，但是typescript是静态类型的语言，变量类型不可改变。js的对象中的键是字符串/symbol，TypeScript支持number索引签名：字符串/数字/symbol。
 
 
 
@@ -123,9 +123,15 @@ var val = a === null || a === void 0 ? void 0 : a.b;
 
 
 
+- `//@ts-nocheck`
+
+在文件头部加上这行注释，整个文件的ts类型错误都会被忽略
+
+
+
 - `// @ts-ignore`
 
-TypeScript 2.6支持在.ts文件中通过在报错一行上方使用`// @ts-ignore: 注释`来忽略错误。如果遇到ts无法解决的报错，在确定正确的情况下可以在报错代码上方加上这行注释，这行代码的ts报错就会被忽略。
+TypeScript 2.6支持在.ts文件中通过在报错一行上方使用`// @ts-ignore: 注释`来忽略ts类型错误。如果遇到ts无法解决的报错，在确定正确的情况下可以在报错代码上方加上这行注释，这行代码的ts报错就会被忽略。
 
 ```typescript
 if (false) { // ts会报错，因为这里的代码根本不会有机会执行
@@ -509,7 +515,7 @@ point.x = 2 //报错
 
 例如` [propName: string]: any`表示注解为任意个变量名为字符串类型的键，对应值为any类型
 
-propName为键名变量，可以随便取，propName后的注解可以为number和string（TS的键类型支持number和string，JS只支持string），值注解推荐为any，如果propName的变量类型设置为具体某一类型应该保证该接口其他所有注解都为这个类型，如果其他注解分别为不同的类型，那propName的变量注解应该为any，不应该设置为具体类型，否则会报错
+propName为键名变量，可以随便取，propName后的注解可以为number和string（TS的键类型支持number，string，symbol，JS只支持string/symbol），值注解推荐为any，如果propName的变量类型设置为具体某一类型应该保证该接口其他所有注解都为这个类型，如果其他注解分别为不同的类型，那propName的变量注解应该为any，不应该设置为具体类型，否则会报错
 
 ```typescript
 interface Point {

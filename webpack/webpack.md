@@ -1656,7 +1656,7 @@ webpack4之后，production模式下，SplitChunksPlugin插件是默认被启用
 
 ```javascript
 optimization: {
-splitChunks: {
+  splitChunks: {
     chunks: "async",
     minSize: 30000,
     minChunks: 1,
@@ -1675,7 +1675,7 @@ splitChunks: {
             reuseExistingChunk: true
         }
     }
-}
+  }
 }
 ```
 

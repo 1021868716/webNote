@@ -248,13 +248,9 @@ var sum = a.sum;
 
 js存在两大弊端，文件依赖不明确和文件依赖的命名冲突
 
-模块化开发中有明确表明文件依赖关系，模块化开发文件与文件之间是半开放状态，一个功能就是一个模块，多个模块可以组成完整应用
-
-抽离其中一个模块不会影响其他功能，形成低耦合高内聚
+模块化开发中有明确表明文件依赖关系，模块化开发文件与文件之间是半开放状态，一个功能就是一个模块，多个模块可以组成完整应用，抽离其中一个模块不会影响其他功能，形成低耦合高内聚
 
 
-
-## Node.js模块开发规范
 
 node环境只支持CommonJS模块化规范，不支持ES6模块化
 
@@ -266,7 +262,9 @@ exports.sayHi = sayHi;
 exports.version = version;  
 //将属性或方法封装进exports对象，成为它的属性或方法，exports对象的属性（方法）名随便起
 //exports是module.exports对象的别名（地址引用），导出对象最终以module.exports对象为准
+```
 
+```javascript
 //b.js
 let a = require('./a.js');
 //引入a模块导出的内容封装进a对象，.js后缀可以省略
@@ -484,7 +482,7 @@ nrm下载地址切换工具，因为npmjs.com在国外下载速度较慢,使用n
 
 
 
-四、File System模块
+四、File System（fs）模块
 
 作用：在服务端操作文件,可能是需要将浏览器上传的图片保存到服务器,也可能是需要将服务器的资源读取之后返回给浏览器。
 
@@ -500,24 +498,30 @@ nrm下载地址切换工具，因为npmjs.com在国外下载速度较慢,使用n
 
 六、Global模块
 
-作用:全局共享的,不需要导入模块即可以使用
+作用:全局共享的,不需要导入模块即可以使用，类似关键字
 Global模块常用的属性:
 
 ​    `__dirname` : 文件所在的文件夹路径
 
 ​    `__filename` : 文件所在的路径
 
-​    `require()` :  导入模块
+​	定时器
 
-​    `exports` :  导出模块
+​	`console`
+
+​    `require()`/`exports` :  导入模块/导出模块
 
 ​    `module` :    自定义模块时用到
 
+​	`Buffer类`
+
+​	
 
 
 
 
-# 读写模块
+
+# 文件模块
 
 node运行环境提供的，模块化的方式开发出来的自带api
 
@@ -530,111 +534,131 @@ node运行环境提供的，模块化的方式开发出来的自带api
 ```const fs= require('fs');
 const fs= require('fs');
 ```
-```JavaScript
-path是目标文件的地址
+- path：目标文件的地址
 
-mode是读取模式，一般为默认值0o666,可以不写
+- mode：读取模式，一般为默认值0o666,可以不写
 
-options是缓冲区对象
-   options:{flag:'flags',encoding:'encoding'}
+- options：缓冲区对象
 
-			flag是当前操作类型
-        		'a': 打开文件用于追加，如果文件不存在将创建该文件
-                //append
-                
-				'r': 打开文件用于读取，如果文件不存在将出现异常
-                //read
-                
-				'r+': 打开文件用于读取或写入，如果文件不存在将出现异常
-                
-				'w': 打开文件用于写入，如果文件不存在将创建该文件，如果文件存在则截断文件
-                //write
-                
-			encoding是文件编码
-        		'utf-8'：通用编码
+  ````javascript
+  options:{flag: flagOption, encoding: encodingOption}
+  ````
+
+  - **flagOption**：当前操作类型
+
+    'a'：打开文件用于追加，如果文件不存在将创建该文件//append
+
+    'r'：打开文件用于读取，如果文件不存在将出现异常//read
+
+    'r+'： 打开文件用于读取或写入，如果文件不存在将出现异常
+
+    'w'：打开文件用于写入，如果文件不存在将创建该文件，如果文件存在则截断文件//write
+
+  - **encodingOption**：文件编码
+
+    'utf-8'：通用编码 
+
+​           
+
+
+
+### buffer缓冲区
+
+buffer是一个内存缓冲区（将数据内容以二进制进行存储到内存缓冲区），类似数组
+buffer会在内存开辟固定大小，连续的空间存放数据，但普通数组不能进行二进制数据的操作而且js数组不像其他语言数组效率高，所以node为了提高数组性能提供了buffer缓冲区，可以直接操纵内存
+
+- Buffer.form
+
+```javascript
+var str = 'hello,world'
+var buf = Buffer.from(str)//将字符串转为buffer对象
+console.log(buf) // <Buffer 68 65 6c 6c 6f 2c 77 6f 72 6c 64>
+//buf对象显示时是16进制，因为二进制太长了不好显示，每一个buf元素代表一个字母
+
+console.log(buf.toString('utf-8')) //hello,world
+//将buffer对象转换为字符串
 ```
 
 
 
-
-
-### buffer缓冲区(了解)
-
-buffer是一个内存缓冲区（将数据内容以二进制进行存储到内存缓冲区）,类似数组
-buffer会在内存开辟固定大小，连续的空间存放数据
-但普通数组不能进行二进制数据的操作而且js数组不像其他语言数组效率高
-所以node为了提高数组性能提供了buffer缓冲区，可以直接操纵内存
+- Buffer.alloc
 
 ```javascript
+// Buffer 类在全局作用域中，因此无需使用 require('buffer').Buffer。
 Buffer.alloc(size[,fill[,encoding]])
 //开辟一块空间并把原来的数据清空，拿到一块空白的内存空间存放数据
+
 Buffer.allocUnsafe(size) //Unsafe 不安全的
 //开辟一块空间，原来的内容不清空，可以直接操纵原本空间内的数据
+```
 
-var str = 'hello,world'
-let buf = Buffer.from(str)//将字符串转为buffer对象
-console.log(buf)//buf对象显示时是16进制，因为二进制太长了
-console.log(buf.tostring)//将buffer对象转换为字符串
+`size` ：integer，新 `Buffer` 的期望长度。
 
+`fill`：string|Buffer|Uint8Array|integer，用于预填充新 `Buffer` 的值。**默认值:** `0`。如果 `fill` 为 `undefined`，则用零填充 `Buffer`。
+
+`encoding` ：string， 如果 `fill` 是一个字符串，则这是它的字符编码。**默认值:** `'utf8'`。
+
+```javascript
 //开辟一个新的buffer空间BUffer.alloc()
-let buf1 = Buffer.alloc(10) //10个字节大小的buffer
+var buf1 = Buffer.alloc(10) //10个字节大小的buffer
 buf1[0] = 10 //将10存入缓冲区第一个位置
 
-
 //Buffer.allocUnsafe() 直接操作原本存在内存空间读写数据，性能更高，但容易出现内存泄漏等问题
-let buf2 = Buffer.allocUnsafe(10)
+var buf2 = Buffer.allocUnsafe(10)
 console.log(buf2)
 ```
 
 
 
-### 读取操作原理(了解)
 
-```javascript
+
+### 读取操作原理
+
 node中读取操作也有同步和异步接口。（读写都推荐异步）
 
 open接口用于取文件放进内存，但只放进内存后我们并不能读取到文件内容。
-	fs.open()/fs.openSync()
+	`fs.open()/fs.openSync()`
 read接口用于读文件，再把文件从内存中读取出来。
-	fs.read()/fs.readSync()
+	`fs.read()/fs.readSync()`
 因为太过繁琐，所以一般直接使用封装好的readFile接口
-
 
 异步取接口：fs.open()
 同步取接口：fs.openSync(path[,flags,mode])
-var fd = fs.openSync('./1.txt','r') //创建一个取接口的对象
-
+`var fd = fs.openSync('./1.txt','r') //创建一个取接口的对象`
 
 异步读接口：fs.read()
 同步读接口：fs.readSync(fd,buffer,offset,length,position)
-fd			取接口对象
+fd：取接口对象
 
-buffer      缓冲器对象，内存中开辟出来的缓冲区，类似数组存放数据,缓冲区的数据访问速度较快。
+buffer：缓冲器对象，内存中开辟出来的缓冲区，类似数组存放数据,缓冲区的数据访问速度较快。
 			用Buffer.alloc()创建该对象。
 			Buffer.alloc(size[,fill[,encoding]])
 
-offset      buffer写入的偏移量
+offset：buffer写入的偏移量
 
-length     （integer）指定文件读取字节数长度
+length：integer，指定文件读取字节数长度
 
-position   （integer）指定文件读取的起始位置，如果该项为null，将从当前文件指针的位置开始读取数据。
-```
+position：integer，指定文件读取的起始位置，如果该项为null，将从当前文件指针的位置开始读取数据。
 
 
 
 ### 读取操作：fs.readFile()
 
 传统的读取操作需要open又需要read才能读取文件，十分繁琐，所以提供了封装好的读取api
-
-fs.readFile  		   异步读取
 fs.readFileSync	 同步读取
 
-```javascript
+```
 fs.readFileSync(path[,options])
+```
 
+```javascript
 var content = fs.readFileSync('1.txt',{flag:'r',encoding:'utf-8'})
 console.log(content)
 ```
+
+
+
+fs.readFile  		   异步读取
 
 ```javascript
 fs.readFile(path[,options], callback)
@@ -644,16 +668,17 @@ fs.readFile(path[,options], callback)
 //也可以fs.readFile('读取文件的相对路径','[文件编码]',callback);
 //如果文件读取发生错误，参数err的值就返回错误对象，否则err的值为null
 //data参数时读取到的文件内容
-fs.readFile('1.txt','utf-8',(err,data)=>{
-	if(err){
-		Console.log(err);
-	}else{
-        Console.log(data);
-    }
-})
 ```
 
-
+```javascript
+fs.readFile('1.txt','utf-8',(err, data)=>{
+  if(err){
+	Console.log(err);
+  }else{
+    Console.log(data);
+  }
+})
+```
 
 ```javascript
 将读写api封装为一个方法返回promise，避免太多回调
@@ -1014,9 +1039,9 @@ let path = require('path');
 
 ## 内置变量
 
-_dirname：获得执行文件所在目录的完整目录名
-_filename：获得执行文件的绝对路径名
-process.cwd()：获得当前执行node命令的文件夹目录名
+`_dirname`：获得执行文件所在目录的完整目录名
+`_filename`：获得执行文件的绝对路径名
+`process.cwd()`：获得当前执行node命令的文件夹目录名
 
 
 
@@ -1045,23 +1070,25 @@ console.log(indo)
 //因为会自动解析成绝对路径所以会加上盘符
 ```
 
+
+
 ## 路径拼接：path.join()
 
-join()是用平台特定的分隔符将参数拼接成一个路径
+join()是用平台特定的分隔符将参数拼接成一个路径，不同操作系统平台路径分隔符不统一，Windows系统是\ /两种，Linux是/
+路径拼接api语法：` path.join('路径1','路径2'…);`
+以下几个特殊路径名
+`_dirname`  	获得执行文件所在目录的完整目录名
+`_filename`	获得执行文件的绝对路径名
+`process.cwd()`  获得当前执行node命令的文件夹目录名
 
 ```javascript
-不同操作系统平台路径分隔符不统一，Windows系统是\ /两种，Linux是/
-路径拼接api语法： path.join('路径1','路径2'…);
-以下几个特殊路径名
-_dirname  	获得执行文件所在目录的完整目录名
-_filename	获得执行文件的绝对路径名
-process.cwd()  获得当前执行node命令的文件夹目录名
-
 const path = require('path');
 //导入path模块
 let finialPath = path.join(_dirname,'itcast','a','b','c'); //路径拼接
 console.log(finialPath);//输出D:\itcast\a\b\c
 ```
+
+
 
 ## path.parse()
 
