@@ -240,7 +240,7 @@ docs/.vuepress/dist/
 
 
 
-- $ git config --list
+- **git config --list**
 
 查看当前配置信息
 
@@ -284,41 +284,41 @@ docs/.vuepress/dist/
 
   
 
-- **$ git commit -a**
+- **git commit -a**
 
   从工作目录直接提交修改到仓库区，跳过add到暂存区这一步，没有被跟踪过的文件不能使用这个命令，需要先被add过一次跟踪过以后才能使用这个命令直接提交
 
   
 
-- $ git log
+- git log
 
   打印git操作日志，并输出个版本的注释和哈希索引值
   
-  - $ git log --pretty=online
+  - git log --pretty=online
   
-  - $ git log --online
+  - git log --online
   
     这两个命令是更简洁的方式去打印git操作日志
   
-  - **$ git reflog** （**推荐使用这个打印日志**）
+  - **git reflog** （**推荐使用这个打印日志**）
   
     打印日志的同时记录从当前版本回到该版本需要几步
   
   
   
-- $ git rm 文件
+- git rm 文件
 
   提交文件到暂存区并删除工作目录中的文件
 
   
 
-- $ git rm --cached [file]
+- git rm --cached [file]
 
   停止追踪指定文件（从暂存区中删除文件），但该文件会保留在工作区
 
   
 
-- $ git mv 原文件名 新文件名
+- git mv 原文件名 新文件名
 
   将工作目录的文件名更换为新文件名，并提交到缓存区
 
@@ -335,21 +335,21 @@ HEAD指针指向我们当前浏览的版本，我们可以通过操作HEAD指针
 
 HEAD指针有三种操纵方式，**基于索引值**（推荐），使用^符号，使用~符号
 
-- $ git reset --hard hash
+- git reset --hard hash
 
   HEAD指针切换到哈希值所代表的版本（各版本的索引值可以通过打印日志来获取）
 
-- $ git reset --hard HEAD^ 
+- git reset --hard HEAD^ 
 
   这个方式切换版本只能往后不能往前进，表示往后退一个版本，有几个^表示回退几个版本
 
-- $ git reset --hard HEAD~1
+- git reset --hard HEAD~1
 
   这个方式切换版本只能往后不能往前进，表示往后退1个版本，数字是几回退几个版本
 
 
 
-$ git reset不止有--hard这一个参数，一共有三个参数
+git reset不止有--hard这一个参数，一共有三个参数
 
 - --hard    移动HEAD指针，并切换暂存区和工作目录到对应的版本
 - --mixed 仅仅只是移动HEAD指针，不会去切换工作目录的版本，会切换暂存区到对应版本
@@ -367,21 +367,17 @@ $ git reset不止有--hard这一个参数，一共有三个参数
 
 
 
-
-
 # 比较文件差异
 
-- $ git diff 文件
+- git diff 文件
 
   比较文件与暂存区中的该文件之间的差异
 
-- $ git diff 指针/hash 文件
+- git diff 指针/hash 文件
 
   比较文件与指针或者hash指向的版本中工作区的该文件之间的差异
 
 不指定文件名则会比较工作区中所有文件的差异
-
-
 
 
 
@@ -490,7 +486,7 @@ HEAD指向我们当前访问的提交对象（版本）所在的分支，我们�
 
 某些git命令太长了，可以通过git --config文件来配置别名
 
-- $ git config --global alias 别名 原命令
+- git config --global alias 别名 原命令
 
   ```
   $ git config --global alias co checkout

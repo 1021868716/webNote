@@ -157,7 +157,7 @@ Windows中不能访问wsl监听的端口
 解决方法1：添加ipv6域名的映射
 
 ```bash
-::1                 cfc-tech.admin.xiaomi.com
+::1  cfc-tech.admin.xiaomi.com
 ```
 
 解决方法2：设置node应用启动的时候强制监听0.0.0.0，按理说如果没设置的时候默认就是0.0.0.0任意的ipv4地址的，但是不知为啥这里就要强制设置了
