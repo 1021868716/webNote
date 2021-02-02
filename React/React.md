@@ -2244,3 +2244,16 @@ const debounce = (fn: Function, ms = 300)=> {
 }
 ```
 
+
+
+函数组件
+
+```jsx
+import React from "react";
+const funcComponent: React.FC<Props> = () => {
+	return ()
+}
+
+export default funcComponent
+```
+
