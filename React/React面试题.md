@@ -722,57 +722,50 @@ SyntheticEvent模拟了原生dom事件event的全部能力，例如阻止默认�
 
 fiber：n. 纤维
 
-除了React元素的Virtual DOM树之外，框架有一个用于保持状态的内部实例树(internal instances)（组件，DOM节点等），与之相对的是跟具体平台有关的public instance，也被称为Host instance 。从React 16开始，React推出了该内部实例树的新实现以及负责操作树的算法，被称为Fiber。
+React 框架内部的架构可以分为 3 层：
 
-React 中使用fiber后patch的过程可以拆分为两个阶段
+- Virtual DOM 层：描述页面长什么样。
+- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler）：执行调用组件生命周期方法，进行 Diff 运算等。
+- Renderer 层：根据不同的平台，渲染出相应的页面，比较常见的是 ReactDOM 和 ReactNative。
 
-- reconciliation 阶段：执行diff算法，纯js计算，且该阶段的任务也可以拆分成了一个个子片段的小任务。
-
-  React会在**reconciliation**期间执行各种活动，例如检查组件的state个props，进行diff比对，调用生命周期，更新引用等。所有这些活动在fiber架构中统称为“work”。
-
-  
-
-- commit 阶段： 将diff结果渲染DOM
+在页面元素很多，且需要频繁刷新的场景下，React 15 会出现掉帧的现象。其根本原因，JS单线程，是大量的计算任务阻塞了浏览器的 UI 渲染。默认情况下，JS 运算、页面布局和页面绘制都是运行在浏览器的主线程当中，他们之间是互斥的关系。如果 JS 运算持续占用主线程，页面就没法得到及时的更新。
 
 
-
-reconciliation 阶段如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
-
-React的解决方案就是fiber，fiber时React运行时的一个机制：将reconciliation阶段进行任务拆分（commit阶段任务无法拆分），拆分成了一个个子片段的小任务。DOM需要渲染时先暂停reconciliation阶段正在进行的js计算，剩余的子片段的任务将在空闲时恢复。
-
-
-
-在页面元素很多，且需要频繁刷新的场景下，React 15 会出现掉帧的现象。其根本原因，是大量的计算任务阻塞了浏览器的 UI 渲染。默认情况下，JS 运算、页面布局和页面绘制都是运行在浏览器的主线程当中，他们之间是互斥的关系。如果 JS 运算持续占用主线程，页面就没法得到及时的更新。
 
 针对这一问题，React 团队从框架层面对 web 页面的运行机制做了优化，得到很好的效果。这就是Fiber。
 
-React 框架内部的运作可以分为 3 层：
+除了React元素的Virtual DOM树之外，框架有一个用于保持状态的内部实例树(internal instances)（组件，DOM节点等），与之相对的是跟具体平台有关的public instance，也被称为Host instance 。从React 16开始，React推出了该内部实例树的新实现以及负责操作树的算法，被称为Fiber。
 
-- Virtual DOM 层，描述页面长什么样。
-- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler），负责执行：调用组件生命周期方法，进行 Diff 运算等work。
-- Renderer 层，根据不同的平台，渲染出相应的页面，比较常见的是 ReactDOM 和 ReactNative。
+Fiber类似操作系统中进程调度的时间片分片调度算法。把一个耗时长的任务分成很多小片，每一个小片的运行时间很短，虽然总时间依然很长，但是每个小任务执行完后都会给其他任务一个执行的机会，这样唯一的线程就不会被独占，让每个子任务都有机会轮转执行，而且重要的高权重任务可以优先执行，达到优化用户体验的效果。
 
-为了加以区分，以前的 Reconciler 被命名为Stack Reconciler，现在是Fiber Reconciler。Stack Reconciler 运作的过程是不能被打断的，必须一条道走到黑。而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，可以分段执行：
+为了加以区分，以前的三层架构中的 Reconciler层被命名为Stack Reconciler层，现在是Fiber Reconciler层。Stack Reconciler 运作的过程（patch阶段）是不能被打断的，必须一条道走到黑。而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，可以分段执行：
 
-Fiber Reconciler 在执行过程中，会分为 2 个阶段。
+React 中使用Fiber后patch的过程可以拆分为两个阶段
 
-- 阶段一，生成 Fiber 树，得出需要更新的节点信息。这一步是一个渐进的过程，可以被打断。
-- 阶段二，将需要更新的节点一次过批量更新，这个过程不能被打断。
+- reconciliation阶段（n.  调解;和解）：执行diff算法得出需要更新的节点，纯js计算，且该阶段的任务也可以拆分成了一个个子片段的小任务。
 
-阶段一可被打断的特性，让优先级更高的任务先执行，从框架层面大大降低了页面掉帧的概率。
+  此阶段如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
 
-为了达到这种效果，就需要有一个调度程序 (Scheduler) 来进行任务分配。任务的优先级有六种：
+  React的解决方案就是fiber，fiber将reconciliation阶段进行任务拆分（commit阶段任务无法拆分），拆分成了一个个子片段的小任务。DOM需要渲染时先暂停reconciliation阶段正在进行的js计算，剩余的子片段的任务将在空闲时恢复。
 
-- synchronous，与之前的Stack Reconciler操作一样，同步执行
-- task，在nexttick之前执行
-- animation，下一帧之前执行
-- high，在不久的将来立即执行
-- low，稍微延迟执行也没关系
-- offscreen，下一次render时或scroll时才执行
+  React会在把这个阶段执行各种活动进行拆分，例如检查组件的state个props，进行diff比对，调用生命周期，更新引用等。所有这些活动在fiber架构中统称为“work”。不同work具有不同权重，高权重的work优先执行。
 
-优先级高的任务（如键盘输入）可以打断优先级低的任务（如Diff）的执行，从而更快的生效。
+  为了达到这种效果，就需要有一个调度程序 (Scheduler) 来进行work权重分配。work的权重优先级有六种：
 
+  - synchronous，与之前的Stack Reconciler操作一样，同步执行
+  - task，在nextTick之前执行
+  - animation，下一帧之前执行
+  - high，在不久的将来立即执行
+  - low，稍微延迟执行也没关系
+  - offscreen，下一次render时或scroll时才执行
 
+  优先级高的任务（如键盘输入）可以打断优先级低的任务（如Diff）的执行，从而更快的生效。
+
+  
+
+- commit 阶段： 将diff结果渲染DOM，此阶段不可拆分
+
+reconciliation 阶段可被打断的特性，让优先级更高的work先执行，从框架层面大大降低了页面掉帧的概率。
 
 
 
@@ -784,7 +777,7 @@ Fiber 树在首次渲染的时候会一次过生成。在后续需要 Diff 的�
 
 如果过程中有优先级更高的任务需要进行，则 Fiber Reconciler 会丢弃正在生成的树，在空闲的时候再重新执行一遍。
 
-在构造 Fiber 树的过程中，Fiber Reconciler 会将需要更新的节点信息保存在`Effect List`当中，在阶段二执行的时候，会批量更新相应的节点。
+在构造 Fiber 树的过程中，Fiber Reconciler层会将需要更新的节点信息保存在`Effect List`当中，在commit阶段执行的时候再批量更新相应的节点。
 
 
 
