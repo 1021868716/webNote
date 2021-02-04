@@ -1,5 +1,15 @@
 # Vue面试题
 
+vue编译整体流程：
+
+```
+template --(模板编译)--> AST语法树 ----> render ----> virtual dom --diff&patch--> 真实dom(UI)
+```
+
+
+
+![img](https://upload-images.jianshu.io/upload_images/13429147-32832d6b08b108c4.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/1200/format/webp)
+
 # Vue特性
 
 ## computed和watch
@@ -672,8 +682,8 @@ function updateView() { // 更新视图的函数
 
 ```html
 <div id="wrapper" class="box">
-  <span>wtw</span>
-  wy
+  <span>a</span>
+  b
 </div>
 ```
 
@@ -688,14 +698,14 @@ function updateView() { // 更新视图的函数
       type:'',
       props:'',
       children:[],
-      text:'wtw
+      text:'a'
     }]
   },
   {
     type:'',
     props:'',
     children:[],
-    text:'wy'
+    text:'b'
   }]
 }
 ```
@@ -937,13 +947,13 @@ while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
 
 模板时vue开发中最常用的部分，模板类似html但不是html，它有指令，插值，表达式。html只是标记语言，只有js这样的图灵完备语言才能执行判断和循环等操作。
 
-因此模板肯定是将类html代码转化为了某种js代码来完成这些操作。这样的过程叫模板编译。模板编译为render函数，执行render函数返回vnode，基于vnode在执行patch和diff。
+因此模板肯定是将类html代码转化为了某种js代码来完成这些操作。这样的过程叫模板编译。模板编译为render函数字符串，然后传入render函数返回vnode，基于vnode在执行patch和diff。
 
 模板编译分为三个阶段：解析parse，优化optimize，生成generate
 
 - parse：使用大量的正则表达式对template字符串进行解析。将标签，指令，属性等转化为AST
 - optimize：遍历AST，找到其中的一些静态节点进行标记，方便页面下次重渲染的时候进行diff比对时能直接复用这些节点，优化runtime性能
-- generate：将最终的ADST转化为render函数字符串
+- generate：将最终的AST转化为render函数字符串
 
 
 
@@ -957,7 +967,7 @@ Vue组件的模板编译只会在组件实例化的时候编译一次，生成�
 
 ## template/jsx区别
 
-对于 runtime 来说，只需要保证组件存在 render 函数即可，而我们有了预编译之后，我们只需要保证构建过程中生成 render 函数就可以。jsx和template都只是一种形式，最终都会转为render。
+对于 runtime 来说，只需要保证组件存在 render 函数即可，而我们有了预编译之后，我们只需要保证构建过程中生成 render 函数就可以。jsx和template都只是一种形式，最终都会转为render，render再返回虚拟dom。
 
 在 webpack 中，我们使用vue-loader编译.vue文件，内部依赖的vue-template-compiler模块，在 webpack 构建过程中，将template预编译成 render 函数。与 react 类似，在添加了jsx的语法糖解析器babel-plugin-transform-vue-jsx之后，就可以直接手写render函数。
 
@@ -1031,6 +1041,35 @@ createElement('P', createTextVNode(toString(message)))
 
 
 
+## createElement
+
+createElement(tag，prop，children)，createElement的作用时间模板编译为ast
+
+```javascript
+createElement(
+  'div',
+  {staticClass: 'head'},
+  [
+    '先写一些文字',
+    createElement('h1', '一则头条'),
+    createElement(MyComponent, {
+      props: {
+        someProp: 'foobar'
+      }
+    })
+  ])
+```
+
+tag：String | Object | Function。一个 HTML 标签名，组件选项对象，或者返回了上述任何一种的一个 async 函数。必填项。
+
+prop：Object，该节点上所拥有的prop。可选属性。
+
+children：Array，子级虚拟节点 (VNodes)，由 `createElement()` 构建而成的数组，也可以使用字符串来生成“文本虚拟节点”。可选属性。
+
+
+
+
+
 ## v-bind
 
 v-bind语法绑定属性则属性值编译为一个变量`"src":imgUrl`，而不是一个字符串
@@ -1085,8 +1124,8 @@ const template = `
 `
 // 编译
 const res = compiler.compile(template)
-// with(this){return _c('div',_l((list),function(item,index){return _c('div',{key:item.id},[_v(_s(item.title))])}),0)}
 console.log(res.render)
+// with(this){return _c('div',_l((list),function(item,index){return _c('div',{key:item.id},[_v(_s(item.title))])}),0)}
 ```
 
 
@@ -1125,38 +1164,31 @@ console.log(res.render)
 
 
 
-# render函数
+# render
 
-使用render函数代替template，可以省略模板编译为ast的过程，提高性能，直接使用对应的render函数生成虚拟dom。
+在render中直接写createElement代替template，可以省略模板编译为ast的过程（createElement的作用就是编译ast），提高性能，直接使用对应的render函数生成虚拟dom。
 
 ```
-template --> AST语法树 --> render --> virtual dom --> 真实dom(UI)
+template --(模板编译)--> AST语法树 ----> render ----> virtual dom --diff&patch--> 真实dom(UI)
 ```
 
 ```javascript
-const cpn = {
-    template:'<div>{{message}}</div>'
-    data(){
-        return {
-            message:'我是组件cpn'
-        }
-    }
-}
 //注册一个组件
 new Vue({
   el: '#app',
   //普通注册组件
-  // components: { App },
-  // template: '<App/>'
+  // template: '<div>abc</div>'
 
-  // 使用render函数注册组件
+  // 使用render和createElement函数书写组件
   render: function(createElement){
-      return createElement(cpn) //传入组件对象
+      return createElement('div', 'abc') //以createElement的形式创建组件
     }
 })
 ```
 
+整体流程：
 
+![img](https://upload-images.jianshu.io/upload_images/13429147-32832d6b08b108c4.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/1200/format/webp)
 
 
 
@@ -1171,18 +1203,16 @@ new Vue({
   2.  触发响应式，监听data的getter/setter，只给和视图有关的data绑定getter/setter，因为setter操作会引起更新流程执行render重绘视图，和视图无关的数据不必更新视图浪费性能
   3.  执行render函数，生成虚拟dom树并patch渲染成真实dom
 
-
-
 - 更新流程
   1.  修改data，触发setter
   2.   重新执行render函数，生成新的虚拟dom树
   3.   diff算法比对两个树，patch(vnode, newVnode)，进行更新
 
-
-
 - 组件异步渲染与$nextTick()
 
-  vue是一个异步渲染的框架，为了尽量减少dom操作次数，所以在一个函数内当data改变后，dom不会立刻去渲染，他会将延迟等待多次修改data操作合并成一次再去执行，所以我们不能在data改变后在同一个函数内立刻去获取dom元素并操作dom元素，如果一定要操作dom需要使用$nextTick()，他会延迟我们写的处理方法的执行，等待dom更新完成再去执行。
+  vue是一个异步渲染的框架，为了尽量减少dom操作次数，所以在一个函数内当data改变后，dom不会立刻去渲染，他会将延迟等待多次修改data操作合并成一次再去执行，所以我们不能在data改变后在同一个函数内立刻去获取dom元素并操作dom元素。
+  
+  如果一定要操作dom需要使用$nextTick()，他会延迟我们写的处理方法的执行，等待dom更新完成再去执行。
 
 
 
