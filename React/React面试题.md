@@ -1,5 +1,41 @@
 # React面试题
 
+# ajax放在哪个生命周期
+
+同vue，放在dom挂载完后的componentDidMount上
+
+# React性能优化
+
+- 渲染列表时加key
+- 自定义事件，dom事件及时销毁
+- 合理使用异步组件
+- 减少jsx函数bind this的次数，放在constructor中提前处理
+- 合理使用SCU，PureComponent和memo
+- 合理使用Immutable.js
+- 使用SSR
+
+# React和Vue的区别
+
+相同点
+
+- 都支持组件化
+- 支持数据驱动视图（响应式）
+- 都使用vdom操作DOM
+
+
+
+不同点
+
+- React使用JSX拥抱JS，Vue使用template拥抱HTML
+
+- React是函数式编程，Vue是声明式编程
+
+  React使用setState不可变值修改数据，Vue直接使用变量本身进行修改
+
+- React是MV*（不自带双向绑定），Vue是MVVM（自带双向绑定）
+
+
+
 # this.setState三大特性
 
 this.setState三大特性
@@ -238,23 +274,17 @@ setState有时是异步的（方法中使用），有时是同步的（setTimeou
 
 
 
-# transaction 事务机制
-
-transaction就是执行batchUpdate这样的内部设置的事务机制
-
-
-
 
 
 # 组件通信
 
 父子组件props和props传入的回调函数
 
-嵌套组件使用中间组件层层传递 props或者context
+嵌套组件使用中间组件层层传递props或者跨层传递context
 
 非嵌套组件间使用自定义事件的方式或者利用二者共同父组件的 context 对象进行通信
 
-通用方式redux
+状态管理：redux，mobx
 
 
 
@@ -302,10 +332,6 @@ render() {
 - 某些富文本编辑器必须传入dom元素
 
 
-
-
-
-# this.props.children
 
 
 
@@ -676,13 +702,9 @@ SyntheticEvent模拟了原生dom事件event的全部能力，例如阻止默认�
 
   React自己实现了这种类dom的机制，这样跨到没有dom的平台上也能正常运行（例如React native）
 
-
-
 - 挂载到ducument上，减少内存消耗，避免频繁解绑
 
   组件上没有绑定事件，销毁组件的时候就不用去解绑事件，减少了组件对dom事件的依赖。
-
-
 
 - 方便事件的统一管理（例如事务机制）
 
@@ -692,9 +714,9 @@ SyntheticEvent模拟了原生dom事件event的全部能力，例如阻止默认�
 
 
 
-# 组件渲染和更新过程
+# 组件渲染过程
 
-**组件初始渲染过程：**
+- 组件初始渲染过程：
 
 1）获取props和state
 
@@ -704,7 +726,7 @@ SyntheticEvent模拟了原生dom事件event的全部能力，例如阻止默认�
 
 
 
-**组件更新过程：**
+- 组件更新渲染过程：
 
 1）setState(newState)
 
@@ -725,63 +747,99 @@ fiber：n. 纤维
 React 框架内部的架构可以分为 3 层：
 
 - Virtual DOM 层：描述页面长什么样。
-- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler）：执行调用组件生命周期方法，进行 Diff 运算等。
+- Reconciler（调节器） 层（Stack Reconciler/Fiber Reconciler）：执行调用组件生命周期方法，进行 Diff 运算等。`Fiber` 之前的 Reconciler层（Stack Reconciler）是自顶向下的递归算法，遍历新数据生成新的Virtual DOM，通过 Diff 算法，找出需要更新的元素，放到更新队列中去。
 - Renderer 层：根据不同的平台，渲染出相应的页面，比较常见的是 ReactDOM 和 ReactNative。根据所在的渲染环境，遍历更新队列，调用渲染宿主环境的 API, 将对应元素更新渲染。在浏览器中，就是更新对应的DOM元素，除浏览器外，渲染环境还可以是 Native、WebGL 等等。
 
-在页面元素很多，且需要频繁刷新的场景下，React 15 会出现掉帧的现象。其根本原因，JS单线程，是大量的计算任务阻塞了浏览器的 UI 渲染。默认情况下，JS 运算、页面布局和页面绘制都是运行在浏览器的主线程当中，他们之间是互斥的关系。
+在页面元素很多，且需要频繁刷新的场景下，React 15 会出现掉帧的现象。其根本原因，JS单线程且与ui渲染互斥，Reconciler层大量的计算任务占用主线程阻塞了浏览器的 UI 渲染。
 
- Stack Reconciler层的调度策略像函数调用栈一样，递归遍历所有的 Virtual DOM 节点，进行 Diff，一旦开始无法中断，要等整棵 Virtual DOM 树计算完成之后，才将任务出栈释放主线程。而浏览器中的渲染引擎是单线程的，除了网络操作，几乎所有的操作都在这个单线程中执行，此时如果主线程上用户交互、动画等周期性任务无法立即得到处理，影响体验。
+ Stack Reconciler层的调度策略像函数调用栈一样，递归遍历所有的 Virtual DOM 节点，进行 Diff，是自顶向下的递归算法，一旦开始无法中断，要等整棵 Virtual DOM 树计算完成之后，才将任务出栈释放主线程。而浏览器中的渲染引擎是单线程的，除了网络操作，几乎所有的操作都在这个单线程上执行，此时如果主线程上用户交互、动画等周期性任务无法立即得到处理，影响体验。
 
-在原本的Diff算法中只要递归遍历开始，中途就无法中断。 JS 运算持续占用主线程，页面就没法得到及时的更新当层级很深时，递归更新时间超过了 16 ms，用户就会感觉到交互有卡顿的现象。（可以通过火焰图查看每次js执行时间是否超过了一帧）
+当递归更新时间超过了16.67ms每帧，用户就会感觉到交互有卡顿的现象。（可以通过火焰图查看每次js执行时间是否超过了一帧16.67ms）
 
+针对这一问题，React 团队从框架层面对 web 页面的运行机制做了优化，提出了Fiber架构。
 
-
-针对这一问题，React 团队从框架层面对 web 页面的运行机制做了优化，得到很好的效果。
-
-除了React元素的Virtual DOM树之外，框架有一个用于保持状态的内部实例树(internal instances)（组件，DOM节点等），与之相对的是跟具体平台有关的public instance，也被称为Host instance 。从React 16开始，React推出了该内部实例树的新实现以及负责操作树的算法，被称为Fiber，主要功能是提供异步渲染（Async Mode）与时间分片（Time Slicing）。为了加以区分，以前的三层架构中的 Reconciler层被命名为Stack Reconciler层，现在是Fiber Reconciler层。
+从React 16开始，React推出了该内部实例树的新实现以及负责操作树的算法，被称为Fiber，主要功能是提供异步渲染（Async Mode）与时间分片（Time Slicing）。Fiber架构是除了React元素原有的Virtual DOM树之外，创建了一个用于保持状态的内部实例树(internal instances)（组件，DOM节点等），与之相对的是跟具体平台有关的public instance，也被称为Host instance 。为了加以区分，以前的三层架构中的 Reconciler层被命名为Stack Reconciler层，现在是Fiber Reconciler层。
 
 Fiber Reconciler的调度策略类似操作系统中进程调度的时间片分片调度算法。把Diff中一个耗时长的任务分成很多小片（work），每一个小片的运行时间很短，虽然总时间依然很长，但是每个小任务执行完后都会给其他任务一个执行的机会，这样唯一的线程就不会被独占，让每个子任务都有机会轮转执行，而且重要的高权重任务（例如用户交互的输入等）可以优先执行，做完一段任务就把时间控制权交还给主线程，而不像之前长时间占用，从而实现对任务的暂停、恢复、复用灵活控制，这样主线程上的用户交互及动画可以快速响应，从而解决卡顿的问题。
-
-Stack Reconciler 运作的过程（diff&patch阶段）是不能被打断的，必须一条道走到黑。而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，patch的过程可以分段执行：
-
-React 中使用Fiber后patch的过程可以拆分为两个阶段
-
-- reconciliation阶段（n.  调解;和解）：执行diff算法得出需要更新的节点，纯js计算，且该阶段的任务也可以拆分成了一个个子片段的小任务。
-
-  此阶段如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
-
-  React的解决方案就是fiber，fiber将reconciliation阶段进行任务拆分（commit阶段任务无法拆分），拆分成了一个个子片段的小任务。DOM需要渲染时先暂停reconciliation阶段正在进行的js计算，剩余的子片段的任务将在空闲时恢复。
-
-  React会在把这个阶段执行各种活动进行拆分，例如检查组件的state个props，进行diff比对，调用生命周期，更新引用等。所有这些活动在fiber架构中统称为“work”。不同work具有不同权重，高权重的work优先执行。
-
-  为了达到这种效果，就需要有一个调度程序 (Scheduler) 来进行work权重分配。work的权重优先级有六种：
-
-  - synchronous，与之前的Stack Reconciler操作一样，同步执行
-  - task，在nextTick之前执行
-  - animation，下一帧之前执行
-  - high，在不久的将来立即执行
-  - low，稍微延迟执行也没关系
-  - offscreen，下一次render时或scroll时才执行
-
-  优先级高的任务（如键盘输入）可以打断优先级低的任务（如Diff）的执行，从而更快的生效。
-
-  
-
-- commit 阶段： 将diff结果渲染DOM，此阶段不可拆分
-
-reconciliation 阶段可被打断的特性，让优先级更高的work先执行，从框架层面大大降低了页面掉帧的概率。
 
 
 
 ## Fiber架构
 
-Fiber的调度拆分的原理是`window.requestIdleCallback()`，为了兼容所有平台，`facebook` 单独实现了其功能，作为一个独立的 npm 包react-schedule。
+Fiber的调度拆分的原理是`window.requestIdleCallback()`和Fiber Node，为了兼容所有平台，`facebook` 单独实现了其功能，作为一个独立的 npm 包react-schedule。
+
+Fiber Node在 react 生成的 Virtual Dom 基础上增加的一层数据结构，主要是为了将递归遍历转变成循环遍历，配合 `requestIdleCallback` API, 实现任务拆分、中断与恢复。
+
+![img](https://pic1.zhimg.com/80/v2-cf341c21c60e826195fd7c03869c061c_720w.jpg)
+
+
+
+Stack Reconciler 运作的过程（patch）是不能被打断的，必须一条道走到黑。而 Fiber Reconciler 每执行一段时间，都会将控制权交回给浏览器，patch的过程可以分段执行，React 中使用Fiber后，patch的过程可以拆分为两个阶段：
+
+- reconciliation阶段（n.  调解;和解）：执行diff算法得出需要更新的节点，纯js计算，第一阶段生命周期等。
+
+  此阶段如果不拆分可能会出现性能问题：js单线程，并且和DOM渲染共用一个线程，当组件足够复杂时组件更新时计算和渲染压力大，如果此时再有DOM操作需要（动画，鼠标拖拽）可能出现卡顿
+
+  Reactreconciliation阶段可以进行任务拆分（commit阶段任务无法拆分），拆分成了一个个子片段的小任务。DOM需要渲染时先暂停reconciliation阶段正在进行的js计算，剩余的子片段的任务将在空闲时恢复运行。例如检查组件的state个props，进行diff比对，调用生命周期，更新引用等。所有这些活动在fiber架构中统称为“work”。不同work具有不同权重，高权重的work优先执行。（Fiber更类似一种协程的实现，优先级调度属于多线程）
+
+  为了达到这种效果，就需要有一个调度程序 (Scheduler) 来进行work权重分配。work的权重优先级有六种：
+
+  - synchronous，与之前的Stack Reconciler操作一样，同步执行
+- task，在nextTick之前执行
+  - animation，动画，下一帧之前执行
+  - high，高优先级，在不久的将来立即执行
+  - low，低优先级，稍微延迟执行也没关系
+  - offscreen，下一次render时或scroll时才执行
+  
+  优先级高的任务（如键盘输入）可以打断优先级低的任务（如Diff）的执行，从而更快的生效。reconciliation 阶段可被打断的特性，让优先级更高的work先执行，从框架层面大大降低了页面掉帧的概率。
+
+  
+
+- commit 阶段：处理 effect list （更新 DOM 树、调用第二阶段生命周期函数以及更新 ref 等内部状态，最新版本的react源码中已经移除了effect list），最后将diff结果渲染DOM，此阶段不可拆分
+
+
+
+相应的，Fiber中类组件的生命周期也会对应拆分为两个阶段（以render为界限）
+
+- reconciliation阶段：这个阶段在计算前后 dom 树的差异，这个阶段可被打断，所以移除了三个可能因为打断而导致错误执行的生命周期，新增了两个替代他们的生命周期
+
+  ~~componentWillMount~~
+
+  ~~componentWillReceiveProps~~
+
+  shouldComponentUpdate
+
+  ~~ComponentWillUpdate~~
+
+- render
+
+- commit阶段：这个阶段将把更新渲染到页面上，这个阶段不可被打断
+
+  componentDidMount
+
+  componentDidUpdate
+
+  componentWillUnmount
+
+由于 reconciliation 的阶段会被打断，可能会导致 commit 前的这些生命周期函数多次执行。react 官方目前已经把 componentWillMount、componentWillReceiveProps 和 componetWillUpdate 标记为 unsafe，并使用新的生命周期函数 getDerivedStateFromProps 和 getSnapshotBeforeUpdate 进行替换。
+
+
+
+
+
+## requestIdleCallback()
+
+requestIdleCallback 是浏览器提供的一个 api，可以让浏览器在空闲的时候执行回调，在回调参数中可以获取到当前帧剩余的时间，fiber 利用了这个参数，判断当前剩下的时间是否足够继续执行任务，如果足够则继续执行，否则暂停任务，并调用 requestIdleCallback 通知浏览器空闲的时候继续执行当前的任务。
 
 ```
 var handle = window.requestIdleCallback(callback[, options])
 ```
 
-参数
+`window.requestIdleCallback()`方法将在浏览器的空闲时段内调用的函数排队。这使开发者能够在主事件循环上执行后台和低优先级工作，而不会影响延迟关键事件，如动画和输入响应。函数一般会按先进先调用的顺序执行，然而，如果回调函数指定了执行超时时间`timeout`，则有可能为了在超时前执行函数而打乱执行顺序。你可以在空闲回调函数中调用`requestIdleCallback()`，以便在下一次通过事件循环之前调度另一个回调。
+
+requestIdleCallback 就能够充分利用帧与帧之间的空闲时间来执行 JS，可以根据 callback 传入的 dealine 判断当前是否还有空闲时间（timeRemaining）用于执行。由于浏览器可能始终处于繁忙的状态，导致 callback 一直无法执行，它还能够设置超时时间（timeout），一旦超过时间（didTimeout）能使任务被强制执行。
+
+参数：
 
 - callback
 
@@ -793,27 +851,65 @@ var handle = window.requestIdleCallback(callback[, options])
 
   - `timeout`：如果指定了timeout并具有一个正值，并且尚未通过超时毫秒数调用回调，那么回调会在下一次空闲时期被强制执行，尽管这样很可能会对性能造成负面影响。
 
-`window.requestIdleCallback()`方法将在浏览器的空闲时段内调用的函数排队。这使开发者能够在主事件循环上执行后台和低优先级工作，而不会影响延迟关键事件，如动画和输入响应。函数一般会按先进先调用的顺序执行，然而，如果回调函数指定了执行超时时间`timeout`，则有可能为了在超时前执行函数而打乱执行顺序。
-
-你可以在空闲回调函数中调用`requestIdleCallback()`，以便在下一次通过事件循环之前调度另一个回调。
-
-requestIdleCallback作用是会在浏览器空闲时期依次调用函数， 这就可以在主事件循环中执行后台或低优先级的任务，而且不会对像动画和用户交互这样延迟触发而且关键的事件产生影响。函数一般会按先进先调用的顺序执行，除非函数在浏览器调用它之前就到了它的超时时间。
 
 
+## Fiber Node
+
+从流程图上看到会有 `Fiber Node` 节点，这个是在 react 生成的 Virtual Dom 基础上增加的一层数据结构，主要是为了将递归遍历转变成循环遍历，配合 `requestIdleCallback` API, 实现任务拆分、中断与恢复。
+
+为了实现循环遍历，Fiber Node上比vnode携带了更多的信息， 其数据结构如下所示：
+
+```typescript
+export type Fiber = {
+  tag: TypeOfWork,
+  key: null | string,
+  type: any,
+
+  return: Fiber | null,
+  child: Fiber | null,
+  sibling: Fiber | null,
+
+  effectTag: TypeOfSideEffect,
+  nextEffect: Fiber | null,
+  firstEffect: Fiber | null,
+  lastEffect: Fiber | null,
+
+  alternate: Fiber | null,
+  stateNode: any,
+  ...
+}
+
+Fiber = {
+ tag // 标记任务的进度
+ return // 父节点
+ child // 子节点
+ sibling // 兄弟节点
+ alternate // 变化记录
+ .....
+};
+```
+
+ fiber 基于链表结构，拥有一个个指针，指向它的父节点子节点和兄弟节点，在 diff 的过程中，依照节点连接的关系进行遍历。
+
+Stack 是 tree 的结构，沿着树状层级结构向下处理。Fiber 则是依照 return、child 及 sibling 的顺序来针对该 ReactElement 做处理。
 
 
 
 
 
-## Fiber树
+## Fiber Tree
 
-Fiber Reconciler 在阶段一进行 Diff 计算的时候，会生成一棵 Fiber 树。这棵树是在 Virtual DOM 树的基础上增加额外的信息来生成的，**Fiber树本质来说是一个链表**。
+每一个 Fiber Node 节点与 Virtual Dom 一一对应，所有 Fiber Node 连接起来形成 Fiber tree, 是个链表树结构，如下图所示：
+
+![img](https://pic4.zhimg.com/80/v2-a825372d761879bd1639016e6db93947_720w.jpg)
+
+Fiber Reconciler 在阶段一进行 Diff 计算的时候，会生成一棵 Fiber 树。这棵树是在 Virtual DOM 树的基础上增加额外的信息来生成Fiber Node组成的，**Fiber树本质来说是一个单链表**。
 
 Fiber 树在首次渲染的时候会一次过生成。在后续需要 Diff 的时候，会根据已有树和最新 Virtual DOM 的信息，生成一棵新的树。这颗新树每生成一个新的节点，都会将控制权交回给主线程，去检查有没有优先级更高的任务需要执行。如果没有，则继续构建树的过程：
 
 如果过程中有优先级更高的任务需要进行，则 Fiber Reconciler 会丢弃正在生成的树，在空闲的时候再重新执行一遍。
 
-在构造 Fiber 树的过程中，Fiber Reconciler层会将需要更新的节点信息保存在`Effect List`当中，在commit阶段执行的时候再批量更新相应的节点。
+在构造 Fiber 树的过程中，Fiber Reconciler层会将需要更新的节点信息保存在Effect List当中（effect n.结果；影响），在commit阶段执行的时候根据Effect List批量更新相应的节点。最新版本的react源码中移除了effect list。
 
 
 
@@ -823,51 +919,24 @@ Fiber 树在首次渲染的时候会一次过生成。在后续需要 Diff 的�
 
 concurrent：并存的; 同时发生的;adj.
 
-Concurrent Mode 只是异步渲染（Async Mode）的重新定义，来凸显出 React 在不同优先级上的执行能力，与其它的异步渲染方式进行区分。
+Concurrent Mode 只是fiber异步渲染（Async Mode）的重新定义，来凸显出 React 在不同优先级上的执行能力，与其它的异步渲染方式进行区分。
 
 Fiber Reconciler 就是 Concurrent 的雏形。Concurrent能使 React 在长时间渲染的场景下依旧保持良好的交互性，能优先执行高优先级变更，不会使页面处于卡顿或无响应状态，从而提升应用的用户体验。
 
 
 
-# ajax放在哪个生命周期
-
-同vue，放在dom挂载完后的componentDidMount上
 
 
+# transaction事务机制
 
+transaction就是执行batchUpdate这样的内部设置的事务机制
 
+何为事务？
 
-# React性能优化
+> 根据维基百科的解释: 提供独立可靠的恢复机制，保证出错时数据的一致性，并且不同事务之间互相独立。
 
-- 渲染列表时加key
-- 自定义事件，dom事件及时销毁
-- 合理使用异步组件
-- 减少jsx函数bind this的次数，放在constructor中提前处理
-- 合理使用SCU，PureComponent和memo
-- 合理使用Immutable.js
-- 使用SSR
+事务一般在数据库中使用的比较多，能保证出错的时候进行rollbakc恢复。在React源码中作者给出了事务的一张明细图能够帮助较好的理解，就是在执行目标代码之前，之后可以添加很多自己的逻辑，将目标代码经过自身的perform的封装可以在执行前后添加一组或者多组逻辑方法
 
+React内部的事务分为三个阶段initialize, method以及close阶段，会在开始和结束时候分别遍历transactionWrapper内部的所有初始化方法和close方法。
 
-
-
-
-# React和Vue的区别
-
-相同点
-
-- 都支持组件化
-- 支持数据驱动视图（响应式）
-- 都使用vdom操作DOM
-
-
-
-不同点
-
-- React使用JSX拥抱JS，Vue使用template拥抱HTML
-
-- React是函数式编程，Vue是声明式编程
-
-  React使用setState不可变值修改数据，Vue直接使用变量本身进行修改
-
-- React是MV*（不自带双向绑定），Vue是MVVM（自带双向绑定）
-
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20191017192319914.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzQ3NjE0MQ==,size_16,color_FFFFFF,t_70)

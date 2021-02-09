@@ -941,6 +941,26 @@ while(oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
 
 
 
+## vue和react的diff区别
+
+react的diff算法是全部比对，而vue的diff进行了预处理优化，是双端遍历
+
+例如
+
+```
+1 2 3 4
+1 3 2 4
+```
+
+1和4相同，直接跳过，直接变成了中间元素的对比
+
+```
+2 3
+3 2
+```
+
+react不做这个优化的原因是，react中fiber树的数据结构是单向链表，没有反向指针，实现不了这个算法
+
 
 
 # 模板编译原理

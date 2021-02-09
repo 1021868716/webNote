@@ -1355,15 +1355,13 @@ render(){
 
 ## 初始化
 
-组件初始化流程：1--->2--->3
+组件初始化流程：0--->1--->2--->3
 
-0.     **constructor()**
-
-构造函数阶段
+0.     **constructor()**：构造函数阶段
 
 
 
-1.	​	~~componentWillMount()~~   **v16.3后被废除**
+1.	~~componentWillMount()~~   **v16.3后因为Fiber机制而被废除**
 
 **componentWillMount()  组件即将（还没有）被挂载到页面上的时候执行一次**
 
@@ -1371,7 +1369,7 @@ render(){
 
 
 
-2. 	​	**render()**
+2. 	**render()**
 
 render()函数返回jsx并挂载到dom上
 
@@ -1381,7 +1379,7 @@ state 或者 prop 改变，或者父组件的render函数触发时都会触发�
 
 
 
-3. ​	**componentDidMount()**
+3. **componentDidMount()**
 
 **这个组件被渲染完之后会调用一次**
 
@@ -1401,7 +1399,7 @@ state 或者 prop 改变，或者父组件的render函数触发时都会触发�
 
 
 
-1.	​	~~componentWillReceiveProps(nextProps)~~    **v16.3后被废除**
+1.	~~componentWillReceiveProps(nextProps)~~    **v16.3后因为Fiber机制而被废除**
 
 组件接受新的props时调用，父组件的render函数重新执行了，子组件的这个生命周期函数就会执行
 
@@ -1411,7 +1409,7 @@ state 或者 prop 改变，或者父组件的render函数触发时都会触发�
 
 
 
-2.	​	**shouldComponentUpdate(nextProps, nextState)**
+2.	**shouldComponentUpdate(nextProps, nextState)**
 
 组件更新之前自动执行，该函数要求返回一个bool值（默认返回true），返回false，组件不允许被更新，返回true，组件被允许更新
 
@@ -1436,7 +1434,7 @@ shouldComponentUpdate(nextProps, nextState){
 
 
 
-3.	​	~~componentWillUpdate(nextProps, nextState)~~   **v16.3后被废除**
+3.	~~componentWillUpdate(nextProps, nextState)~~   **v16.3后因为Fiber机制而被废除**
 
 在组件被更新之前，shouldComponentUpdate()返回true之后执行
 
@@ -1444,7 +1442,7 @@ shouldComponentUpdate(nextProps, nextState){
 
 
 
-4.	​	**render()**
+4.	**render()**
 
 组件更新
 
@@ -1454,7 +1452,7 @@ state (调用setState)或者 prop 改变，或者父组件的render函数触发�
 
 
 
-5.	​	**componentDidUpdate()**
+5.	**componentDidUpdate()**
 
 组件更新完成之后执行
 
@@ -1474,9 +1472,9 @@ state (调用setState)或者 prop 改变，或者父组件的render函数触发�
 
 
 
-## v16.3
+## 新版生命周期
 
-**react v16.3以后删除以下三个生命周期**
+**react v16.3以后因为Fiber机制而删除以下三个生命周期**
 
 componentWillMount
 componentWillReceiveProps
@@ -1484,18 +1482,16 @@ componentWillUpdate
 
 
 
-新增两个生命周期
+新增两个生命周期用于替代以上三个生命周期
 
 - **static getDerivedStateFromProps**
 
-触发时间：在组件构建之后(虚拟dom之后，实际dom挂载之前) ，以及每次获取新的props之后。
-每次接收新的props之后都会返回一个对象作为新的state，返回null则说明不需要更新state。配合componentDidUpdate，可以覆盖componentWillReceiveProps的所有用法
-
-
+ 是一个静态方法，触发时间：在组件构建之后(虚拟dom之后，实际dom挂载之前) ，以及每次获取新的props之后。
+每次接收新的props之后都会返回一个对象作为新的state，返回null则说明不需要更新state。配合componentDidUpdate，可以覆盖componentWillReceiveProps的所有用法。主要取代 `ComponentWillXXX` 生命周期，解除此类生命周期带来的副作用。
 
 - **getSnapshotBeforeUpdate**
 
-触发时间: update发生的时候，在render之后，在组件dom渲染之前。
+触发时间: update发生的时候，在render之后，在组件dom渲染之前。 会在 `render` 之后执行，而执行之时 `DOM` 元素还没有被更新，给了一个机会去获取 `DOM` 信息，计算得到一个 `snapshot`。
 返回一个值，作为componentDidUpdate的第三个参数。配合componentDidUpdate, 可以覆盖componentWillUpdate的所有用法。
 
 
@@ -1759,7 +1755,7 @@ npm install antd
 ```react
 import React from 'react'
 import 'antd/dist/antd.css'
-import { Input, Button ,List} from 'antd';
+import { Input, Button, List} from 'antd';
 
 const data = [
   'Racing car sprays burning fuel into crowd.',
@@ -1955,8 +1951,6 @@ Context对象两个可以自定义命名的组件：生产组件`<Provider>`和�
 `cerateContext(defaultValue)`中的defaultValue是默认参数，当Consumer向上找不到Provider时就会使用默认参数
 
 `<Context.Consumer>`组件中不能直接渲染其他组件，需要使用一个函数处理传入的value值，函数的参数就是`<Context.Provider>`组件传入的value值
-
-
 
 ```jsx
 import React, { createContext } from 'react';

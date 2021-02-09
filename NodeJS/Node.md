@@ -1,6 +1,8 @@
 # Node
 Node是一个基于Chrome V8引擎的js代码运行环境，浏览器是js运行环境，Node也是js运行环境，是前端人员适合使用的后台开发环境，为js提供了访问数据库，文件读写等能力。
 
+![img](https://img-blog.csdnimg.cn/20191006220207243.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FuZHk3MTA2NjA1NDE=,size_16,color_FFFFFF,t_70)
+
 **在 Node 应用程序中，执行异步操作的函数将回调函数作为最后一个参数， 回调函数接收错误对象err作为第一个参数。**
 
 Node单线程事件驱动，异步执行，提高IO速度和效率。

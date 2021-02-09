@@ -574,17 +574,24 @@ console.log(a.age) // 18
 
 ## extends
 
-接口之间可以互相继承，子接口拥有父接口所有属性还可以添加额外的新属性
+接口之间可以互相继承也可以多继承，子接口拥有父接口所有属性还可以添加额外的新属性
 
 ```typescript
 interface Person {
   name: string;
   say(): string;
 }
+interface People {
+  age: number;
+}
 
 // User接口继承了Person接口所有属性，又添加了自己的新属性
 interface User extends Person {
   login(): string;
+}
+// User2接口继承了Person，People接口所有属性，又添加了自己的新属性
+interface User2 extends Person, People {
+  speak(): string
 }
 
 let user: User = {
@@ -599,6 +606,20 @@ let user: User = {
 ```
 
 
+
+## 类型注释
+
+
+
+通过 `/** */` 形式的注释可以给 TS 类型做标记提示，编辑器会有更好的提示：
+
+![img](https://pic4.zhimg.com/80/v2-9da156aa4e982cc9c77e9f67b53146cf_720w.jpg)
+
+如果想给某个属性添加注释说明或者友好提示，这种是很好的方式了。
+
+![img](https://pic3.zhimg.com/80/v2-4e302d5d6affe98f4e36dd4abcb20e0e_720w.jpg)
+
+![img](https://pic2.zhimg.com/80/v2-45654800037ad4f8ce9f0b1ab397172d_720w.jpg)
 
 
 
@@ -1277,11 +1298,11 @@ const断言（const assertions ）是 TypeScript 3.4 的杀手级新功能，官
 
 TypeScript 3.4 引入了一个名为 const 断言的字面值的新构造。"const" 断言只能用于引用枚举成员、字符串、数字、布尔值、数组或对象文本。它的语法是一个类型断言，用 const 代替类型名称（例如 `123 as const`）断言构造新的文字表达式时，我们可以向语言发出以下信号：
 
-该表达式中的字面类型不应被扩展（例如：不能从“hello”转换为字符串）
+1. 该表达式中的字面类型不应被扩展（例如：不能从“hello”转换为字符串）
 
-对象字面量获取只读属性
+2. 对象字面量获取只读属性
 
-数组字面量成为只读数组
+3. 数组字面量成为只读数组
 
 
 
