@@ -1792,6 +1792,7 @@ props比data先创建，所以data中可以通过this.propsName拿到props中的
 子组件通过`$emit Events`发射自定义事件来给父组件发送消息
 
 ```
+父组件在子组件上通过@绑定事件
 this.$emit('父组件上的自定义事件名',默认参数)
 ```
 

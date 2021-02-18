@@ -271,9 +271,7 @@ computed:{
 
 # Mutation 同步操作
 
-Vuex的state状态更新的唯一方式提交Mutation
-
-**Mutation只提交同步操作，异步操作在action中做**
+Vuex的state状态更新的唯一方式提交Mutation，**Mutation只提交同步操作，异步操作在action中做**
 
 组件调用Mutation方法---commit
 
@@ -305,7 +303,7 @@ mutations:{
         //count就是playload
             state.counter+=count
         }
-        
+}       
 
 调用组件的vue实例内添加methods方法提交Mutation更新状态
 methods:{
@@ -377,8 +375,7 @@ const store = new Vuex.Store({
             state.info.name='wtw',
             state.info['city']='chengdu'
             //给info直接加入新属性
-            //但这个属性没有提前定义好
-            //不会添加进响应式系统
+            //但这个属性没有提前定义好，不会添加进响应式系统
             Vue.set(state.info,'city','chengdu')
             
             //Vue.set响应式增加的数据
@@ -387,12 +384,6 @@ const store = new Vuex.Store({
             Vue.delete(state.info,'age')
             //Vue.delete响应式删除数据
         }
-    },
-    actions:{
-    },
-    getters:{
-    },
-    modules:{
     }
 })
 
