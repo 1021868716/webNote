@@ -363,6 +363,12 @@ let obj: Person = {
 }
 ```
 
+```typescript
+// 描述一个任意对象
+let obj1: Record<string, any>
+let obj2: {[propname:string]: any}
+```
+
 
 
 ## 强弱校验
